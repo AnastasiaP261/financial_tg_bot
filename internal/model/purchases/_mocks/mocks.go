@@ -49,12 +49,12 @@ func (mr *MockRepoMockRecorder) AddPurchase(req interface{}) *gomock.Call {
 }
 
 // CategoryExist mocks base method.
-func (m *MockRepo) CategoryExist(req purchases.CategoryExistReq) (bool, error) {
+func (m *MockRepo) CategoryExist(req purchases.CategoryExistReq) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CategoryExist", req)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	return ret0
 }
 
 // CategoryExist indicates an expected call of CategoryExist.

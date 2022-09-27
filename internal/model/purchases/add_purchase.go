@@ -39,14 +39,10 @@ func (m *Model) AddPurchase(user, rawSum, category, rawDate string) error {
 
 	if category != "" {
 		category = strings.ToLower(category)
-		categoryExist, err = m.Repo.CategoryExist(CategoryExistReq{
+		categoryExist = m.Repo.CategoryExist(CategoryExistReq{
 			User:     user,
 			Category: category,
 		})
-		if err != nil {
-			return ErrCategoryExistRequest
-		}
-
 		if !categoryExist {
 			return ErrCategoryNotExist
 		}
