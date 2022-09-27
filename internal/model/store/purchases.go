@@ -1,9 +1,10 @@
 package store
 
 import (
+	"time"
+
 	"github.com/pkg/errors"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	"time"
 )
 
 func (s *Service) AddPurchase(req model.AddPurchaseReq) error {

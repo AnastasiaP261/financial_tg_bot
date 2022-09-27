@@ -1,13 +1,13 @@
 package main
 
 import (
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/store"
 	"log"
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/config"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/store"
 )
 
 func main() {

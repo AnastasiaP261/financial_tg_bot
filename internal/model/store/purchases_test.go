@@ -1,10 +1,11 @@
 package store
 
 import (
-	"github.com/stretchr/testify/assert"
-	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 func Test_AddPurchase(t *testing.T) {

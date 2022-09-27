@@ -1,10 +1,12 @@
 package purchases
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // AddPurchaseReq тело запроса в Repo для добавления траты
@@ -36,6 +38,7 @@ func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) erro
 	if err != nil {
 		return ErrSummaParsing
 	}
+	fmt.Println("### sum", sum)
 
 	if category != "" {
 		category = strings.ToLower(category)
@@ -47,6 +50,7 @@ func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) erro
 			return ErrCategoryNotExist
 		}
 	}
+	fmt.Println("### cat", category)
 
 	if rawDate != "" {
 		date, err = time.Parse("02.01.2006", rawDate)
@@ -56,6 +60,8 @@ func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) erro
 	} else {
 		date = time.Now()
 	}
+
+	fmt.Println("### date", date)
 
 	if err = m.Repo.AddPurchase(AddPurchaseReq{
 		UserID:   userID,

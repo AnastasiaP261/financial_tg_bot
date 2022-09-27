@@ -1,9 +1,10 @@
 package store
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	"testing"
 )
 
 func Test_CategoryExist(t *testing.T) {
