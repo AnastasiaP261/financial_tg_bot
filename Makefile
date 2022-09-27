@@ -19,7 +19,8 @@ run:
 	go run ${PACKAGE}
 
 generate: install-mockgen
-	${MOCKGEN} -source=internal/model/messages/incoming_msg.go -destination=internal/mocks/messages/messages_mocks.go
+	${MOCKGEN} -source=internal/model/messages/incoming_msg.go -destination=internal/model/messages/_mocks/mocks.go
+	${MOCKGEN} -source=internal/model/purchases/model.go -destination=internal/model/purchases/_mocks/mocks.go
 
 lint: install-lint
 	${LINTBIN} run
