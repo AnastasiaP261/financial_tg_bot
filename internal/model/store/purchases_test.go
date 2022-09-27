@@ -12,7 +12,7 @@ func Test_AddPurchase(t *testing.T) {
 
 	date, _ := time.Parse("02.01.2006", "01.01.2000")
 	err := s.AddPurchase(model.AddPurchaseReq{
-		User:     "some user",
+		UserID:   123,
 		Sum:      100.50,
 		Category: "some category",
 		Date:     date,
@@ -22,7 +22,7 @@ func Test_AddPurchase(t *testing.T) {
 	assert.Equal(t,
 		s.Purchases[0],
 		purchase{
-			User:     "some user",
+			UserID:   123,
 			Sum:      100.50,
 			Category: "some category",
 			Date:     date,

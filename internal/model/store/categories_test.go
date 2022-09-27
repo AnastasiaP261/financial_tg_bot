@@ -10,11 +10,11 @@ func Test_CategoryExist(t *testing.T) {
 	s := New()
 
 	s.Categories = []category{
-		{User: "some user", Category: "some category"},
+		{UserID: 123, Category: "some category"},
 	}
 
 	res := s.CategoryExist(model.CategoryExistReq{
-		User:     "some user",
+		UserID:   123,
 		Category: "some category",
 	})
 

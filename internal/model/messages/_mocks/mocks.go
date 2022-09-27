@@ -46,3 +46,40 @@ func (mr *MockMessageSenderMockRecorder) SendMessage(text, userID interface{}) *
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMessage", reflect.TypeOf((*MockMessageSender)(nil).SendMessage), text, userID)
 }
+
+// MockPurchasesModel is a mock of PurchasesModel interface.
+type MockPurchasesModel struct {
+	ctrl     *gomock.Controller
+	recorder *MockPurchasesModelMockRecorder
+}
+
+// MockPurchasesModelMockRecorder is the mock recorder for MockPurchasesModel.
+type MockPurchasesModelMockRecorder struct {
+	mock *MockPurchasesModel
+}
+
+// NewMockPurchasesModel creates a new mock instance.
+func NewMockPurchasesModel(ctrl *gomock.Controller) *MockPurchasesModel {
+	mock := &MockPurchasesModel{ctrl: ctrl}
+	mock.recorder = &MockPurchasesModelMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockPurchasesModel) EXPECT() *MockPurchasesModelMockRecorder {
+	return m.recorder
+}
+
+// AddPurchase mocks base method.
+func (m *MockPurchasesModel) AddPurchase(userID int64, rawSum, category, rawDate string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddPurchase", userID, rawSum, category, rawDate)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddPurchase indicates an expected call of AddPurchase.
+func (mr *MockPurchasesModelMockRecorder) AddPurchase(userID, rawSum, category, rawDate interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPurchase", reflect.TypeOf((*MockPurchasesModel)(nil).AddPurchase), userID, rawSum, category, rawDate)
+}

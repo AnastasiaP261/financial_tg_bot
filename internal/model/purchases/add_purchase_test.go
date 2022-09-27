@@ -15,7 +15,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 
 		repo.EXPECT().AddPurchase(gomock.Any()).Return(nil)
 
-		err := model.AddPurchase("user", "123", "", "")
+		err := model.AddPurchase(123, "123", "", "")
 		assert.NoError(t, err)
 	})
 
@@ -25,7 +25,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 
 		repo.EXPECT().AddPurchase(gomock.Any()).Return(nil)
 
-		err := model.AddPurchase("user", "123.45", "", "")
+		err := model.AddPurchase(123, "123.45", "", "")
 		assert.NoError(t, err)
 	})
 
@@ -33,7 +33,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		repo := mocks.NewMockRepo(gomock.NewController(t))
 		model := purchases.New(repo)
 
-		err := model.AddPurchase("user", "12o.o5", "", "")
+		err := model.AddPurchase(123, "12o.o5", "", "")
 		assert.Error(t, err, purchases.ErrSummaParsing)
 	})
 }
@@ -46,7 +46,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 		repo.EXPECT().CategoryExist(gomock.Any()).Return(true, nil)
 		repo.EXPECT().AddPurchase(gomock.Any()).Return(nil)
 
-		err := model.AddPurchase("user", "123.45", "some category", "")
+		err := model.AddPurchase(123, "123.45", "some category", "")
 		assert.NoError(t, err)
 	})
 
@@ -56,7 +56,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 
 		repo.EXPECT().CategoryExist(gomock.Any()).Return(false, nil)
 
-		err := model.AddPurchase("user", "123.45", "some category", "")
+		err := model.AddPurchase(123, "123.45", "some category", "")
 		assert.Error(t, err, purchases.ErrCategoryNotExist)
 	})
 }
@@ -69,7 +69,7 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 		repo.EXPECT().CategoryExist(gomock.Any()).Return(true, nil)
 		repo.EXPECT().AddPurchase(gomock.Any()).Return(nil)
 
-		err := model.AddPurchase("user", "123.45", "some category", "01.01.2022")
+		err := model.AddPurchase(123, "123.45", "some category", "01.01.2022")
 		assert.NoError(t, err)
 	})
 
@@ -79,7 +79,7 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 
 		repo.EXPECT().CategoryExist(gomock.Any()).Return(true, nil)
 
-		err := model.AddPurchase("user", "123.45", "some category", "01-01-2022")
+		err := model.AddPurchase(123, "123.45", "some category", "01-01-2022")
 		assert.Error(t, err, purchases.ErrDateParsing)
 	})
 }

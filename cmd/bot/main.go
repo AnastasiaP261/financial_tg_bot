@@ -1,6 +1,8 @@
 package main
 
 import (
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/store"
 	"log"
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
@@ -19,7 +21,10 @@ func main() {
 		log.Fatal("tg client init failed:", err)
 	}
 
-	msgModel := messages.New(tgClient)
+	db := store.New()
+
+	purchasesModel := purchases.New(db)
+	msgModel := messages.New(tgClient, purchasesModel)
 
 	tgClient.ListenUpdates(msgModel)
 }

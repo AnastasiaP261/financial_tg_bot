@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Service) AddPurchase(req model.AddPurchaseReq) error {
-	if req.User == "" {
+	if req.UserID == 0 {
 		return errors.New("user is empty")
 	}
 	if req.Sum == 0 {

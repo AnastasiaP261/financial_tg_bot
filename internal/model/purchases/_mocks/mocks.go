@@ -53,7 +53,6 @@ func (m *MockRepo) CategoryExist(req purchases.CategoryExistReq) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CategoryExist", req)
 	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
 	return ret0
 }
 

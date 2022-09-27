@@ -9,7 +9,7 @@ import (
 
 // AddPurchaseReq тело запроса в Repo для добавления траты
 type AddPurchaseReq struct {
-	User     string
+	UserID   int64
 	Sum      float64
 	Category string
 	Date     time.Time
@@ -17,14 +17,14 @@ type AddPurchaseReq struct {
 
 // CategoryExistReq тело запроса в Repo для проверки существования категории у пользователя
 type CategoryExistReq struct {
-	User     string
+	UserID   int64
 	Category string
 }
 
 // AddPurchase добавляет трату.
 // Если category пустой, трата будет добавлена без категории.
 // Если rawDate пустой, для траты будет выставлено время добавления.
-func (m *Model) AddPurchase(user, rawSum, category, rawDate string) error {
+func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) error {
 	var (
 		sum           float64
 		categoryExist bool
@@ -40,7 +40,7 @@ func (m *Model) AddPurchase(user, rawSum, category, rawDate string) error {
 	if category != "" {
 		category = strings.ToLower(category)
 		categoryExist = m.Repo.CategoryExist(CategoryExistReq{
-			User:     user,
+			UserID:   userID,
 			Category: category,
 		})
 		if !categoryExist {
@@ -58,7 +58,7 @@ func (m *Model) AddPurchase(user, rawSum, category, rawDate string) error {
 	}
 
 	if err = m.Repo.AddPurchase(AddPurchaseReq{
-		User:     user,
+		UserID:   userID,
 		Sum:      sum,
 		Category: category,
 		Date:     date,

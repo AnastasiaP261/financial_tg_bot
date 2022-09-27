@@ -21,12 +21,12 @@ type Service struct {
 }
 
 type category struct {
-	User     string
+	UserID   int64
 	Category string
 }
 
 type purchase struct {
-	User     string
+	UserID   int64
 	Sum      float64
 	Category string
 	Date     time.Time
