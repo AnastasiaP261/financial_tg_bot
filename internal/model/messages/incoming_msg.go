@@ -2,6 +2,9 @@ package messages
 
 import (
 	"regexp"
+
+	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 type MessageSender interface {
@@ -10,6 +13,7 @@ type MessageSender interface {
 
 type PurchasesModel interface {
 	AddPurchase(userID int64, rawSum, category, rawDate string) error
+	AddCategory(userID int64, category string) error
 }
 
 type Model struct {
@@ -33,12 +37,26 @@ var (
 	addConditionOnlySum               = regexp.MustCompile(`/add (\d+.?\d*)`)
 	addConditionSumAndCategory        = regexp.MustCompile(`/add (\d+.?\d*) ([ \wФА-Яа-я]+)`)
 	addConditionSumAndCategoryAndDate = regexp.MustCompile(`/add (\d+\.?\d*) ([ \wФА-Яа-я]+) (\d{2}\.\d{2}\.\d{4})`)
+
+	addCategory = regexp.MustCompile(`/category ([ \wФА-Яа-я\-]+)`)
 )
 
 func (s *Model) IncomingMessage(msg Message) error {
 	switch {
 	case msg.Text == "/start":
 		return s.tgClient.SendMessage("hello", msg.UserID)
+
+	case addCategory.MatchString(msg.Text):
+		res := addCategory.FindStringSubmatch(msg.Text)
+		if len(res) < 2 {
+			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID)
+		}
+
+		err := s.purchasesModel.AddCategory(msg.UserID, res[1])
+		if err != nil {
+			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
+		}
+		return s.tgClient.SendMessage(ScsTxtCategoryAdded, msg.UserID)
 
 	case addConditionSumAndCategoryAndDate.MatchString(msg.Text):
 		res := addConditionSumAndCategoryAndDate.FindStringSubmatch(msg.Text)
@@ -48,6 +66,9 @@ func (s *Model) IncomingMessage(msg Message) error {
 
 		err := s.purchasesModel.AddPurchase(msg.UserID, res[1], res[2], res[3])
 		if err != nil {
+			if errors.Is(err, purchases.ErrCategoryNotExist) {
+				return s.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID)
+			}
 			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
 		}
 		return s.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID)
@@ -60,6 +81,9 @@ func (s *Model) IncomingMessage(msg Message) error {
 
 		err := s.purchasesModel.AddPurchase(msg.UserID, res[1], res[2], "")
 		if err != nil {
+			if errors.Is(err, purchases.ErrCategoryNotExist) {
+				return s.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID)
+			}
 			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
 		}
 		return s.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID)
@@ -72,6 +96,9 @@ func (s *Model) IncomingMessage(msg Message) error {
 
 		err := s.purchasesModel.AddPurchase(msg.UserID, res[1], "", "")
 		if err != nil {
+			if errors.Is(err, purchases.ErrCategoryNotExist) {
+				return s.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID)
+			}
 			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
 		}
 		return s.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID)

@@ -44,7 +44,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 		repo := mocks.NewMockRepo(gomock.NewController(t))
 		model := purchases.New(repo)
 
-		repo.EXPECT().CategoryExist(gomock.Any()).Return(true)
+		repo.EXPECT().CategoryExist(gomock.Any()).Return(true, nil)
 		repo.EXPECT().AddPurchase(gomock.Any()).Return(nil)
 
 		err := model.AddPurchase(123, "234.5", "some category", "")
@@ -55,7 +55,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 		repo := mocks.NewMockRepo(gomock.NewController(t))
 		model := purchases.New(repo)
 
-		repo.EXPECT().CategoryExist(gomock.Any()).Return(false)
+		repo.EXPECT().CategoryExist(gomock.Any()).Return(false, nil)
 
 		err := model.AddPurchase(123, "234.5", "some category", "")
 		assert.Error(t, err, purchases.ErrCategoryNotExist)
@@ -67,7 +67,7 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 		repo := mocks.NewMockRepo(gomock.NewController(t))
 		model := purchases.New(repo)
 
-		repo.EXPECT().CategoryExist(gomock.Any()).Return(true)
+		repo.EXPECT().CategoryExist(gomock.Any()).Return(true, nil)
 		repo.EXPECT().AddPurchase(gomock.Any()).Return(nil)
 
 		err := model.AddPurchase(123, "234.5", "some category", "01.01.2022")
@@ -78,7 +78,7 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 		repo := mocks.NewMockRepo(gomock.NewController(t))
 		model := purchases.New(repo)
 
-		repo.EXPECT().CategoryExist(gomock.Any()).Return(true)
+		repo.EXPECT().CategoryExist(gomock.Any()).Return(true, nil)
 
 		err := model.AddPurchase(123, "234.5", "some category", "01-01-2022")
 		assert.Error(t, err, purchases.ErrDateParsing)

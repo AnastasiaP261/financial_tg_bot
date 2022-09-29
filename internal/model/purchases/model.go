@@ -10,7 +10,8 @@ var (
 
 type Repo interface {
 	AddPurchase(req AddPurchaseReq) error
-	CategoryExist(req CategoryExistReq) bool
+	CategoryExist(req CategoryRow) (bool, error)
+	AddCategory(req CategoryRow) error
 }
 
 type Model struct {

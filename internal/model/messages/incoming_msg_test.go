@@ -41,7 +41,7 @@ func Test_OnUnknownCommand_ShouldAnswerWithHelpMessage(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func Test_OnAddPuchaseCommand(t *testing.T) {
+func Test_OnAddPurchaseCommand(t *testing.T) {
 	t.Run("записать только сумму без категории", func(t *testing.T) {
 		sender, purchasesModel := mocksUp(t)
 		model := New(sender, purchasesModel)

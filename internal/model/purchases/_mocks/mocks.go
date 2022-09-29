@@ -34,6 +34,20 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 	return m.recorder
 }
 
+// AddCategory mocks base method.
+func (m *MockRepo) AddCategory(req purchases.CategoryRow) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddCategory", req)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddCategory indicates an expected call of AddCategory.
+func (mr *MockRepoMockRecorder) AddCategory(req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCategory", reflect.TypeOf((*MockRepo)(nil).AddCategory), req)
+}
+
 // AddPurchase mocks base method.
 func (m *MockRepo) AddPurchase(req purchases.AddPurchaseReq) error {
 	m.ctrl.T.Helper()
@@ -49,11 +63,12 @@ func (mr *MockRepoMockRecorder) AddPurchase(req interface{}) *gomock.Call {
 }
 
 // CategoryExist mocks base method.
-func (m *MockRepo) CategoryExist(req purchases.CategoryExistReq) bool {
+func (m *MockRepo) CategoryExist(req purchases.CategoryRow) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CategoryExist", req)
 	ret0, _ := ret[0].(bool)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // CategoryExist indicates an expected call of CategoryExist.

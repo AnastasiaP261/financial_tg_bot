@@ -14,10 +14,11 @@ func Test_CategoryExist(t *testing.T) {
 		{UserID: 123, Category: "some category"},
 	}
 
-	res := s.CategoryExist(model.CategoryExistReq{
+	res, err := s.CategoryExist(model.CategoryRow{
 		UserID:   123,
 		Category: "some category",
 	})
 
+	assert.NoError(t, err)
 	assert.True(t, res)
 }

@@ -1,7 +1,6 @@
 package purchases
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -17,8 +16,8 @@ type AddPurchaseReq struct {
 	Date     time.Time
 }
 
-// CategoryExistReq тело запроса в Repo для проверки существования категории у пользователя
-type CategoryExistReq struct {
+// CategoryRow тело запроса в Repo для проверки существования категории у пользователя
+type CategoryRow struct {
 	UserID   int64
 	Category string
 }
@@ -38,19 +37,20 @@ func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) erro
 	if err != nil {
 		return ErrSummaParsing
 	}
-	fmt.Println("### sum", sum)
 
 	if category != "" {
 		category = strings.ToLower(category)
-		categoryExist = m.Repo.CategoryExist(CategoryExistReq{
+		categoryExist, err = m.Repo.CategoryExist(CategoryRow{
 			UserID:   userID,
 			Category: category,
 		})
+		if err != nil {
+			return errors.Wrap(err, "Repo.CategoryExist")
+		}
 		if !categoryExist {
 			return ErrCategoryNotExist
 		}
 	}
-	fmt.Println("### cat", category)
 
 	if rawDate != "" {
 		date, err = time.Parse("02.01.2006", rawDate)
@@ -60,8 +60,6 @@ func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) erro
 	} else {
 		date = time.Now()
 	}
-
-	fmt.Println("### date", date)
 
 	if err = m.Repo.AddPurchase(AddPurchaseReq{
 		UserID:   userID,

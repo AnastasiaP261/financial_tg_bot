@@ -70,6 +70,20 @@ func (m *MockPurchasesModel) EXPECT() *MockPurchasesModelMockRecorder {
 	return m.recorder
 }
 
+// AddCategory mocks base method.
+func (m *MockPurchasesModel) AddCategory(userID int64, category string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddCategory", userID, category)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddCategory indicates an expected call of AddCategory.
+func (mr *MockPurchasesModelMockRecorder) AddCategory(userID, category interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCategory", reflect.TypeOf((*MockPurchasesModel)(nil).AddCategory), userID, category)
+}
+
 // AddPurchase mocks base method.
 func (m *MockPurchasesModel) AddPurchase(userID int64, rawSum, category, rawDate string) error {
 	m.ctrl.T.Helper()
