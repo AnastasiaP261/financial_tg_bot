@@ -1,11 +1,12 @@
 package purchases
 
 import (
-	"github.com/pkg/errors"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type Period byte
@@ -46,10 +47,7 @@ func (m *Model) Report(period Period, userID int64) (string, error) {
 	}
 
 	sort.Slice(res, func(i, j int) bool {
-		if res[i].Summa < res[j].Summa {
-			return false
-		}
-		return true
+		return res[i].Summa > res[j].Summa
 	})
 
 	resStr := strings.Builder{}

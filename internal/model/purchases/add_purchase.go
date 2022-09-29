@@ -1,12 +1,12 @@
 package purchases
 
 import (
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/normalize"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/normalize"
 )
 
 // AddPurchaseReq тело запроса в Repo для добавления траты

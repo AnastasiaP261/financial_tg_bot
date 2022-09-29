@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	purchases "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 // MockMessageSender is a mock of MessageSender interface.
@@ -96,4 +97,34 @@ func (m *MockPurchasesModel) AddPurchase(userID int64, rawSum, category, rawDate
 func (mr *MockPurchasesModelMockRecorder) AddPurchase(userID, rawSum, category, rawDate interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPurchase", reflect.TypeOf((*MockPurchasesModel)(nil).AddPurchase), userID, rawSum, category, rawDate)
+}
+
+// Report mocks base method.
+func (m *MockPurchasesModel) Report(period purchases.Period, userID int64) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Report", period, userID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Report indicates an expected call of Report.
+func (mr *MockPurchasesModelMockRecorder) Report(period, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Report", reflect.TypeOf((*MockPurchasesModel)(nil).Report), period, userID)
+}
+
+// ToPeriod mocks base method.
+func (m *MockPurchasesModel) ToPeriod(str string) (purchases.Period, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ToPeriod", str)
+	ret0, _ := ret[0].(purchases.Period)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ToPeriod indicates an expected call of ToPeriod.
+func (mr *MockPurchasesModelMockRecorder) ToPeriod(str interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToPeriod", reflect.TypeOf((*MockPurchasesModel)(nil).ToPeriod), str)
 }

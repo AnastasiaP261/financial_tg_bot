@@ -6,6 +6,7 @@ package mock_purchases
 
 import (
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 	purchases "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
@@ -75,4 +76,19 @@ func (m *MockRepo) CategoryExist(req purchases.CategoryRow) (bool, error) {
 func (mr *MockRepoMockRecorder) CategoryExist(req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CategoryExist", reflect.TypeOf((*MockRepo)(nil).CategoryExist), req)
+}
+
+// GetReport mocks base method.
+func (m *MockRepo) GetReport(fromDate time.Time, userID int64) ([]purchases.ReportItem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetReport", fromDate, userID)
+	ret0, _ := ret[0].([]purchases.ReportItem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetReport indicates an expected call of GetReport.
+func (mr *MockRepoMockRecorder) GetReport(fromDate, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReport", reflect.TypeOf((*MockRepo)(nil).GetReport), fromDate, userID)
 }

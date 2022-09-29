@@ -7,7 +7,7 @@ LINTVER=v1.49.0
 LINTBIN=${BINDIR}/lint_${GOVER}_${LINTVER}
 PACKAGE=gitlab.ozon.dev/apetrichuk/financial-tg-bot/cmd/bot
 
-all: format build test lint
+all: format generate build test lint
 
 build: bindir
 	go build -o ${BINDIR}/bot ${PACKAGE}

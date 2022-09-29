@@ -1,8 +1,9 @@
 package store
 
 import (
-	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	"time"
+
+	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 func (s *Service) GetReport(fromDate time.Time, userID int64) ([]model.ReportItem, error) {

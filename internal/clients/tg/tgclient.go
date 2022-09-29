@@ -1,7 +1,6 @@
 package tg
 
 import (
-	"fmt"
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -33,7 +32,7 @@ func (c *Client) SendMessage(text string, userID int64) error {
 	if err != nil {
 		return errors.Wrap(err, "client.Send")
 	}
-	log.Println(fmt.Sprintf("[%s] %s", userID, text))
+	log.Printf("[%d] %s", userID, text)
 
 	return nil
 }
