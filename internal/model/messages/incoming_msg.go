@@ -14,6 +14,8 @@ type MessageSender interface {
 type PurchasesModel interface {
 	AddPurchase(userID int64, rawSum, category, rawDate string) error
 	AddCategory(userID int64, category string) error
+	Report(period purchases.Period, userID int64) (string, error)
+	ToPeriod(str string) (purchases.Period, error)
 }
 
 type Model struct {
@@ -39,12 +41,32 @@ var (
 	addConditionSumAndCategoryAndDate = regexp.MustCompile(`/add (\d+\.?\d*) ([ \wФА-Яа-я]+) (\d{2}\.\d{2}\.\d{4})`)
 
 	addCategory = regexp.MustCompile(`/category ([ \wФА-Яа-я\-]+)`)
+
+	report = regexp.MustCompile(`/report (month|week|year)`)
 )
 
 func (s *Model) IncomingMessage(msg Message) error {
 	switch {
 	case msg.Text == "/start":
 		return s.tgClient.SendMessage("hello", msg.UserID)
+
+	case report.MatchString(msg.Text):
+		res := report.FindStringSubmatch(msg.Text)
+		if len(res) < 2 {
+			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID)
+		}
+
+		period, err := s.purchasesModel.ToPeriod(res[1])
+		if err != nil {
+			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID)
+		}
+
+		result, err := s.purchasesModel.Report(period, msg.UserID)
+		if err != nil {
+			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
+		}
+
+		return s.tgClient.SendMessage("Ваш отчет:\n\n"+result, msg.UserID)
 
 	case addCategory.MatchString(msg.Text):
 		res := addCategory.FindStringSubmatch(msg.Text)

@@ -1,6 +1,7 @@
 package purchases
 
 import (
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/normalize"
 	"strconv"
 	"strings"
 	"time"
@@ -42,7 +43,7 @@ func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) erro
 		category = strings.ToLower(category)
 		categoryExist, err = m.Repo.CategoryExist(CategoryRow{
 			UserID:   userID,
-			Category: category,
+			Category: normalize.Category(category),
 		})
 		if err != nil {
 			return errors.Wrap(err, "Repo.CategoryExist")
