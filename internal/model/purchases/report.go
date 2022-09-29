@@ -35,6 +35,7 @@ type ReportItem struct {
 	Summa            float64
 }
 
+// Report создание отчета
 func (m *Model) Report(period Period, userID int64) (string, error) {
 	from, err := fromTime(time.Now(), period)
 	if err != nil {
@@ -66,7 +67,8 @@ func (m *Model) Report(period Period, userID int64) (string, error) {
 	return resStr.String(), nil
 }
 
-// fromTime позволяет получить из переданной даты новую, вычитая из переданной указанный период (учитывая количество дней в месяцах и високосные года)
+// fromTime позволяет получить из переданной даты новую, вычитая из переданной указанный период
+// (учитывая количество дней в месяцах и високосные годы)
 func fromTime(to time.Time, period Period) (time.Time, error) {
 	switch period {
 	case periodYear:

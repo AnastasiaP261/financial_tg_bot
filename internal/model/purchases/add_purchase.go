@@ -25,7 +25,7 @@ type CategoryRow struct {
 
 // AddPurchase добавляет трату.
 // Если category пустой, трата будет добавлена без категории.
-// Если rawDate пустой, для траты будет выставлено время добавления.
+// Если rawDate пустой, для траты будет выставлена текущая дата.
 func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) error {
 	var (
 		sum           float64

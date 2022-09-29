@@ -5,6 +5,7 @@ import (
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
+// CategoryExist проверка что категория существует
 func (s *Service) CategoryExist(req model.CategoryRow) (bool, error) {
 	if req.UserID == 0 {
 		return false, errors.New("userID is empty")

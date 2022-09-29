@@ -36,12 +36,17 @@ type Message struct {
 }
 
 var (
-	addConditionOnlySum               = regexp.MustCompile(`/add (\d+.?\d*)`)
-	addConditionSumAndCategory        = regexp.MustCompile(`/add (\d+.?\d*) ([ \wФА-Яа-я]+)`)
+	// addConditionOnlySum сообщение о добавлении траты без категории и даты (указывается текущая дата)
+	addConditionOnlySum = regexp.MustCompile(`/add (\d+.?\d*)`)
+	// addConditionSumAndCategory сообщение о добавлении траты c категорией но без даты (указывается текущая дата)
+	addConditionSumAndCategory = regexp.MustCompile(`/add (\d+.?\d*) ([ \wФА-Яа-я]+)`)
+	// addConditionSumAndCategoryAndDate сообщение о добавлении траты c категорией и датой
 	addConditionSumAndCategoryAndDate = regexp.MustCompile(`/add (\d+\.?\d*) ([ \wФА-Яа-я]+) (\d{2}\.\d{2}\.\d{4})`)
 
+	// addCategory добавление новой категории
 	addCategory = regexp.MustCompile(`/category ([ \wФА-Яа-я\-]+)`)
 
+	// report создание отчета за выбранный период
 	report = regexp.MustCompile(`/report (month|week|year)`)
 )
 
