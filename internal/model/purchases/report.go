@@ -35,16 +35,22 @@ type ReportItem struct {
 	Summa            float64
 }
 
+// Segment кусочек круговой диаграммы
+type Segment struct {
+	Value float64
+	Label string
+}
+
 // Report создание отчета
-func (m *Model) Report(period Period, userID int64) (string, error) {
+func (m *Model) Report(period Period, userID int64) (txt string, img []byte, err error) {
 	from, err := fromTime(time.Now(), period)
 	if err != nil {
-		return "", errors.Wrap(err, "fromTime")
+		return "", nil, errors.Wrap(err, "fromTime")
 	}
 
 	res, err := m.Repo.GetReport(from, userID)
 	if err != nil {
-		return "", errors.Wrap(err, "Repo.GetReport")
+		return "", nil, errors.Wrap(err, "Repo.GetReport")
 	}
 
 	sort.Slice(res, func(i, j int) bool {
@@ -64,7 +70,12 @@ func (m *Model) Report(period Period, userID int64) (string, error) {
 		resStr.WriteString("\n")
 	}
 
-	return resStr.String(), nil
+	resIMG, err := m.ChartDrawer.PieChart(res)
+	if err != nil {
+		return "", nil, errors.Wrap(err, "ChartDrawer.PieChart")
+	}
+
+	return resStr.String(), resIMG, nil
 }
 
 // fromTime позволяет получить из переданной даты новую, вычитая из переданной указанный период

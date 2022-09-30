@@ -13,6 +13,7 @@ var (
 	ErrUnknownPeriod    = errors.New("unknown period")
 )
 
+// Repo репозиторий
 type Repo interface {
 	AddPurchase(req AddPurchaseReq) error
 	CategoryExist(req CategoryRow) (bool, error)
@@ -20,10 +21,17 @@ type Repo interface {
 	GetReport(fromDate time.Time, userID int64) ([]ReportItem, error)
 }
 
-type Model struct {
-	Repo Repo
+// ChartDrawer рисовальщик
+type ChartDrawer interface {
+	// PieChart нарисовать круговую диаграмму трат
+	PieChart(data []ReportItem) ([]byte, error)
 }
 
-func New(repo Repo) *Model {
-	return &Model{Repo: repo}
+type Model struct {
+	Repo        Repo
+	ChartDrawer ChartDrawer
+}
+
+func New(repo Repo, drawer ChartDrawer) *Model {
+	return &Model{Repo: repo, ChartDrawer: drawer}
 }

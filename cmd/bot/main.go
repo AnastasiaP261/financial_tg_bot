@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/chart_drawing"
 	"log"
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
@@ -23,7 +24,8 @@ func main() {
 
 	db := store.New()
 
-	purchasesModel := purchases.New(db)
+	chartDrawingModel := chart_drawing.New()
+	purchasesModel := purchases.New(db, chartDrawingModel)
 	msgModel := messages.New(tgClient, purchasesModel)
 
 	tgClient.ListenUpdates(msgModel)

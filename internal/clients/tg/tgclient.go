@@ -27,12 +27,25 @@ func New(tokenGetter TokenGetter) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) SendMessage(text string, userID int64) error {
+func (c *Client) SendMessage(text string, userID int64, userName string) error {
 	_, err := c.client.Send(tgbotapi.NewMessage(userID, text))
 	if err != nil {
 		return errors.Wrap(err, "client.Send")
 	}
-	log.Printf("[%d] %s", userID, text)
+	log.Printf("[%s] %s", userName, text)
+
+	return nil
+}
+
+func (c *Client) SendImage(img []byte, chatID int64, userName string) error {
+	b := tgbotapi.FileBytes{Bytes: img}
+
+	_, err := c.client.Send(tgbotapi.NewPhoto(chatID, b))
+	if err != nil {
+		return errors.Wrap(err, "client.Send")
+	}
+
+	log.Printf("[%s] image sended", userName)
 
 	return nil
 }
@@ -50,8 +63,10 @@ func (c *Client) ListenUpdates(msgModel *messages.Model) {
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
 			err := msgModel.IncomingMessage(messages.Message{
-				Text:   update.Message.Text,
-				UserID: update.Message.From.ID,
+				Text:     update.Message.Text,
+				UserID:   update.Message.From.ID,
+				ChatID:   update.Message.Chat.ID,
+				UserName: update.Message.From.UserName,
 			})
 			if err != nil {
 				log.Println("error processing message:", err)

@@ -8,13 +8,14 @@ import (
 )
 
 type MessageSender interface {
-	SendMessage(text string, userID int64) error
+	SendMessage(text string, userID int64, userName string) error
+	SendImage(img []byte, chatID int64, userName string) error
 }
 
 type PurchasesModel interface {
 	AddPurchase(userID int64, rawSum, category, rawDate string) error
 	AddCategory(userID int64, category string) error
-	Report(period purchases.Period, userID int64) (string, error)
+	Report(period purchases.Period, userID int64) (txt string, img []byte, err error)
 	ToPeriod(str string) (purchases.Period, error)
 }
 
@@ -31,8 +32,10 @@ func New(tgClient MessageSender, purchasesModel PurchasesModel) *Model {
 }
 
 type Message struct {
-	Text   string
-	UserID int64
+	Text     string
+	UserID   int64
+	ChatID   int64
+	UserName string
 }
 
 var (
@@ -53,84 +56,88 @@ var (
 func (s *Model) IncomingMessage(msg Message) error {
 	switch {
 	case msg.Text == "/start":
-		return s.tgClient.SendMessage("hello", msg.UserID)
+		return s.tgClient.SendMessage("hello", msg.UserID, msg.UserName)
 
 	case report.MatchString(msg.Text):
 		res := report.FindStringSubmatch(msg.Text)
 		if len(res) < 2 {
-			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID)
+			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 		}
 
 		period, err := s.purchasesModel.ToPeriod(res[1])
 		if err != nil {
-			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID)
+			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 		}
 
-		result, err := s.purchasesModel.Report(period, msg.UserID)
+		txt, img, err := s.purchasesModel.Report(period, msg.UserID)
 		if err != nil {
-			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
+			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 		}
 
-		return s.tgClient.SendMessage("Ваш отчет:\n\n"+result, msg.UserID)
+		if err = s.tgClient.SendMessage("Ваш отчет:\n\n"+txt, msg.UserID, msg.UserName); err != nil {
+			return err
+		}
+
+		return s.tgClient.SendImage(img, msg.ChatID, msg.UserName)
 
 	case addCategory.MatchString(msg.Text):
 		res := addCategory.FindStringSubmatch(msg.Text)
 		if len(res) < 2 {
-			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID)
+			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 		}
 
 		err := s.purchasesModel.AddCategory(msg.UserID, res[1])
 		if err != nil {
-			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
+			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 		}
-		return s.tgClient.SendMessage(ScsTxtCategoryAdded, msg.UserID)
+		return s.tgClient.SendMessage(ScsTxtCategoryAdded, msg.UserID, msg.UserName)
 
 	case addConditionSumAndCategoryAndDate.MatchString(msg.Text):
 		res := addConditionSumAndCategoryAndDate.FindStringSubmatch(msg.Text)
 		if len(res) < 4 {
-			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID)
+			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 		}
 
 		err := s.purchasesModel.AddPurchase(msg.UserID, res[1], res[2], res[3])
 		if err != nil {
 			if errors.Is(err, purchases.ErrCategoryNotExist) {
-				return s.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID)
+				return s.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID, msg.UserName)
 			}
-			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
+			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 		}
-		return s.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID)
+		return s.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID, msg.UserName)
 
 	case addConditionSumAndCategory.MatchString(msg.Text):
 		res := addConditionSumAndCategory.FindStringSubmatch(msg.Text)
 		if len(res) < 3 {
-			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID)
+			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 		}
 
 		err := s.purchasesModel.AddPurchase(msg.UserID, res[1], res[2], "")
 		if err != nil {
 			if errors.Is(err, purchases.ErrCategoryNotExist) {
-				return s.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID)
+				return s.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID, msg.UserName)
 			}
-			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
+			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 		}
-		return s.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID)
+		return s.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID, msg.UserName)
 
 	case addConditionOnlySum.MatchString(msg.Text):
 		res := addConditionOnlySum.FindStringSubmatch(msg.Text)
 		if len(res) < 2 {
-			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID)
+			return s.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 		}
 
 		err := s.purchasesModel.AddPurchase(msg.UserID, res[1], "", "")
 		if err != nil {
 			if errors.Is(err, purchases.ErrCategoryNotExist) {
-				return s.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID)
+				return s.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID, msg.UserName)
 			}
-			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
+			return s.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 		}
-		return s.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID)
+		return s.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID, msg.UserName)
 
 	default:
-		return s.tgClient.SendMessage(ErrTxtUnknownCommand, msg.UserID)
+		return s.tgClient.SendMessage(ErrTxtUnknownCommand, msg.UserID, msg.UserName)
 	}
 }
