@@ -17,11 +17,12 @@ func Test_OnStartCommand_ShouldAnswerWithIntroMessage(t *testing.T) {
 	sender, purchasesModel := mocksUp(t)
 	model := New(sender, purchasesModel)
 
-	sender.EXPECT().SendMessage("hello", int64(123))
+	sender.EXPECT().SendMessage("hello", int64(123), "name")
 
 	err := model.IncomingMessage(Message{
-		Text:   "/start",
-		UserID: 123,
+		Text:     "/start",
+		UserID:   123,
+		UserName: "name",
 	})
 
 	assert.NoError(t, err)
@@ -31,11 +32,12 @@ func Test_OnUnknownCommand_ShouldAnswerWithHelpMessage(t *testing.T) {
 	sender, purchasesModel := mocksUp(t)
 	model := New(sender, purchasesModel)
 
-	sender.EXPECT().SendMessage("Не знаю эту команду", int64(123))
+	sender.EXPECT().SendMessage("Не знаю эту команду", int64(123), "name")
 
 	err := model.IncomingMessage(Message{
-		Text:   "some text",
-		UserID: 123,
+		Text:     "some text",
+		UserID:   123,
+		UserName: "name",
 	})
 
 	assert.NoError(t, err)
@@ -46,12 +48,13 @@ func Test_OnAddPurchaseCommand(t *testing.T) {
 		sender, purchasesModel := mocksUp(t)
 		model := New(sender, purchasesModel)
 
-		sender.EXPECT().SendMessage("Трата добавлена", int64(123))
+		sender.EXPECT().SendMessage("Трата добавлена", int64(123), "name")
 		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), "", "").Return(nil)
 
 		err := model.IncomingMessage(Message{
-			Text:   "/add 123.45",
-			UserID: 123,
+			Text:     "/add 123.45",
+			UserID:   123,
+			UserName: "name",
 		})
 
 		assert.NoError(t, err)
@@ -61,12 +64,13 @@ func Test_OnAddPurchaseCommand(t *testing.T) {
 		sender, purchasesModel := mocksUp(t)
 		model := New(sender, purchasesModel)
 
-		sender.EXPECT().SendMessage("Трата добавлена", int64(123))
+		sender.EXPECT().SendMessage("Трата добавлена", int64(123), "name")
 		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), gomock.Any(), "").Return(nil)
 
 		err := model.IncomingMessage(Message{
-			Text:   "/add 123.45 категория какая то",
-			UserID: 123,
+			Text:     "/add 123.45 категория какая то",
+			UserID:   123,
+			UserName: "name",
 		})
 
 		assert.NoError(t, err)
@@ -76,14 +80,31 @@ func Test_OnAddPurchaseCommand(t *testing.T) {
 		sender, purchasesModel := mocksUp(t)
 		model := New(sender, purchasesModel)
 
-		sender.EXPECT().SendMessage("Трата добавлена", int64(123))
+		sender.EXPECT().SendMessage("Трата добавлена", int64(123), "name")
 		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 		err := model.IncomingMessage(Message{
-			Text:   "/add 123.45 категория какая то 01.01.2022",
-			UserID: 123,
+			Text:     "/add 123.45 категория какая то 01.01.2022",
+			UserID:   123,
+			UserName: "name",
 		})
 
 		assert.NoError(t, err)
 	})
+}
+
+func Test_OnAddCategoryCommand(t *testing.T) {
+	sender, purchasesModel := mocksUp(t)
+	model := New(sender, purchasesModel)
+
+	sender.EXPECT().SendMessage("Категория добавлена", int64(123), "name")
+	purchasesModel.EXPECT().AddCategory(gomock.Any(), gomock.Any()).Return(nil)
+
+	err := model.IncomingMessage(Message{
+		Text:     "/category категория",
+		UserID:   123,
+		UserName: "name",
+	})
+
+	assert.NoError(t, err)
 }

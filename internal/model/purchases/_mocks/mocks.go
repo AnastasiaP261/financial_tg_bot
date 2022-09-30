@@ -92,3 +92,41 @@ func (mr *MockRepoMockRecorder) GetReport(fromDate, userID interface{}) *gomock.
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReport", reflect.TypeOf((*MockRepo)(nil).GetReport), fromDate, userID)
 }
+
+// MockChartDrawer is a mock of ChartDrawer interface.
+type MockChartDrawer struct {
+	ctrl     *gomock.Controller
+	recorder *MockChartDrawerMockRecorder
+}
+
+// MockChartDrawerMockRecorder is the mock recorder for MockChartDrawer.
+type MockChartDrawerMockRecorder struct {
+	mock *MockChartDrawer
+}
+
+// NewMockChartDrawer creates a new mock instance.
+func NewMockChartDrawer(ctrl *gomock.Controller) *MockChartDrawer {
+	mock := &MockChartDrawer{ctrl: ctrl}
+	mock.recorder = &MockChartDrawerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockChartDrawer) EXPECT() *MockChartDrawerMockRecorder {
+	return m.recorder
+}
+
+// PieChart mocks base method.
+func (m *MockChartDrawer) PieChart(data []purchases.ReportItem) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PieChart", data)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PieChart indicates an expected call of PieChart.
+func (mr *MockChartDrawerMockRecorder) PieChart(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PieChart", reflect.TypeOf((*MockChartDrawer)(nil).PieChart), data)
+}

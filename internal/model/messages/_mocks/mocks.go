@@ -34,18 +34,32 @@ func (m *MockMessageSender) EXPECT() *MockMessageSenderMockRecorder {
 	return m.recorder
 }
 
-// SendMessage mocks base method.
-func (m *MockMessageSender) SendMessage(text string, userID int64) error {
+// SendImage mocks base method.
+func (m *MockMessageSender) SendImage(img []byte, chatID int64, userName string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendMessage", text, userID)
+	ret := m.ctrl.Call(m, "SendImage", img, chatID, userName)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendImage indicates an expected call of SendImage.
+func (mr *MockMessageSenderMockRecorder) SendImage(img, chatID, userName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendImage", reflect.TypeOf((*MockMessageSender)(nil).SendImage), img, chatID, userName)
+}
+
+// SendMessage mocks base method.
+func (m *MockMessageSender) SendMessage(text string, userID int64, userName string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendMessage", text, userID, userName)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SendMessage indicates an expected call of SendMessage.
-func (mr *MockMessageSenderMockRecorder) SendMessage(text, userID interface{}) *gomock.Call {
+func (mr *MockMessageSenderMockRecorder) SendMessage(text, userID, userName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMessage", reflect.TypeOf((*MockMessageSender)(nil).SendMessage), text, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMessage", reflect.TypeOf((*MockMessageSender)(nil).SendMessage), text, userID, userName)
 }
 
 // MockPurchasesModel is a mock of PurchasesModel interface.
@@ -100,12 +114,13 @@ func (mr *MockPurchasesModelMockRecorder) AddPurchase(userID, rawSum, category, 
 }
 
 // Report mocks base method.
-func (m *MockPurchasesModel) Report(period purchases.Period, userID int64) (string, error) {
+func (m *MockPurchasesModel) Report(period purchases.Period, userID int64) (string, []byte, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Report", period, userID)
 	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].([]byte)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // Report indicates an expected call of Report.
