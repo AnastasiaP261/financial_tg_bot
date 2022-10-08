@@ -10,6 +10,9 @@ import (
 
 func Test_AddPurchase(t *testing.T) {
 	s := New()
+	s.Users = []user{
+		{UserID: 123, Currency: RUB},
+	}
 
 	date, _ := time.Parse("02.01.2006", "01.01.2000")
 	err := s.AddPurchase(model.AddPurchaseReq{

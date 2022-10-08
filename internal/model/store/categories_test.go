@@ -10,6 +10,9 @@ import (
 func Test_CategoryExist(t *testing.T) {
 	s := New()
 
+	s.Users = []user{
+		{UserID: 123, Currency: RUB},
+	}
 	s.Categories = []category{
 		{UserID: 123, Category: "some category"},
 	}

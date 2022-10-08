@@ -5,13 +5,17 @@ import (
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
-// CategoryExist проверка что категория существует
+// CategoryExist проверка, что категория существует
 func (s *Service) CategoryExist(req model.CategoryRow) (bool, error) {
 	if req.UserID == 0 {
 		return false, errors.New("userID is empty")
 	}
 	if req.Category == "" {
 		return false, errors.New("category is empty")
+	}
+
+	if err := s.UserCreateIfNotExist(req.UserID); err != nil {
+		return false, errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
 	for _, item := range s.Categories {
@@ -28,6 +32,10 @@ func (s *Service) AddCategory(req model.CategoryRow) error {
 	}
 	if req.Category == "" {
 		return errors.New("category is empty")
+	}
+
+	if err := s.UserCreateIfNotExist(req.UserID); err != nil {
+		return errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
 	exist, err := s.CategoryExist(req)

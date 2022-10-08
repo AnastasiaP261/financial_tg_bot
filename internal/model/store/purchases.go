@@ -8,6 +8,10 @@ import (
 )
 
 func (s *Service) AddPurchase(req model.AddPurchaseReq) error {
+	if err := s.UserCreateIfNotExist(req.UserID); err != nil {
+		return errors.Wrap(err, "UserCreateIfNotExist")
+	}
+
 	if req.UserID == 0 {
 		return errors.New("user is empty")
 	}
