@@ -43,10 +43,13 @@ func (s *Service) GetUserPurchasesFromDate(fromDate time.Time, userID int64) ([]
 				purchases = append(purchases, model.Purchase{
 					PurchaseCategory: p.Category,
 					Summa:            p.Sum,
-					USDRatio:         p.USDRatio,
-					CNYRatio:         p.CNYRatio,
-					EURRatio:         p.EURRatio,
+					RateToRUB: model.RateToRUB{
+						USD: p.USDRatio,
+						CNY: p.CNYRatio,
+						EUR: p.EURRatio,
+					},
 				})
+
 			}
 		}
 	}

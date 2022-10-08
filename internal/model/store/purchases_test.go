@@ -56,8 +56,8 @@ func Test_GetUserPurchasesFromDate(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.EqualValues(t, []model.Purchase{
-		{"some category 2", 100, 2, 2, 2},
-		{"some category 1", 200, 2, 2, 2},
-		{"some category 1", 100, 2, 2, 2},
+		{PurchaseCategory: "some category 2", Summa: 100, RateToRUB: model.RateToRUB{USD: 2, EUR: 2, CNY: 2}},
+		{PurchaseCategory: "some category 1", Summa: 200, RateToRUB: model.RateToRUB{USD: 2, EUR: 2, CNY: 2}},
+		{PurchaseCategory: "some category 1", Summa: 100, RateToRUB: model.RateToRUB{USD: 2, EUR: 2, CNY: 2}},
 	}, res)
 }
