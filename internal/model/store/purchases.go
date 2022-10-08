@@ -29,3 +29,27 @@ func (s *Service) AddPurchase(req model.AddPurchaseReq) error {
 
 	return nil
 }
+
+// GetUserPurchasesFromDate получить все траты пользователя
+func (s *Service) GetUserPurchasesFromDate(fromDate time.Time, userID int64) ([]model.Purchase, error) {
+	if err := s.UserCreateIfNotExist(userID); err != nil {
+		return nil, errors.Wrap(err, "UserCreateIfNotExist")
+	}
+
+	purchases := make([]model.Purchase, 0)
+	for _, p := range s.Purchases {
+		if p.UserID == userID {
+			if p.Date.After(fromDate) || p.Date.Equal(fromDate) {
+				purchases = append(purchases, model.Purchase{
+					PurchaseCategory: p.Category,
+					Summa:            p.Sum,
+					USDRatio:         p.USDRatio,
+					CNYRatio:         p.CNYRatio,
+					EURRatio:         p.EURRatio,
+				})
+			}
+		}
+	}
+
+	return purchases, nil
+}
