@@ -34,10 +34,11 @@ func New(ctx context.Context, tokenGetter TokenGetter) *Client {
 	go func(ctx context.Context) {
 		for {
 			ctx, cancel := context.WithTimeout(ctx, time.Second*30)
-			defer cancel()
 
 			cl.process(ctx)
 			time.Sleep(sleepTime)
+
+			cancel()
 		}
 	}(ctx)
 
