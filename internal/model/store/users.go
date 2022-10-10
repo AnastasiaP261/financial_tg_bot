@@ -76,6 +76,11 @@ func (s *Service) GetUserInfo(userID int64) (model.User, error) {
 
 // возвращает информацию о пользователе (для использования внутри пакета)
 func (s *Service) getUserInfo(userID int64) (user, error) {
+	err := s.UserCreateIfNotExist(userID)
+	if err != nil {
+		return user{}, errors.Wrap(err, "UserCreateIfNotExist")
+	}
+
 	for _, row := range s.Users {
 		if row.UserID == userID {
 			return row, nil
