@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	sleepTime    = 30 * time.Minute
-	fixerTimeout = 30 * time.Second
+	sleepTime    = 60 * time.Minute
+	fixerTimeout = 3 * time.Minute
 )
 
 // TokenGetter геттер токена апи
@@ -43,17 +43,21 @@ func New(ctx context.Context, tokenGetter TokenGetter) *Client {
 func (c *Client) process(ctx context.Context) {
 	ticker := time.NewTicker(sleepTime)
 
+	run := func() {
+		log.Println("[FIXER]: Запущен процесс получения актуальных курсов валют из fixer")
+		ctxNew, cancel := context.WithTimeout(ctx, fixerTimeout)
+		c.getData(ctxNew)
+		cancel()
+	}
+
+	run()
+
 	select {
 	case <-ctx.Done():
 		ticker.Stop()
 		return
-	case t := <-ticker.C:
-		log.Printf("[FIXER] [%s] - Запущен процесс получения актуальных курсов валют из fixer", t)
-
-		ctx, cancel := context.WithTimeout(ctx, fixerTimeout)
-
-		c.getData(ctx)
-		cancel()
+	case <-ticker.C:
+		run()
 	}
 }
 
@@ -81,8 +85,9 @@ func (c *Client) getData(ctx context.Context) {
 		Host:   "api.apilayer.com",
 		Path:   "fixer/latest",
 		RawQuery: url.Values{
-			"base":    []string{"RUB"},
-			"symbols": []string{"USD", "EUR", "CNY"},
+			"access_key": []string{c.tokenGetter.FixerAPIToken()},
+			"base":       []string{"RUB"},
+			"symbols":    []string{"USD,EUR,CNY"},
 		}.Encode(),
 	}
 
@@ -116,6 +121,7 @@ func (c *Client) getData(ctx context.Context) {
 	}
 
 	if response.Success {
+		log.Printf("[FIXER]: получен текущий курс: %+v\n", response.Rates)
 		c.dataAccessorWrite(response.Rates)
 	} else {
 		log.Println("[FIXER CLIENT ERR]: client request failed")
