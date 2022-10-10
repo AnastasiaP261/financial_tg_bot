@@ -1,11 +1,12 @@
 package purchases_test
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	mocks "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases/_mocks"
-	"testing"
 )
 
 func Test_AddPurchase_OnlySum(t *testing.T) {

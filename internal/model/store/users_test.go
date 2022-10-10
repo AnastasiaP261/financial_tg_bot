@@ -1,9 +1,10 @@
 package store
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	"testing"
 )
 
 func Test_ChangeCurrency(t *testing.T) {

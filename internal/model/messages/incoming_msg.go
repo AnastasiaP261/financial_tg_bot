@@ -42,9 +42,9 @@ type Message struct {
 var (
 	// addPurchaseOnlySum сообщение о добавлении траты без категории и даты (указывается текущая дата)
 	addPurchaseOnlySum = regexp.MustCompile(`/add (\d+.?\d*)`)
-	// addPurchaseSumAndCategory сообщение о добавлении траты c категорией но без даты (указывается текущая дата)
+	// addPurchaseSumAndCategory сообщение о добавлении траты с категорией, но без даты (указывается текущая дата)
 	addPurchaseSumAndCategory = regexp.MustCompile(`/add (\d+.?\d*) ([ \wФА-Яа-я]+)`)
-	// addPurchaseSumAndCategoryAndDate сообщение о добавлении траты c категорией и датой
+	// addPurchaseSumAndCategoryAndDate сообщение о добавлении траты с категорией и датой
 	addPurchaseSumAndCategoryAndDate = regexp.MustCompile(`/add (\d+\.?\d*) ([ \wФА-Яа-я]+) (\d{2}\.\d{2}\.\d{4})`)
 
 	// addCategory добавление новой категории

@@ -78,19 +78,48 @@ func (mr *MockRepoMockRecorder) CategoryExist(req interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CategoryExist", reflect.TypeOf((*MockRepo)(nil).CategoryExist), req)
 }
 
-// GetReport mocks base method.
-func (m *MockRepo) GetReport(fromDate time.Time, userID int64) ([]purchases.ReportItem, error) {
+// ChangeCurrency mocks base method.
+func (m *MockRepo) ChangeCurrency(userID int64, currency purchases.Currency) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetReport", fromDate, userID)
-	ret0, _ := ret[0].([]purchases.ReportItem)
+	ret := m.ctrl.Call(m, "ChangeCurrency", userID, currency)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ChangeCurrency indicates an expected call of ChangeCurrency.
+func (mr *MockRepoMockRecorder) ChangeCurrency(userID, currency interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeCurrency", reflect.TypeOf((*MockRepo)(nil).ChangeCurrency), userID, currency)
+}
+
+// GetUserInfo mocks base method.
+func (m *MockRepo) GetUserInfo(userID int64) (purchases.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserInfo", userID)
+	ret0, _ := ret[0].(purchases.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetReport indicates an expected call of GetReport.
-func (mr *MockRepoMockRecorder) GetReport(fromDate, userID interface{}) *gomock.Call {
+// GetUserInfo indicates an expected call of GetUserInfo.
+func (mr *MockRepoMockRecorder) GetUserInfo(userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReport", reflect.TypeOf((*MockRepo)(nil).GetReport), fromDate, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserInfo", reflect.TypeOf((*MockRepo)(nil).GetUserInfo), userID)
+}
+
+// GetUserPurchasesFromDate mocks base method.
+func (m *MockRepo) GetUserPurchasesFromDate(fromDate time.Time, userID int64) ([]purchases.Purchase, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserPurchasesFromDate", fromDate, userID)
+	ret0, _ := ret[0].([]purchases.Purchase)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserPurchasesFromDate indicates an expected call of GetUserPurchasesFromDate.
+func (mr *MockRepoMockRecorder) GetUserPurchasesFromDate(fromDate, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPurchasesFromDate", reflect.TypeOf((*MockRepo)(nil).GetUserPurchasesFromDate), fromDate, userID)
 }
 
 // MockChartDrawer is a mock of ChartDrawer interface.
@@ -129,4 +158,41 @@ func (m *MockChartDrawer) PieChart(data []purchases.ReportItem) ([]byte, error) 
 func (mr *MockChartDrawerMockRecorder) PieChart(data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PieChart", reflect.TypeOf((*MockChartDrawer)(nil).PieChart), data)
+}
+
+// MockExchangeRateGetter is a mock of ExchangeRateGetter interface.
+type MockExchangeRateGetter struct {
+	ctrl     *gomock.Controller
+	recorder *MockExchangeRateGetterMockRecorder
+}
+
+// MockExchangeRateGetterMockRecorder is the mock recorder for MockExchangeRateGetter.
+type MockExchangeRateGetterMockRecorder struct {
+	mock *MockExchangeRateGetter
+}
+
+// NewMockExchangeRateGetter creates a new mock instance.
+func NewMockExchangeRateGetter(ctrl *gomock.Controller) *MockExchangeRateGetter {
+	mock := &MockExchangeRateGetter{ctrl: ctrl}
+	mock.recorder = &MockExchangeRateGetterMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockExchangeRateGetter) EXPECT() *MockExchangeRateGetterMockRecorder {
+	return m.recorder
+}
+
+// GetExchangeRateToRUB mocks base method.
+func (m *MockExchangeRateGetter) GetExchangeRateToRUB() purchases.RateToRUB {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetExchangeRateToRUB")
+	ret0, _ := ret[0].(purchases.RateToRUB)
+	return ret0
+}
+
+// GetExchangeRateToRUB indicates an expected call of GetExchangeRateToRUB.
+func (mr *MockExchangeRateGetterMockRecorder) GetExchangeRateToRUB() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExchangeRateToRUB", reflect.TypeOf((*MockExchangeRateGetter)(nil).GetExchangeRateToRUB))
 }

@@ -3,13 +3,14 @@ package fixer
 import (
 	"context"
 	"encoding/json"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -87,7 +88,7 @@ func (c *Client) getData(ctx context.Context) {
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", u.String(), nil)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	req.Header.Set("apikey", c.tokenGetter.FixerAPIToken())
 	if err != nil {
 		log.Printf("[FIXER CLIENT ERR]: %s\n", errors.Wrap(err, "http.NewRequest").Error())
@@ -95,6 +96,10 @@ func (c *Client) getData(ctx context.Context) {
 	}
 
 	res, err := client.Do(req)
+	if err != nil {
+		log.Printf("[FIXER CLIENT ERR]: %s\n", errors.Wrap(err, "client.Do").Error())
+		return
+	}
 	if res.Body != nil {
 		defer res.Body.Close()
 	}
