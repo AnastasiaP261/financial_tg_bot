@@ -18,11 +18,13 @@ func (m *Model) msgReport(msg Message) error {
 
 	reportTxt, img, err := m.purchasesModel.Report(period, msg.UserID)
 	if err != nil {
+		err = errors.Wrap(err, "purchasesModel.Report")
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 	}
 
 	if err = m.tgClient.SendMessage(reportTxt, msg.UserID, msg.UserName); err != nil {
-		return err
+		err = errors.Wrap(err, "tgClient.SendMessage")
+		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 	}
 
 	return m.tgClient.SendImage(img, msg.ChatID, msg.UserName)
@@ -36,6 +38,7 @@ func (m *Model) msgAddCategory(msg Message) error {
 
 	err := m.purchasesModel.AddCategory(msg.UserID, res[1])
 	if err != nil {
+		err = errors.Wrap(err, "purchasesModel.AddCategory")
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 	}
 	return m.tgClient.SendMessage(ScsTxtCategoryAdded, msg.UserID, msg.UserName)
@@ -43,6 +46,7 @@ func (m *Model) msgAddCategory(msg Message) error {
 
 func (m *Model) msgAddPurchase(msg Message, sum, category, date string) error {
 	if err := m.purchasesModel.AddPurchase(msg.UserID, sum, category, date); err != nil {
+		err = errors.Wrap(err, "purchasesModel.AddPurchase")
 		if errors.Is(err, purchases.ErrCategoryNotExist) {
 			return m.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID, msg.UserName)
 		}
@@ -58,6 +62,7 @@ func (m *Model) msgCurrency(msg Message, rawCY string) error {
 	}
 
 	if err = m.purchasesModel.ChangeUserCurrency(msg.UserID, cy); err != nil {
+		err = errors.Wrap(err, "purchasesModel.ChangeUserCurrency")
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 	}
 	return m.tgClient.SendMessage(ScsTxtCurrencyChanged, msg.UserID, msg.UserName)
