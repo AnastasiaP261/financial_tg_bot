@@ -3,7 +3,7 @@ package fixer
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -108,7 +108,7 @@ func (c *Client) getData(ctx context.Context) {
 	if res.Body != nil {
 		defer res.Body.Close()
 	}
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Printf("[FIXER CLIENT ERR]: %s\n", errors.Wrap(err, "ioutil.ReadAll").Error())
 		return
