@@ -12,7 +12,10 @@ import (
 	"time"
 )
 
-const sleepTime = 30 * time.Minute
+const (
+	sleepTime    = 30 * time.Minute
+	fixerTimeout = 30 * time.Second
+)
 
 // TokenGetter геттер токена апи
 type TokenGetter interface {
@@ -31,18 +34,26 @@ type Client struct {
 func New(ctx context.Context, tokenGetter TokenGetter) *Client {
 	cl := &Client{tokenGetter: tokenGetter}
 
-	go func(ctx context.Context) {
-		for {
-			ctx, cancel := context.WithTimeout(ctx, time.Second*30)
-
-			cl.process(ctx)
-			time.Sleep(sleepTime)
-
-			cancel()
-		}
-	}(ctx)
+	go cl.process(ctx)
 
 	return cl
+}
+
+func (c *Client) process(ctx context.Context) {
+	ticker := time.NewTicker(sleepTime)
+
+	select {
+	case <-ctx.Done():
+		ticker.Stop()
+		return
+	case t := <-ticker.C:
+		log.Printf("[FIXER] [%s] - Запущен процесс получения актуальных курсов валют из fixer", t)
+
+		ctx, cancel := context.WithTimeout(ctx, fixerTimeout)
+
+		c.getData(ctx)
+		cancel()
+	}
 }
 
 func (c *Client) dataAccessorWrite(newData map[string]float64) {
@@ -63,7 +74,7 @@ type Response struct {
 	Rates   map[string]float64 `json:"rates"`
 }
 
-func (c *Client) process(ctx context.Context) {
+func (c *Client) getData(ctx context.Context) {
 	u := url.URL{
 		Scheme: "https",
 		Host:   "api.apilayer.com",
