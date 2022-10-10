@@ -89,7 +89,7 @@ func (m *Model) Report(period Period, userID int64) (txt string, img []byte, err
 		resStr.WriteString("\t")
 		resStr.WriteString(ctgr)
 		resStr.WriteString(": ")
-		resStr.WriteString(strconv.FormatFloat(item.Summa, 'f', -1, 64))
+		resStr.WriteString(strconv.FormatFloat(item.Summa, 'f', 2, 64))
 		resStr.WriteString("\n")
 	}
 
