@@ -30,6 +30,14 @@ func (m *Model) ToPeriod(str string) (Period, error) {
 	}
 }
 
+type Purchase struct {
+	PurchaseCategory string
+	Summa            float64
+
+	// коэффициенты валют на момент совершения траты
+	RateToRUB
+}
+
 type ReportItem struct {
 	PurchaseCategory string
 	Summa            float64
@@ -48,34 +56,82 @@ func (m *Model) Report(period Period, userID int64) (txt string, img []byte, err
 		return "", nil, errors.Wrap(err, "fromTime")
 	}
 
-	res, err := m.Repo.GetReport(from, userID)
+	purchases, err := m.Repo.GetUserPurchasesFromDate(from, userID)
 	if err != nil {
-		return "", nil, errors.Wrap(err, "Repo.GetReport")
+		return "", nil, errors.Wrap(err, "Repo.GetUserPurchasesFromDate")
 	}
 
-	sort.Slice(res, func(i, j int) bool {
-		return res[i].Summa > res[j].Summa
-	})
+	info, err := m.Repo.GetUserInfo(userID)
+	if err != nil {
+		return "", nil, errors.Wrap(err, "Repo.GetUserInfo")
+	}
+
+	reportItems, err := m.packagingByCategory(purchases, info.Currency)
+	if err != nil {
+		return "", nil, errors.Wrap(err, "packagingByCategory")
+	}
+
+	cy, err := m.currencyToStr(info.Currency)
+	if err != nil {
+		return "", nil, errors.Wrap(err, "currencyToStr")
+	}
 
 	resStr := strings.Builder{}
-	for _, item := range res {
+	resStr.WriteString("Ваша валюта: ")
+	resStr.WriteString(cy)
+	resStr.WriteString("\nВаш отчет:\n")
+	for _, item := range reportItems {
 		ctgr := item.PurchaseCategory
 		if ctgr == "" {
 			ctgr = "не указанные категории"
 		}
 
+		resStr.WriteString("\t")
 		resStr.WriteString(ctgr)
 		resStr.WriteString(": ")
 		resStr.WriteString(strconv.FormatFloat(item.Summa, 'f', -1, 64))
 		resStr.WriteString("\n")
 	}
 
-	resIMG, err := m.ChartDrawer.PieChart(res)
+	resIMG, err := m.ChartDrawer.PieChart(reportItems)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "ChartDrawer.PieChart")
 	}
 
 	return resStr.String(), resIMG, nil
+}
+
+// packagingByCategory получает на вход список трат и формирует из него отчет, переводя все траты в
+// выбранную валюту и складывая их по категориям
+func (m *Model) packagingByCategory(purchases []Purchase, currentCurrency Currency) ([]ReportItem, error) {
+	tempCategoryOnSum := make(map[string]float64, len(purchases))
+	for _, p := range purchases {
+		ctgr := p.PurchaseCategory
+		if ctgr == "" {
+			ctgr = "не указанные категории"
+		}
+
+		resSum, err := m.rubToCurrentCurrency(currentCurrency, p.Summa, p.RateToRUB)
+		if err != nil {
+			return nil, errors.Wrap(err, "rubToCurrentCurrency")
+		}
+
+		tempCategoryOnSum[ctgr] += resSum
+	}
+
+	res := make([]ReportItem, 0, len(tempCategoryOnSum))
+	for k, v := range tempCategoryOnSum {
+		res = append(res, ReportItem{
+			PurchaseCategory: k,
+			Summa:            v,
+		})
+	}
+
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].Summa > res[j].Summa
+	})
+
+	return res, nil
 }
 
 // fromTime позволяет получить из переданной даты новую, вычитая из переданной указанный период

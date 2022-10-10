@@ -18,7 +18,9 @@ type Repo interface {
 	AddPurchase(req AddPurchaseReq) error
 	CategoryExist(req CategoryRow) (bool, error)
 	AddCategory(req CategoryRow) error
-	GetReport(fromDate time.Time, userID int64) ([]ReportItem, error)
+	GetUserPurchasesFromDate(fromDate time.Time, userID int64) ([]Purchase, error)
+	ChangeCurrency(userID int64, currency Currency) error
+	GetUserInfo(userID int64) (User, error)
 }
 
 // ChartDrawer рисовальщик
@@ -27,11 +29,20 @@ type ChartDrawer interface {
 	PieChart(data []ReportItem) ([]byte, error)
 }
 
-type Model struct {
-	Repo        Repo
-	ChartDrawer ChartDrawer
+type ExchangeRateGetter interface {
+	GetExchangeRateToRUB() RateToRUB
 }
 
-func New(repo Repo, drawer ChartDrawer) *Model {
-	return &Model{Repo: repo, ChartDrawer: drawer}
+type Model struct {
+	Repo               Repo
+	ChartDrawer        ChartDrawer
+	ExchangeRatesModel ExchangeRateGetter
+}
+
+func New(repo Repo, drawer ChartDrawer, exchangeRatesModel ExchangeRateGetter) *Model {
+	return &Model{
+		Repo:               repo,
+		ChartDrawer:        drawer,
+		ExchangeRatesModel: exchangeRatesModel,
+	}
 }
