@@ -5,7 +5,10 @@ import (
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/config"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/chart_drawing"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/store"
 )
 
 func main() {
@@ -19,7 +22,11 @@ func main() {
 		log.Fatal("tg client init failed:", err)
 	}
 
-	msgModel := messages.New(tgClient)
+	db := store.New()
+
+	chartDrawingModel := chart_drawing.New()
+	purchasesModel := purchases.New(db, chartDrawingModel)
+	msgModel := messages.New(tgClient, purchasesModel)
 
 	tgClient.ListenUpdates(msgModel)
 }
