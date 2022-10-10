@@ -16,12 +16,12 @@ func (m *Model) msgReport(msg Message) error {
 		return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 	}
 
-	txt, img, err := m.purchasesModel.Report(period, msg.UserID)
+	reportTxt, img, err := m.purchasesModel.Report(period, msg.UserID)
 	if err != nil {
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 	}
 
-	if err = m.tgClient.SendMessage("Ваш отчет:\n\n"+txt, msg.UserID, msg.UserName); err != nil {
+	if err = m.tgClient.SendMessage(reportTxt, msg.UserID, msg.UserName); err != nil {
 		return err
 	}
 
@@ -49,4 +49,16 @@ func (m *Model) msgAddPurchase(msg Message, sum, category, date string) error {
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 	}
 	return m.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID, msg.UserName)
+}
+
+func (m *Model) msgCurrency(msg Message, rawCY string) error {
+	cy, err := m.purchasesModel.StrToCurrency(rawCY)
+	if err != nil {
+		return m.tgClient.SendMessage(ErrTxtInvalidCurrency, msg.UserID, msg.UserName)
+	}
+
+	if err = m.purchasesModel.ChangeUserCurrency(msg.UserID, cy); err != nil {
+		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+	}
+	return m.tgClient.SendMessage(ScsTxtCurrencyChanged, msg.UserID, msg.UserName)
 }
