@@ -18,8 +18,8 @@ func (s *Service) CategoryExist(req model.CategoryRow) (bool, error) {
 		return false, errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
-	for _, item := range s.Categories {
-		if item == category(req) {
+	for _, item := range s.categoryAccessRead() {
+		if item.Category == req.Category && item.UserID == req.UserID {
 			return true, nil
 		}
 	}

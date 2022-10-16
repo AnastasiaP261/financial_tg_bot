@@ -25,7 +25,7 @@ func (s *Service) UserCreateIfNotExist(userID int64) error {
 
 // userExist проверка, что такой юзер уже создан в базе
 func (s *Service) userExist(userID int64) (bool, error) {
-	for _, row := range s.Users {
+	for _, row := range s.usersAccessRead() {
 		if row.UserID == userID {
 			return true, nil
 		}
@@ -49,7 +49,7 @@ func (s *Service) ChangeCurrency(userID int64, currency model.Currency) error {
 		return errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
-	for _, row := range s.Users {
+	for _, row := range s.usersAccessRead() {
 		if row.UserID == userID {
 			s.usersAccessWrite(user{
 				UserID:   userID,
@@ -81,7 +81,7 @@ func (s *Service) getUserInfo(userID int64) (user, error) {
 		return user{}, errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
-	for _, row := range s.Users {
+	for _, row := range s.usersAccessRead() {
 		if row.UserID == userID {
 			return row, nil
 		}

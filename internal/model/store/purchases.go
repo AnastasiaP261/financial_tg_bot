@@ -37,7 +37,7 @@ func (s *Service) GetUserPurchasesFromDate(fromDate time.Time, userID int64) ([]
 	}
 
 	purchases := make([]model.Purchase, 0)
-	for _, p := range s.Purchases {
+	for _, p := range s.purchaseAccessRead() {
 		if p.UserID == userID {
 			if p.Date.After(fromDate) || p.Date.Equal(fromDate) {
 				purchases = append(purchases, model.Purchase{

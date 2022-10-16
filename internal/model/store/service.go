@@ -7,19 +7,26 @@ import (
 
 func New() *Service {
 	return &Service{
-		Categories: []category{},
-		Purchases:  []purchase{},
+		Categories: []categoryRow{},
+		Purchases:  []purchaseRow{},
+		Users:      []userRow{},
 	}
 }
 
 type Service struct {
-	CategoriesMutex sync.Mutex
-	PurchasesMutex  sync.Mutex
-	UsersMutex      sync.Mutex
+	CategoriesMutex sync.RWMutex
+	PurchasesMutex  sync.RWMutex
+	UsersMutex      sync.RWMutex
 
-	Categories []category
-	Purchases  []purchase
-	Users      []user
+	// любые действия с нижеперечисленными данными нужно совершать только через аксессоры
+	Categories []categoryRow
+	Purchases  []purchaseRow
+	Users      []userRow
+}
+
+type userRow struct {
+	sync.RWMutex
+	user
 }
 
 type user struct {
@@ -27,9 +34,19 @@ type user struct {
 	Currency Currency // выбранная пользователем валюта
 }
 
+type categoryRow struct {
+	sync.RWMutex
+	category
+}
+
 type category struct {
 	UserID   int64
 	Category string
+}
+
+type purchaseRow struct {
+	sync.RWMutex
+	purchase
 }
 
 type purchase struct {

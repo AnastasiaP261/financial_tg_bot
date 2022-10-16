@@ -1,6 +1,7 @@
 package store
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,8 +10,8 @@ import (
 
 func Test_ChangeCurrency(t *testing.T) {
 	s := New()
-	s.Users = []user{
-		{UserID: 123, Currency: RUB},
+	s.Users = []userRow{
+		{sync.RWMutex{}, user{UserID: 123, Currency: RUB}},
 	}
 
 	err := s.ChangeCurrency(123, purchases.USD)
@@ -19,12 +20,12 @@ func Test_ChangeCurrency(t *testing.T) {
 	assert.Equal(t, []user{{
 		UserID:   123,
 		Currency: USD,
-	}}, s.Users)
+	}}, s.usersAccessRead())
 }
 
 func Test_addUser(t *testing.T) {
 	s := New()
-	s.Users = []user{}
+	s.Users = []userRow{}
 
 	err := s.addUser(123)
 
@@ -32,13 +33,13 @@ func Test_addUser(t *testing.T) {
 	assert.Equal(t, []user{{
 		UserID:   123,
 		Currency: RUB,
-	}}, s.Users)
+	}}, s.usersAccessRead())
 }
 
 func Test_getUserInfo(t *testing.T) {
 	s := New()
-	s.Users = []user{
-		{UserID: 123, Currency: RUB},
+	s.Users = []userRow{
+		{sync.RWMutex{}, user{UserID: 123, Currency: RUB}},
 	}
 
 	res, err := s.getUserInfo(123)
@@ -53,8 +54,8 @@ func Test_getUserInfo(t *testing.T) {
 func Test_userExist(t *testing.T) {
 	t.Run("юзер есть", func(t *testing.T) {
 		s := New()
-		s.Users = []user{
-			{UserID: 123, Currency: RUB},
+		s.Users = []userRow{
+			{sync.RWMutex{}, user{UserID: 123, Currency: RUB}},
 		}
 
 		res, err := s.userExist(123)
@@ -65,7 +66,7 @@ func Test_userExist(t *testing.T) {
 
 	t.Run("юзера нет", func(t *testing.T) {
 		s := New()
-		s.Users = []user{}
+		s.Users = []userRow{}
 
 		res, err := s.userExist(123)
 
