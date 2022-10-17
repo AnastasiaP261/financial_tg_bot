@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  tgbot:
+    volumes:
+      - ./secrets:/secrets
+    build: .
+
+  postgres:
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: "finance"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "5432:5432"

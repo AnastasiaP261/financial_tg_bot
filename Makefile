@@ -1,11 +1,14 @@
 CURDIR=$(shell pwd)
-BINDIR=${CURDIR}/bin
+GOOSE_BIN=$(shell go env GOPATH)/bin/goose
 GOVER=$(shell go version | perl -nle '/(go\d\S+)/; print $$1;')
 MOCKGEN=${BINDIR}/mockgen_${GOVER}
 SMARTIMPORTS=${BINDIR}/smartimports_${GOVER}
 LINTVER=v1.49.0
 LINTBIN=${BINDIR}/lint_${GOVER}_${LINTVER}
 PACKAGE=gitlab.ozon.dev/apetrichuk/financial-tg-bot/cmd/bot
+DEV_CREDS := postgresql://postgres:postgres@127.0.0.1:5432
+DEV_DBNAME := finance
+DEV_DBCONTAINER := postgres
 
 all: format generate build test lint
 
@@ -50,5 +53,11 @@ install-smartimports: bindir
 		(GOBIN=${BINDIR} go install github.com/pav5000/smartimports/cmd/smartimports@latest && \
 		mv ${BINDIR}/smartimports ${SMARTIMPORTS})
 
+.PHONY: dev-db-data
+__dev-db-data:
+	${GOOSE_BIN} -dir ${CURDIR}/migrations postgres "${DEV_CREDS}/${DEV_DBNAME}?sslmode=disable" up
+	${GOOSE_BIN} -dir ${CURDIR}/migrations postgres "${DEV_CREDS}/${DEV_DBNAME}?sslmode=disable" reset
+	${GOOSE_BIN} -dir ${CURDIR}/migrations postgres "${DEV_CREDS}/${DEV_DBNAME}?sslmode=disable" up
+
 docker-run:
-	sudo docker compose up
+	docker-compose up && sleep 4 && make __dev-db-data
