@@ -61,4 +61,4 @@ __dev-db-data:
 	${GOOSE_BIN} -dir ${CURDIR}/migrations postgres "${DEV_CREDS}/${DEV_DBNAME}?sslmode=disable" up
 
 docker-run:
-	docker-compose up && sleep 4 && make __dev-db-data
+	docker-compose up
