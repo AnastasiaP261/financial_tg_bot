@@ -1,0 +1,7 @@
+token: sometokensometokensometokensometoken
+fixer-api-token: sometokensometokensometokensometoken
+
+dbUri: someuri://someuri:port/db
+dbName: dbName
+dbUser: user
+dbPass: pass

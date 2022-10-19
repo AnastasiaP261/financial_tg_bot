@@ -1,5 +1,6 @@
 CURDIR=$(shell pwd)
 GOOSE_BIN=$(shell go env GOPATH)/bin/goose
+BINDIR=${CURDIR}/bin
 GOVER=$(shell go version | perl -nle '/(go\d\S+)/; print $$1;')
 MOCKGEN=${BINDIR}/mockgen_${GOVER}
 SMARTIMPORTS=${BINDIR}/smartimports_${GOVER}

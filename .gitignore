@@ -1,5 +1,5 @@
 /bin/
 /.idea/
 
-/secrets/
-!/secrets/config.example.yaml
+/config/
+!/config/config.example.yaml

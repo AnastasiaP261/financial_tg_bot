@@ -2,7 +2,7 @@ version: "3.9"
 services:
   tgbot:
     volumes:
-      - ./secrets:/secrets
+      - ./config:/config
     build: .
 
   postgres:

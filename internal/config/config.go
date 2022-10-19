@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const configFile = "secrets/config.yaml"
+const configFile = "config/config.yaml"
 
 type Config struct {
 	Token         string `yaml:"token"`
