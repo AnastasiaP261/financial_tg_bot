@@ -1,15 +1,22 @@
 version: "3.9"
 services:
+  pg:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: "finance"
+      POSTGRES_USER: "finance-user"
+      POSTGRES_PASSWORD: "finance-pass"
+    ports:
+      - "5432:5432"
+
   tgbot:
     volumes:
       - ./config:/config
-    build: .
-
-  postgres:
-    image: postgres:13.3
-    environment:
-      POSTGRES_DB: "finance"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
-    ports:
-      - "5432:5432"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    depends_on:
+      - pg
+    links:
+      - pg

@@ -1,15 +1,11 @@
-FROM golang:latest AS builder
+FROM golang:1.18-alpine AS builder
 
-WORKDIR /build
-COPY . .
-RUN go get github.com/pressly/goose/cmd/goose@latest
-RUN go build -o /build/app gitlab.ozon.dev/apetrichuk/financial-tg-bot/cmd/bot
+WORKDIR /app
 
-CMD ["/app"]
-ENTRYPOINT ["/bin/bash", "./migration.sh"]
-RUN ls
-RUN /migration.sh
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
-FROM ubuntu:22.04
-RUN apt-get update && apt-get install -y ca-certificates
-COPY --from=builder /build/app /app
+COPY . ./
+
+RUN go mod download
+RUN go build -v -o /bin/program ./cmd/bot/main.go
+CMD ["/bin/program"]
