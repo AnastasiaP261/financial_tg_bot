@@ -12,6 +12,10 @@ const configFile = "config/config.yaml"
 type Config struct {
 	Token         string `yaml:"token"`
 	FixerAPIToken string `yaml:"fixer-api-token"`
+	DBUri         string `yaml:"dbUri"`
+	DBName        string `yaml:"dbName"`
+	DBUser        string `yaml:"dbUser"`
+	DBPass        string `yaml:"dbPass"`
 }
 
 type Service struct {
@@ -40,4 +44,8 @@ func (s *Service) Token() string {
 
 func (s *Service) FixerAPIToken() string {
 	return s.config.FixerAPIToken
+}
+
+func (s *Service) DBUri() string {
+	return s.config.DBUri
 }

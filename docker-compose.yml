@@ -16,6 +16,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder
+    restart: unless-stopped
     depends_on:
       - pg
     links:
