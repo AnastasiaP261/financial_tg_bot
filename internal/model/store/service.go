@@ -7,17 +7,36 @@ import (
 
 func New() *Service {
 	return &Service{
-		Categories: []category{},
-		Purchases:  []purchase{},
+		Categories: []categoryRow{},
+		Purchases:  []purchaseRow{},
+		Users:      []userRow{},
 	}
 }
 
 type Service struct {
-	CategoriesMutex sync.Mutex
-	PurchasesMutex  sync.Mutex
+	CategoriesMutex sync.RWMutex
+	PurchasesMutex  sync.RWMutex
+	UsersMutex      sync.RWMutex
 
-	Categories []category
-	Purchases  []purchase
+	// любые действия с нижеперечисленными данными нужно совершать только через аксессоры
+	Categories []categoryRow
+	Purchases  []purchaseRow
+	Users      []userRow
+}
+
+type userRow struct {
+	sync.RWMutex
+	user
+}
+
+type user struct {
+	UserID   int64
+	Currency Currency // выбранная пользователем валюта
+}
+
+type categoryRow struct {
+	sync.RWMutex
+	category
 }
 
 type category struct {
@@ -25,9 +44,36 @@ type category struct {
 	Category string
 }
 
+type purchaseRow struct {
+	sync.RWMutex
+	purchase
+}
+
 type purchase struct {
 	UserID   int64
-	Sum      float64
+	Sum      float64 // сумма траты в рублях
 	Category string
 	Date     time.Time
+
+	// коэффициенты валют на момент совершения траты
+	USDRatio float64
+	CNYRatio float64
+	EURRatio float64
 }
+
+// Currency тип валюты
+type Currency byte
+
+const (
+	// RUB валюта - рубль
+	RUB Currency = 0
+
+	// USD валюта - доллар
+	USD Currency = 1
+
+	// EUR валюта - евро
+	EUR Currency = 2
+
+	// CNY валюта - китайский юань
+	CNY Currency = 3
+)

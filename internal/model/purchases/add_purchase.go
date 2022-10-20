@@ -15,6 +15,11 @@ type AddPurchaseReq struct {
 	Sum      float64
 	Category string
 	Date     time.Time
+
+	// коэффициенты валют на момент совершения траты
+	USDRatio float64
+	CNYRatio float64
+	EURRatio float64
 }
 
 // CategoryRow тело запроса в Repo для проверки существования категории у пользователя
@@ -28,13 +33,13 @@ type CategoryRow struct {
 // Если rawDate пустой, для траты будет выставлена текущая дата.
 func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) error {
 	var (
-		sum           float64
+		sumCurrency   float64
 		categoryExist bool
 		date          time.Time
 		err           error
 	)
 
-	sum, err = strconv.ParseFloat(rawSum, 64)
+	sumCurrency, err = strconv.ParseFloat(rawSum, 64)
 	if err != nil {
 		return ErrSummaParsing
 	}
@@ -62,11 +67,26 @@ func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) erro
 		date = time.Now()
 	}
 
+	rates := m.ExchangeRatesModel.GetExchangeRateToRUB()
+
+	info, err := m.Repo.GetUserInfo(userID)
+	if err != nil {
+		return errors.Wrap(err, "Repo.GetUserInfo")
+	}
+
+	sum, err := m.toRUB(info.Currency, sumCurrency, rates)
+	if err != nil {
+		return errors.Wrap(err, "toRUB")
+	}
+
 	if err = m.Repo.AddPurchase(AddPurchaseReq{
 		UserID:   userID,
 		Sum:      sum,
 		Category: category,
 		Date:     date,
+		CNYRatio: rates.CNY,
+		EURRatio: rates.EUR,
+		USDRatio: rates.USD,
 	}); err != nil {
 		return errors.Wrap(err, "Repo.AddPurchase")
 	}

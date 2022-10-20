@@ -16,6 +16,8 @@ type PurchasesModel interface {
 	AddCategory(userID int64, category string) error
 	Report(period purchases.Period, userID int64) (txt string, img []byte, err error)
 	ToPeriod(str string) (purchases.Period, error)
+	ChangeUserCurrency(userID int64, currency purchases.Currency) error
+	StrToCurrency(str string) (purchases.Currency, error)
 }
 
 type Model struct {
@@ -40,9 +42,9 @@ type Message struct {
 var (
 	// addPurchaseOnlySum сообщение о добавлении траты без категории и даты (указывается текущая дата)
 	addPurchaseOnlySum = regexp.MustCompile(`/add (\d+.?\d*)`)
-	// addPurchaseSumAndCategory сообщение о добавлении траты c категорией но без даты (указывается текущая дата)
+	// addPurchaseSumAndCategory сообщение о добавлении траты с категорией, но без даты (указывается текущая дата)
 	addPurchaseSumAndCategory = regexp.MustCompile(`/add (\d+.?\d*) ([ \wФА-Яа-я]+)`)
-	// addPurchaseSumAndCategoryAndDate сообщение о добавлении траты c категорией и датой
+	// addPurchaseSumAndCategoryAndDate сообщение о добавлении траты с категорией и датой
 	addPurchaseSumAndCategoryAndDate = regexp.MustCompile(`/add (\d+\.?\d*) ([ \wФА-Яа-я]+) (\d{2}\.\d{2}\.\d{4})`)
 
 	// addCategory добавление новой категории
@@ -50,6 +52,9 @@ var (
 
 	// report создание отчета за выбранный период
 	report = regexp.MustCompile(`/report (month|week|year)`)
+
+	// команда для смены основной валюты пользователя
+	currency = regexp.MustCompile(`/currency ([A-Za-z]{3})`)
 )
 
 func (m *Model) IncomingMessage(msg Message) error {
@@ -86,6 +91,14 @@ func (m *Model) IncomingMessage(msg Message) error {
 		}
 
 		return m.msgAddPurchase(msg, res[1], "", "")
+
+	case currency.MatchString(msg.Text):
+		res := currency.FindStringSubmatch(msg.Text)
+		if len(res) < 2 {
+			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+		}
+
+		return m.msgCurrency(msg, res[1])
 
 	default:
 		return m.tgClient.SendMessage(ErrTxtUnknownCommand, msg.UserID, msg.UserName)
