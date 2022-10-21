@@ -7,6 +7,26 @@ import (
 	"github.com/pkg/errors"
 )
 
+var (
+	tblUsers            = "users"
+	tblUsersColID       = "id"
+	tblUsersColCurrency = "curr"
+
+	tblCategories                = "categories"
+	tblCategoriesColID           = "id"
+	tblCategoriesColUserID       = "user_id"
+	tblCategoriesColCategoryName = "category_name"
+
+	tblPurchases              = "purchases"
+	tblPurchasesColID         = "id"
+	tblPurchasesColCategoryID = "category_id"
+	tblPurchasesColSum        = "sum"
+	tblPurchasesColTimestamp  = "ts"
+	tblPurchasesColEURRatio   = "eur_ratio"
+	tblPurchasesColUSDRatio   = "usd_ratio"
+	tblPurchasesColCNYRatio   = "cny_ratio"
+)
+
 type configGetter interface {
 	DBUri() string
 }

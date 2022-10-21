@@ -12,7 +12,6 @@ import (
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/exchange_rates"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/store"
 )
 
 func main() {
@@ -34,8 +33,6 @@ func main() {
 		log.Fatal("tg client init failed:", err)
 	}
 	fixerClient := fixer.New(ctx, conf)
-
-	_ = store.New() // TODO: rm
 
 	chartDrawingModel := chart_drawing.New()
 	exchangesRatesModel := exchange_rates.New(fixerClient)
