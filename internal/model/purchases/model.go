@@ -1,9 +1,9 @@
 package purchases
 
 import (
-	"time"
-
+	"context"
 	"github.com/pkg/errors"
+	"time"
 )
 
 var (
@@ -15,12 +15,12 @@ var (
 
 // Repo репозиторий
 type Repo interface {
-	AddPurchase(req AddPurchaseReq) error
-	CategoryExist(req CategoryRow) (bool, error)
-	AddCategory(req CategoryRow) error
-	GetUserPurchasesFromDate(fromDate time.Time, userID int64) ([]Purchase, error)
-	ChangeCurrency(userID int64, currency Currency) error
-	GetUserInfo(userID int64) (User, error)
+	AddPurchase(ctx context.Context, req AddPurchaseReq) error
+	CategoryExist(ctx context.Context, req CategoryRow) (bool, error)
+	AddCategory(ctx context.Context, req CategoryRow) error
+	GetUserPurchasesFromDate(ctx context.Context, fromDate time.Time, userID int64) ([]Purchase, error)
+	ChangeCurrency(ctx context.Context, userID int64, currency Currency) error
+	GetUserInfo(ctx context.Context, userID int64) (User, error)
 }
 
 // ChartDrawer рисовальщик

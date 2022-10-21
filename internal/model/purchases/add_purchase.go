@@ -1,6 +1,7 @@
 package purchases
 
 import (
+	"context"
 	"strconv"
 	"strings"
 	"time"
@@ -31,7 +32,7 @@ type CategoryRow struct {
 // AddPurchase добавляет трату.
 // Если category пустой, трата будет добавлена без категории.
 // Если rawDate пустой, для траты будет выставлена текущая дата.
-func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) error {
+func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category, rawDate string) error {
 	var (
 		sumCurrency   float64
 		categoryExist bool
@@ -46,7 +47,7 @@ func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) erro
 
 	if category != "" {
 		category = strings.ToLower(category)
-		categoryExist, err = m.Repo.CategoryExist(CategoryRow{
+		categoryExist, err = m.Repo.CategoryExist(ctx, CategoryRow{
 			UserID:   userID,
 			Category: normalize.Category(category),
 		})
@@ -69,7 +70,7 @@ func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) erro
 
 	rates := m.ExchangeRatesModel.GetExchangeRateToRUB()
 
-	info, err := m.Repo.GetUserInfo(userID)
+	info, err := m.Repo.GetUserInfo(ctx, userID)
 	if err != nil {
 		return errors.Wrap(err, "Repo.GetUserInfo")
 	}
@@ -79,7 +80,7 @@ func (m *Model) AddPurchase(userID int64, rawSum, category, rawDate string) erro
 		return errors.Wrap(err, "toRUB")
 	}
 
-	if err = m.Repo.AddPurchase(AddPurchaseReq{
+	if err = m.Repo.AddPurchase(ctx, AddPurchaseReq{
 		UserID:   userID,
 		Sum:      sum,
 		Category: category,

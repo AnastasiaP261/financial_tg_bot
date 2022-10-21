@@ -1,6 +1,7 @@
 package purchases
 
 import (
+	"context"
 	"sort"
 	"strconv"
 	"strings"
@@ -50,18 +51,18 @@ type Segment struct {
 }
 
 // Report создание отчета
-func (m *Model) Report(period Period, userID int64) (txt string, img []byte, err error) {
+func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt string, img []byte, err error) {
 	from, err := fromTime(time.Now(), period)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "fromTime")
 	}
 
-	purchases, err := m.Repo.GetUserPurchasesFromDate(from, userID)
+	purchases, err := m.Repo.GetUserPurchasesFromDate(ctx, from, userID)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "Repo.GetUserPurchasesFromDate")
 	}
 
-	info, err := m.Repo.GetUserInfo(userID)
+	info, err := m.Repo.GetUserInfo(ctx, userID)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "Repo.GetUserInfo")
 	}

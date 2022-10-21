@@ -5,6 +5,7 @@
 package mock_purchases
 
 import (
+	context "context"
 	reflect "reflect"
 	time "time"
 
@@ -36,90 +37,90 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 }
 
 // AddCategory mocks base method.
-func (m *MockRepo) AddCategory(req purchases.CategoryRow) error {
+func (m *MockRepo) AddCategory(ctx context.Context, req purchases.CategoryRow) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddCategory", req)
+	ret := m.ctrl.Call(m, "AddCategory", ctx, req)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddCategory indicates an expected call of AddCategory.
-func (mr *MockRepoMockRecorder) AddCategory(req interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) AddCategory(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCategory", reflect.TypeOf((*MockRepo)(nil).AddCategory), req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCategory", reflect.TypeOf((*MockRepo)(nil).AddCategory), ctx, req)
 }
 
 // AddPurchase mocks base method.
-func (m *MockRepo) AddPurchase(req purchases.AddPurchaseReq) error {
+func (m *MockRepo) AddPurchase(ctx context.Context, req purchases.AddPurchaseReq) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddPurchase", req)
+	ret := m.ctrl.Call(m, "AddPurchase", ctx, req)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddPurchase indicates an expected call of AddPurchase.
-func (mr *MockRepoMockRecorder) AddPurchase(req interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) AddPurchase(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPurchase", reflect.TypeOf((*MockRepo)(nil).AddPurchase), req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPurchase", reflect.TypeOf((*MockRepo)(nil).AddPurchase), ctx, req)
 }
 
 // CategoryExist mocks base method.
-func (m *MockRepo) CategoryExist(req purchases.CategoryRow) (bool, error) {
+func (m *MockRepo) CategoryExist(ctx context.Context, req purchases.CategoryRow) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CategoryExist", req)
+	ret := m.ctrl.Call(m, "CategoryExist", ctx, req)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CategoryExist indicates an expected call of CategoryExist.
-func (mr *MockRepoMockRecorder) CategoryExist(req interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) CategoryExist(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CategoryExist", reflect.TypeOf((*MockRepo)(nil).CategoryExist), req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CategoryExist", reflect.TypeOf((*MockRepo)(nil).CategoryExist), ctx, req)
 }
 
 // ChangeCurrency mocks base method.
-func (m *MockRepo) ChangeCurrency(userID int64, currency purchases.Currency) error {
+func (m *MockRepo) ChangeCurrency(ctx context.Context, userID int64, currency purchases.Currency) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ChangeCurrency", userID, currency)
+	ret := m.ctrl.Call(m, "ChangeCurrency", ctx, userID, currency)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ChangeCurrency indicates an expected call of ChangeCurrency.
-func (mr *MockRepoMockRecorder) ChangeCurrency(userID, currency interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) ChangeCurrency(ctx, userID, currency interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeCurrency", reflect.TypeOf((*MockRepo)(nil).ChangeCurrency), userID, currency)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeCurrency", reflect.TypeOf((*MockRepo)(nil).ChangeCurrency), ctx, userID, currency)
 }
 
 // GetUserInfo mocks base method.
-func (m *MockRepo) GetUserInfo(userID int64) (purchases.User, error) {
+func (m *MockRepo) GetUserInfo(ctx context.Context, userID int64) (purchases.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserInfo", userID)
+	ret := m.ctrl.Call(m, "GetUserInfo", ctx, userID)
 	ret0, _ := ret[0].(purchases.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserInfo indicates an expected call of GetUserInfo.
-func (mr *MockRepoMockRecorder) GetUserInfo(userID interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) GetUserInfo(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserInfo", reflect.TypeOf((*MockRepo)(nil).GetUserInfo), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserInfo", reflect.TypeOf((*MockRepo)(nil).GetUserInfo), ctx, userID)
 }
 
 // GetUserPurchasesFromDate mocks base method.
-func (m *MockRepo) GetUserPurchasesFromDate(fromDate time.Time, userID int64) ([]purchases.Purchase, error) {
+func (m *MockRepo) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Time, userID int64) ([]purchases.Purchase, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserPurchasesFromDate", fromDate, userID)
+	ret := m.ctrl.Call(m, "GetUserPurchasesFromDate", ctx, fromDate, userID)
 	ret0, _ := ret[0].([]purchases.Purchase)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserPurchasesFromDate indicates an expected call of GetUserPurchasesFromDate.
-func (mr *MockRepoMockRecorder) GetUserPurchasesFromDate(fromDate, userID interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) GetUserPurchasesFromDate(ctx, fromDate, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPurchasesFromDate", reflect.TypeOf((*MockRepo)(nil).GetUserPurchasesFromDate), fromDate, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPurchasesFromDate", reflect.TypeOf((*MockRepo)(nil).GetUserPurchasesFromDate), ctx, fromDate, userID)
 }
 
 // MockChartDrawer is a mock of ChartDrawer interface.
