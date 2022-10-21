@@ -12,7 +12,7 @@ func (m *Model) msgReport(ctx context.Context, msg Message) error {
 		return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 	}
 
-	period, err := m.purchasesModel.ToPeriod(ctx, res[1])
+	period, err := m.purchasesModel.ToPeriod(res[1])
 	if err != nil {
 		return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 	}

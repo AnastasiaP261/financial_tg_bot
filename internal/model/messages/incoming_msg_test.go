@@ -56,7 +56,7 @@ func Test_OnAddPurchaseCommand(t *testing.T) {
 		model := New(sender, purchasesModel)
 
 		sender.EXPECT().SendMessage("Трата добавлена", int64(123), "name")
-		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), "", "").Return(nil)
+		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), gomock.Any(), "", "").Return(nil)
 
 		err := model.IncomingMessage(ctx, Message{
 			Text:     "/add 123.45",
@@ -74,7 +74,7 @@ func Test_OnAddPurchaseCommand(t *testing.T) {
 		model := New(sender, purchasesModel)
 
 		sender.EXPECT().SendMessage("Трата добавлена", int64(123), "name")
-		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), gomock.Any(), "").Return(nil)
+		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), "").Return(nil)
 
 		err := model.IncomingMessage(ctx, Message{
 			Text:     "/add 123.45 категория какая то",
@@ -92,7 +92,7 @@ func Test_OnAddPurchaseCommand(t *testing.T) {
 		model := New(sender, purchasesModel)
 
 		sender.EXPECT().SendMessage("Трата добавлена", int64(123), "name")
-		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 		err := model.IncomingMessage(ctx, Message{
 			Text:     "/add 123.45 категория какая то 01.01.2022",
@@ -111,7 +111,7 @@ func Test_OnAddCategoryCommand(t *testing.T) {
 	model := New(sender, purchasesModel)
 
 	sender.EXPECT().SendMessage("Категория добавлена", int64(123), "name")
-	purchasesModel.EXPECT().AddCategory(gomock.Any(), gomock.Any()).Return(nil)
+	purchasesModel.EXPECT().AddCategory(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 	err := model.IncomingMessage(ctx, Message{
 		Text:     "/category категория",

@@ -5,6 +5,7 @@
 package mock_messages
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -86,51 +87,51 @@ func (m *MockPurchasesModel) EXPECT() *MockPurchasesModelMockRecorder {
 }
 
 // AddCategory mocks base method.
-func (m *MockPurchasesModel) AddCategory(userID int64, category string) error {
+func (m *MockPurchasesModel) AddCategory(ctx context.Context, userID int64, category string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddCategory", userID, category)
+	ret := m.ctrl.Call(m, "AddCategory", ctx, userID, category)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddCategory indicates an expected call of AddCategory.
-func (mr *MockPurchasesModelMockRecorder) AddCategory(userID, category interface{}) *gomock.Call {
+func (mr *MockPurchasesModelMockRecorder) AddCategory(ctx, userID, category interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCategory", reflect.TypeOf((*MockPurchasesModel)(nil).AddCategory), userID, category)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCategory", reflect.TypeOf((*MockPurchasesModel)(nil).AddCategory), ctx, userID, category)
 }
 
 // AddPurchase mocks base method.
-func (m *MockPurchasesModel) AddPurchase(userID int64, rawSum, category, rawDate string) error {
+func (m *MockPurchasesModel) AddPurchase(ctx context.Context, userID int64, rawSum, category, rawDate string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddPurchase", userID, rawSum, category, rawDate)
+	ret := m.ctrl.Call(m, "AddPurchase", ctx, userID, rawSum, category, rawDate)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddPurchase indicates an expected call of AddPurchase.
-func (mr *MockPurchasesModelMockRecorder) AddPurchase(userID, rawSum, category, rawDate interface{}) *gomock.Call {
+func (mr *MockPurchasesModelMockRecorder) AddPurchase(ctx, userID, rawSum, category, rawDate interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPurchase", reflect.TypeOf((*MockPurchasesModel)(nil).AddPurchase), userID, rawSum, category, rawDate)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPurchase", reflect.TypeOf((*MockPurchasesModel)(nil).AddPurchase), ctx, userID, rawSum, category, rawDate)
 }
 
 // ChangeUserCurrency mocks base method.
-func (m *MockPurchasesModel) ChangeUserCurrency(userID int64, currency purchases.Currency) error {
+func (m *MockPurchasesModel) ChangeUserCurrency(ctx context.Context, userID int64, currency purchases.Currency) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ChangeUserCurrency", userID, currency)
+	ret := m.ctrl.Call(m, "ChangeUserCurrency", ctx, userID, currency)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ChangeUserCurrency indicates an expected call of ChangeUserCurrency.
-func (mr *MockPurchasesModelMockRecorder) ChangeUserCurrency(userID, currency interface{}) *gomock.Call {
+func (mr *MockPurchasesModelMockRecorder) ChangeUserCurrency(ctx, userID, currency interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeUserCurrency", reflect.TypeOf((*MockPurchasesModel)(nil).ChangeUserCurrency), userID, currency)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeUserCurrency", reflect.TypeOf((*MockPurchasesModel)(nil).ChangeUserCurrency), ctx, userID, currency)
 }
 
 // Report mocks base method.
-func (m *MockPurchasesModel) Report(period purchases.Period, userID int64) (string, []byte, error) {
+func (m *MockPurchasesModel) Report(ctx context.Context, period purchases.Period, userID int64) (string, []byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Report", period, userID)
+	ret := m.ctrl.Call(m, "Report", ctx, period, userID)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].([]byte)
 	ret2, _ := ret[2].(error)
@@ -138,9 +139,9 @@ func (m *MockPurchasesModel) Report(period purchases.Period, userID int64) (stri
 }
 
 // Report indicates an expected call of Report.
-func (mr *MockPurchasesModelMockRecorder) Report(period, userID interface{}) *gomock.Call {
+func (mr *MockPurchasesModelMockRecorder) Report(ctx, period, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Report", reflect.TypeOf((*MockPurchasesModel)(nil).Report), period, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Report", reflect.TypeOf((*MockPurchasesModel)(nil).Report), ctx, period, userID)
 }
 
 // StrToCurrency mocks base method.

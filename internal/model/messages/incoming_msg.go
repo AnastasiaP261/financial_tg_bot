@@ -16,7 +16,7 @@ type PurchasesModel interface {
 	AddPurchase(ctx context.Context, userID int64, rawSum, category, rawDate string) error
 	AddCategory(ctx context.Context, userID int64, category string) error
 	Report(ctx context.Context, period purchases.Period, userID int64) (txt string, img []byte, err error)
-	ToPeriod(ctx context.Context, str string) (purchases.Period, error)
+	ToPeriod(str string) (purchases.Period, error)
 	ChangeUserCurrency(ctx context.Context, userID int64, currency purchases.Currency) error
 	StrToCurrency(str string) (purchases.Currency, error)
 }
