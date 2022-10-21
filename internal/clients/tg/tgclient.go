@@ -1,6 +1,7 @@
 package tg
 
 import (
+	"context"
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -50,7 +51,7 @@ func (c *Client) SendImage(img []byte, chatID int64, userName string) error {
 	return nil
 }
 
-func (c *Client) ListenUpdates(msgModel *messages.Model) {
+func (c *Client) ListenUpdates(ctx context.Context, msgModel *messages.Model) {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -62,7 +63,7 @@ func (c *Client) ListenUpdates(msgModel *messages.Model) {
 		if update.Message != nil { // If we got a message
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
-			err := msgModel.IncomingMessage(messages.Message{
+			err := msgModel.IncomingMessage(ctx, messages.Message{
 				Text:     update.Message.Text,
 				UserID:   update.Message.From.ID,
 				ChatID:   update.Message.Chat.ID,

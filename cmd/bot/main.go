@@ -24,7 +24,7 @@ func main() {
 		log.Fatal("config init failed:", err)
 	}
 
-	_, err = db.New(ctx, conf)
+	db, err := db.New(ctx, conf)
 	if err != nil {
 		log.Fatal("database init failed:", err)
 	}
@@ -35,13 +35,13 @@ func main() {
 	}
 	fixerClient := fixer.New(ctx, conf)
 
-	store := store.New()
+	_ = store.New() // TODO: rm
 
 	chartDrawingModel := chart_drawing.New()
 	exchangesRatesModel := exchange_rates.New(fixerClient)
-	purchasesModel := purchases.New(store, chartDrawingModel, exchangesRatesModel)
+	purchasesModel := purchases.New(db, chartDrawingModel, exchangesRatesModel)
 
 	msgModel := messages.New(tgClient, purchasesModel)
 
-	tgClient.ListenUpdates(msgModel)
+	tgClient.ListenUpdates(ctx, msgModel)
 }
