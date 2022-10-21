@@ -1,6 +1,7 @@
 package messages
 
 import (
+	"context"
 	"regexp"
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
@@ -12,11 +13,11 @@ type MessageSender interface {
 }
 
 type PurchasesModel interface {
-	AddPurchase(userID int64, rawSum, category, rawDate string) error
-	AddCategory(userID int64, category string) error
-	Report(period purchases.Period, userID int64) (txt string, img []byte, err error)
-	ToPeriod(str string) (purchases.Period, error)
-	ChangeUserCurrency(userID int64, currency purchases.Currency) error
+	AddPurchase(ctx context.Context, userID int64, rawSum, category, rawDate string) error
+	AddCategory(ctx context.Context, userID int64, category string) error
+	Report(ctx context.Context, period purchases.Period, userID int64) (txt string, img []byte, err error)
+	ToPeriod(ctx context.Context, str string) (purchases.Period, error)
+	ChangeUserCurrency(ctx context.Context, userID int64, currency purchases.Currency) error
 	StrToCurrency(str string) (purchases.Currency, error)
 }
 
@@ -57,16 +58,16 @@ var (
 	currency = regexp.MustCompile(`/currency ([A-Za-z]{3})`)
 )
 
-func (m *Model) IncomingMessage(msg Message) error {
+func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 	switch {
 	case msg.Text == "/start":
 		return m.tgClient.SendMessage("hello", msg.UserID, msg.UserName)
 
 	case report.MatchString(msg.Text):
-		return m.msgReport(msg)
+		return m.msgReport(ctx, msg)
 
 	case addCategory.MatchString(msg.Text):
-		return m.msgAddCategory(msg)
+		return m.msgAddCategory(ctx, msg)
 
 	case addPurchaseSumAndCategoryAndDate.MatchString(msg.Text):
 		res := addPurchaseSumAndCategoryAndDate.FindStringSubmatch(msg.Text)
@@ -74,7 +75,7 @@ func (m *Model) IncomingMessage(msg Message) error {
 			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 		}
 
-		return m.msgAddPurchase(msg, res[1], res[2], res[3])
+		return m.msgAddPurchase(ctx, msg, res[1], res[2], res[3])
 
 	case addPurchaseSumAndCategory.MatchString(msg.Text):
 		res := addPurchaseSumAndCategory.FindStringSubmatch(msg.Text)
@@ -82,7 +83,7 @@ func (m *Model) IncomingMessage(msg Message) error {
 			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 		}
 
-		return m.msgAddPurchase(msg, res[1], res[2], "")
+		return m.msgAddPurchase(ctx, msg, res[1], res[2], "")
 
 	case addPurchaseOnlySum.MatchString(msg.Text):
 		res := addPurchaseOnlySum.FindStringSubmatch(msg.Text)
@@ -90,7 +91,7 @@ func (m *Model) IncomingMessage(msg Message) error {
 			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 		}
 
-		return m.msgAddPurchase(msg, res[1], "", "")
+		return m.msgAddPurchase(ctx, msg, res[1], "", "")
 
 	case currency.MatchString(msg.Text):
 		res := currency.FindStringSubmatch(msg.Text)
@@ -98,7 +99,7 @@ func (m *Model) IncomingMessage(msg Message) error {
 			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 		}
 
-		return m.msgCurrency(msg, res[1])
+		return m.msgCurrency(ctx, msg, res[1])
 
 	default:
 		return m.tgClient.SendMessage(ErrTxtUnknownCommand, msg.UserID, msg.UserName)

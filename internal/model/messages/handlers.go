@@ -1,22 +1,23 @@
 package messages
 
 import (
+	"context"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
-func (m *Model) msgReport(msg Message) error {
+func (m *Model) msgReport(ctx context.Context, msg Message) error {
 	res := report.FindStringSubmatch(msg.Text)
 	if len(res) < 2 {
 		return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 	}
 
-	period, err := m.purchasesModel.ToPeriod(res[1])
+	period, err := m.purchasesModel.ToPeriod(ctx, res[1])
 	if err != nil {
 		return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 	}
 
-	reportTxt, img, err := m.purchasesModel.Report(period, msg.UserID)
+	reportTxt, img, err := m.purchasesModel.Report(ctx, period, msg.UserID)
 	if err != nil {
 		err = errors.Wrap(err, "purchasesModel.Report")
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
@@ -30,13 +31,13 @@ func (m *Model) msgReport(msg Message) error {
 	return m.tgClient.SendImage(img, msg.ChatID, msg.UserName)
 }
 
-func (m *Model) msgAddCategory(msg Message) error {
+func (m *Model) msgAddCategory(ctx context.Context, msg Message) error {
 	res := addCategory.FindStringSubmatch(msg.Text)
 	if len(res) < 2 {
 		return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
 	}
 
-	err := m.purchasesModel.AddCategory(msg.UserID, res[1])
+	err := m.purchasesModel.AddCategory(ctx, msg.UserID, res[1])
 	if err != nil {
 		err = errors.Wrap(err, "purchasesModel.AddCategory")
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
@@ -44,8 +45,8 @@ func (m *Model) msgAddCategory(msg Message) error {
 	return m.tgClient.SendMessage(ScsTxtCategoryAdded, msg.UserID, msg.UserName)
 }
 
-func (m *Model) msgAddPurchase(msg Message, sum, category, date string) error {
-	if err := m.purchasesModel.AddPurchase(msg.UserID, sum, category, date); err != nil {
+func (m *Model) msgAddPurchase(ctx context.Context, msg Message, sum, category, date string) error {
+	if err := m.purchasesModel.AddPurchase(ctx, msg.UserID, sum, category, date); err != nil {
 		err = errors.Wrap(err, "purchasesModel.AddPurchase")
 		if errors.Is(err, purchases.ErrCategoryNotExist) {
 			return m.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID, msg.UserName)
@@ -55,13 +56,13 @@ func (m *Model) msgAddPurchase(msg Message, sum, category, date string) error {
 	return m.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID, msg.UserName)
 }
 
-func (m *Model) msgCurrency(msg Message, rawCY string) error {
+func (m *Model) msgCurrency(ctx context.Context, msg Message, rawCY string) error {
 	cy, err := m.purchasesModel.StrToCurrency(rawCY)
 	if err != nil {
 		return m.tgClient.SendMessage(ErrTxtInvalidCurrency, msg.UserID, msg.UserName)
 	}
 
-	if err = m.purchasesModel.ChangeUserCurrency(msg.UserID, cy); err != nil {
+	if err = m.purchasesModel.ChangeUserCurrency(ctx, msg.UserID, cy); err != nil {
 		err = errors.Wrap(err, "purchasesModel.ChangeUserCurrency")
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 	}
