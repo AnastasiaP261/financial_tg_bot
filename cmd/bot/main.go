@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/fixer"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
@@ -15,10 +16,15 @@ import (
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		log.Fatal("unknown environment")
+	}
+	env := os.Args[1]
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	conf, err := config.New()
+	conf, err := config.New(env)
 	if err != nil {
 		log.Fatal("config init failed:", err)
 	}

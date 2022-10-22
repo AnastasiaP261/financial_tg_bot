@@ -22,7 +22,7 @@ test:
 	go clean -testcache && go test ./...
 
 run:
-	go run ./cmd/bot
+	go run ./cmd/bot LOCAL
 
 generate: install-mockgen
 	${MOCKGEN} -source=internal/model/messages/incoming_msg.go -destination=internal/model/messages/_mocks/mocks.go

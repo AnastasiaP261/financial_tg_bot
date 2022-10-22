@@ -8,4 +8,4 @@ COPY . ./
 
 RUN go mod download
 RUN go build -v -o /bin/program ./cmd/bot/main.go
-CMD ["/bin/program"]
+CMD ["/bin/program", "PROD"]

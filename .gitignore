@@ -2,4 +2,5 @@
 /.idea/
 
 /config/
-!/config/config.example.yaml
+!/config/config_local.example.yaml
+!/config/config_prod.example.yaml
