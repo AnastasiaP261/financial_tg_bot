@@ -2,6 +2,7 @@ package purchases
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -33,11 +34,12 @@ type CategoryRow struct {
 // Если category пустой, трата будет добавлена без категории.
 // Если rawDate пустой, для траты будет выставлена текущая дата.
 func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category, rawDate string) error {
+	fmt.Println("### AddPurchase")
+
 	var (
-		sumCurrency   float64
-		categoryExist bool
-		date          time.Time
-		err           error
+		sumCurrency float64
+		date        time.Time
+		err         error
 	)
 
 	sumCurrency, err = strconv.ParseFloat(rawSum, 64)
@@ -47,14 +49,15 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 
 	if category != "" {
 		category = strings.ToLower(category)
-		categoryExist, err = m.Repo.CategoryExist(ctx, CategoryRow{
+		categoryID, err := m.Repo.GetCategoryID(ctx, CategoryRow{
 			UserID:   userID,
 			Category: normalize.Category(category),
 		})
+
 		if err != nil {
-			return errors.Wrap(err, "Repo.CategoryExist")
+			return errors.Wrap(err, "Repo.GetCategoryID")
 		}
-		if !categoryExist {
+		if categoryID == 0 {
 			return ErrCategoryNotExist
 		}
 	}

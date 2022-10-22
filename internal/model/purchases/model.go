@@ -16,7 +16,7 @@ var (
 // Repo репозиторий
 type Repo interface {
 	AddPurchase(ctx context.Context, req AddPurchaseReq) error
-	CategoryExist(ctx context.Context, req CategoryRow) (bool, error)
+	GetCategoryID(ctx context.Context, req CategoryRow) (uint64, error)
 	AddCategory(ctx context.Context, req CategoryRow) error
 	GetUserPurchasesFromDate(ctx context.Context, fromDate time.Time, userID int64) ([]Purchase, error)
 	ChangeCurrency(ctx context.Context, userID int64, currency Currency) error

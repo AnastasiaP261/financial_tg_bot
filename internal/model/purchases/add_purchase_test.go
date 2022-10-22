@@ -84,7 +84,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 
 		model := purchases.New(repo, nil, excRateModel)
 
-		repo.EXPECT().CategoryExist(gomock.Any(), gomock.Any()).Return(true, nil)
+		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		excRateModel.EXPECT().GetExchangeRateToRUB().Return(purchases.RateToRUB{
 			USD: 1,
 			EUR: 1,
@@ -109,7 +109,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 
 		model := purchases.New(repo, nil, excRateModel)
 
-		repo.EXPECT().CategoryExist(gomock.Any(), gomock.Any()).Return(false, nil)
+		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(0), nil)
 
 		err := model.AddPurchase(ctx, 123, "234.5", "some category", "")
 		assert.Error(t, err, purchases.ErrCategoryNotExist)
@@ -126,7 +126,7 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 
 		model := purchases.New(repo, nil, excRateModel)
 
-		repo.EXPECT().CategoryExist(gomock.Any(), gomock.Any()).Return(true, nil)
+		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		excRateModel.EXPECT().GetExchangeRateToRUB().Return(purchases.RateToRUB{
 			USD: 1,
 			EUR: 1,
@@ -151,7 +151,7 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 
 		model := purchases.New(repo, nil, excRateModel)
 
-		repo.EXPECT().CategoryExist(gomock.Any(), gomock.Any()).Return(true, nil)
+		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 
 		err := model.AddPurchase(ctx, 123, "234.5", "some category", "01-01-2022")
 		assert.Error(t, err, purchases.ErrDateParsing)

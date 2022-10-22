@@ -19,7 +19,7 @@ build: bindir
 	go build -o ${BINDIR}/bot ${PACKAGE}
 
 test:
-	go test ./...
+	go clean -testcache && go test ./...
 
 run:
 	go run ./cmd/bot
