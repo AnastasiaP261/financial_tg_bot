@@ -13,10 +13,10 @@ import (
 
 // AddPurchaseReq тело запроса в Repo для добавления траты
 type AddPurchaseReq struct {
-	UserID   int64
-	Sum      float64
-	Category string
-	Date     time.Time
+	UserID     int64
+	Sum        float64
+	CategoryID uint64
+	Date       time.Time
 
 	// коэффициенты валют на момент совершения траты
 	USDRatio float64
@@ -47,9 +47,10 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		return ErrSummaParsing
 	}
 
+	var categoryID uint64
 	if category != "" {
 		category = strings.ToLower(category)
-		categoryID, err := m.Repo.GetCategoryID(ctx, CategoryRow{
+		categoryID, err = m.Repo.GetCategoryID(ctx, CategoryRow{
 			UserID:   userID,
 			Category: normalize.Category(category),
 		})
@@ -84,13 +85,13 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 	}
 
 	if err = m.Repo.AddPurchase(ctx, AddPurchaseReq{
-		UserID:   userID,
-		Sum:      sum,
-		Category: category,
-		Date:     date,
-		CNYRatio: rates.CNY,
-		EURRatio: rates.EUR,
-		USDRatio: rates.USD,
+		UserID:     userID,
+		Sum:        sum,
+		CategoryID: categoryID,
+		Date:       date,
+		CNYRatio:   rates.CNY,
+		EURRatio:   rates.EUR,
+		USDRatio:   rates.USD,
 	}); err != nil {
 		return errors.Wrap(err, "Repo.AddPurchase")
 	}

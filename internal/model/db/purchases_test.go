@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	"testing"
@@ -35,20 +34,20 @@ func TestService_AddPurchase(t *testing.T) {
 		EURRatio float64 `db:"eur_ratio"`
 	}
 
-	t.Run("создание траты с категорией и заданной датой", func(t *testing.T) {
+	t.Run("создание траты с категорией", func(t *testing.T) {
 		t.Parallel()
 		ctx, s, close := start()
 		defer close()
 
 		nowTime := time.Now()
 		err := s.AddPurchase(ctx, model.AddPurchaseReq{
-			UserID:   123,
-			Sum:      100,
-			Category: "some category",
-			Date:     nowTime,
-			USDRatio: 1,
-			CNYRatio: 1,
-			EURRatio: 1,
+			UserID:     123,
+			Sum:        100,
+			CategoryID: 1,
+			Date:       nowTime,
+			USDRatio:   1,
+			CNYRatio:   1,
+			EURRatio:   1,
 		})
 
 		assert.NoError(t, err)
@@ -64,17 +63,15 @@ func TestService_AddPurchase(t *testing.T) {
 		ctx, s, close := start()
 		defer close()
 
-		fmt.Println("### !!!!")
-
 		nowTime := time.Now()
 		err := s.AddPurchase(ctx, model.AddPurchaseReq{
-			UserID:   123,
-			Sum:      100,
-			Category: "",
-			Date:     nowTime,
-			USDRatio: 1,
-			CNYRatio: 1,
-			EURRatio: 1,
+			UserID:     123,
+			Sum:        100,
+			CategoryID: 0,
+			Date:       nowTime,
+			USDRatio:   1,
+			CNYRatio:   1,
+			EURRatio:   1,
 		})
 
 		assert.NoError(t, err)

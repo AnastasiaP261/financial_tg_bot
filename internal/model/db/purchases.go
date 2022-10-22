@@ -39,24 +39,13 @@ func (s *Service) AddPurchase(ctx context.Context, req model.AddPurchaseReq) err
 		}
 	}
 
-	var (
-		categoryID uint64
-		err        error
-	)
-	if req.Category != "" {
-		categoryID, err = s.GetCategoryID(ctx, model.CategoryRow{
-			UserID:   req.UserID,
-			Category: req.Category,
-		})
-	} // если название категории не указано, то в айди категории будет записан 0
-
-	fmt.Println("### categoryID", categoryID)
+	fmt.Println("### categoryID", req.CategoryID)
 
 	query := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Insert(tblPurchases).
 		Columns(tblPurchasesColCategoryID, tblPurchasesColSum, tblPurchasesColEURRatio,
 			tblPurchasesColUSDRatio, tblPurchasesColCNYRatio).
-		Values(categoryID, req.Sum, req.EURRatio, req.USDRatio, req.CNYRatio)
+		Values(req.CategoryID, req.Sum, req.EURRatio, req.USDRatio, req.CNYRatio)
 
 	nullTime := time.Time{}
 	if req.Date == nullTime {
