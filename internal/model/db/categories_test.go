@@ -12,7 +12,6 @@ func TestService_GetCategoryID(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	t.Parallel()
 
 	ctx := context.Background()
 	s, close := NewTestDB(ctx, t)
@@ -47,7 +46,6 @@ func TestService_AddCategory(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	t.Parallel()
 
 	ctx := context.Background()
 	s, close := NewTestDB(ctx, t)

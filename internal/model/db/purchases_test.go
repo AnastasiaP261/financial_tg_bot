@@ -13,7 +13,6 @@ func TestService_AddPurchase(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	t.Parallel()
 
 	type purchase struct {
 		Sum        float64 `db:"sum"` // сумма траты в рублях
@@ -56,7 +55,6 @@ func TestService_GetUserPurchasesFromDate(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	t.Parallel()
 
 	ctx := context.Background()
 	s, close := NewTestDB(ctx, t)
