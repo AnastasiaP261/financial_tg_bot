@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
@@ -17,7 +17,6 @@ type category struct {
 
 // GetCategoryID получить id категории
 func (s *Service) GetCategoryID(ctx context.Context, req model.CategoryRow) (uint64, error) {
-	fmt.Println("### GetCategoryID")
 	if req.UserID == 0 {
 		return 0, errors.New("userID is empty")
 	}
@@ -41,8 +40,6 @@ func (s *Service) GetCategoryID(ctx context.Context, req model.CategoryRow) (uin
 		return 0, errors.Wrap(err, "query creating error")
 	}
 
-	fmt.Println("### q", q, args)
-
 	rows, err := s.db.QueryContext(ctx, q, args...)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -51,15 +48,14 @@ func (s *Service) GetCategoryID(ctx context.Context, req model.CategoryRow) (uin
 		return 0, errors.Wrap(err, "db.QueryRowContext")
 	}
 	var id uint64
-	read(rows, &id)
-
-	fmt.Println("### id", id)
+	if err = read(rows, &id); err != nil {
+		return 0, errors.Wrap(err, "read")
+	}
 
 	return id, nil
 }
 
 func (s *Service) AddCategory(ctx context.Context, req model.CategoryRow) error {
-	fmt.Println("### AddCategory")
 	if req.UserID == 0 {
 		return errors.New("userID is empty")
 	}

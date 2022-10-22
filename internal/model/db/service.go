@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -17,8 +18,8 @@ var (
 	tblCategoriesColUserID       = "user_id"
 	tblCategoriesColCategoryName = "category_name"
 
-	tblPurchases              = "purchases"
-	tblPurchasesColID         = "id"
+	tblPurchases = "purchases"
+	//tblPurchasesColID         = "id"
 	tblPurchasesColCategoryID = "category_id"
 	tblPurchasesColSum        = "sum"
 	tblPurchasesColTimestamp  = "ts"
@@ -59,13 +60,14 @@ type iterableScannerX interface {
 }
 
 // readX позволяет считать в структуру данные полученные из QueryxContext
-func readX[T iterableScannerX](rows T, dest any) {
+func readX[T iterableScannerX](rows T, dest any) error {
 	for rows.Next() {
 		err := rows.StructScan(dest)
 		if err != nil {
-			errors.Wrap(err, "rows.StructScan")
+			return errors.Wrap(err, "rows.StructScan")
 		}
 	}
+	return nil
 }
 
 type iterableScanner interface {
@@ -74,11 +76,12 @@ type iterableScanner interface {
 }
 
 // read позволяет считать в переменные данные полученные из QueryContext
-func read[T iterableScanner](rows T, dest any) {
+func read[T iterableScanner](rows T, dest any) error {
 	for rows.Next() {
 		err := rows.Scan(dest)
 		if err != nil {
-			errors.Wrap(err, "rows.StructScan")
+			return errors.Wrap(err, "rows.StructScan")
 		}
 	}
+	return nil
 }

@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
@@ -64,7 +64,6 @@ func currencyFromModelTypeConv(c model.Currency) (Currency, error) {
 // Нужно вызывать эту функцию в начале каждой другой команды. Это позволит лениво создать запись о пользователе и
 // снимет с модели ответственность за нормализацию данных
 func (s *Service) UserCreateIfNotExist(ctx context.Context, userID int64) error {
-	fmt.Println("### UserCreateIfNotExist")
 	ok, err := s.userExist(ctx, userID)
 	if err != nil {
 		return errors.Wrap(err, "userExist")
@@ -81,8 +80,6 @@ func (s *Service) UserCreateIfNotExist(ctx context.Context, userID int64) error 
 
 // userExist проверка, что такой юзер уже создан в базе
 func (s *Service) userExist(ctx context.Context, userID int64) (bool, error) {
-	fmt.Println("### userExist")
-
 	res, err := s.getUserInfo(ctx, userID)
 	if errors.Is(err, ErrUserDoesntExists) {
 		return false, nil
@@ -92,17 +89,14 @@ func (s *Service) userExist(ctx context.Context, userID int64) (bool, error) {
 	}
 
 	if res.UserID == 0 {
-		fmt.Println("### user not Exist")
 		return false, nil
 	}
 
-	fmt.Println("### user exist")
 	return true, nil
 }
 
 // addUser добавляет юзера с такой айдишкой в базу
 func (s *Service) addUser(ctx context.Context, userID int64) error {
-	fmt.Println("### addUser")
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Insert(tblUsers).
 		Columns(tblUsersColID, tblUsersColCurrency).
@@ -111,8 +105,6 @@ func (s *Service) addUser(ctx context.Context, userID int64) error {
 	if err != nil {
 		return errors.Wrap(err, "query creating error")
 	}
-
-	fmt.Println("### q", q, args)
 
 	if _, err = s.db.ExecContext(ctx, q, args...); err != nil {
 		return errors.Wrap(err, "db.ExecContext")
@@ -123,7 +115,6 @@ func (s *Service) addUser(ctx context.Context, userID int64) error {
 
 // ChangeCurrency смена валюты пользователя
 func (s *Service) ChangeCurrency(ctx context.Context, userID int64, currency model.Currency) error {
-	fmt.Println("### ChangeCurrency")
 	if err := s.UserCreateIfNotExist(ctx, userID); err != nil {
 		return errors.Wrap(err, "UserCreateIfNotExist")
 	}
@@ -177,8 +168,6 @@ func (s *Service) GetUserInfo(ctx context.Context, userID int64) (model.User, er
 
 // getUserInfo возвращает информацию о пользователе (для использования внутри пакета)
 func (s *Service) getUserInfo(ctx context.Context, userID int64) (user, error) {
-	fmt.Println("### getUserInfo")
-
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Select(tblUsersColID, tblUsersColCurrency).
 		From(tblUsers).
@@ -193,15 +182,15 @@ func (s *Service) getUserInfo(ctx context.Context, userID int64) (user, error) {
 	rows, err := s.db.QueryxContext(ctx, q, args...)
 
 	data := user{}
-	readX(rows, &data)
+	if err = readX(rows, &data); err != nil {
+		return user{}, errors.Wrap(err, "readX")
+	}
 
 	if err != nil && errors.Is(err, sql.ErrNoRows) || data.UserID == 0 {
 		return user{}, ErrUserDoesntExists
 	} else if err != nil {
 		return user{}, errors.Wrap(err, "db.QueryxContext")
 	}
-
-	fmt.Println("### data", data)
 
 	return data, nil
 }

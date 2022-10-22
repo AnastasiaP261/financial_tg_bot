@@ -2,7 +2,6 @@ package purchases
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -58,27 +57,20 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 		return "", nil, errors.Wrap(err, "fromTime")
 	}
 
-	fmt.Println("### from", from)
 	purchases, err := m.Repo.GetUserPurchasesFromDate(ctx, from, userID)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "Repo.GetUserPurchasesFromDate")
 	}
-
-	fmt.Println("### purchases", purchases)
 
 	info, err := m.Repo.GetUserInfo(ctx, userID)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "Repo.GetUserInfo")
 	}
 
-	fmt.Println("### info", info)
-
 	reportItems, err := m.packagingByCategory(purchases, info.Currency)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "packagingByCategory")
 	}
-
-	fmt.Println("### reportItems", reportItems)
 
 	cy, err := m.currencyToStr(info.Currency)
 	if err != nil {
@@ -101,8 +93,6 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 		resStr.WriteString(strconv.FormatFloat(item.Summa, 'f', 2, 64))
 		resStr.WriteString("\n")
 	}
-
-	fmt.Println("### report", reportItems)
 
 	resIMG, err := m.ChartDrawer.PieChart(reportItems)
 	if err != nil {

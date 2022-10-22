@@ -2,10 +2,11 @@ package db
 
 import (
 	"context"
+	"testing"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/db/_testdb"
-	"testing"
 )
 
 func NewTestDB(ctx context.Context, t *testing.T) (testServ *Service, close func()) {

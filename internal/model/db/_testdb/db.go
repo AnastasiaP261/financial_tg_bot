@@ -3,13 +3,13 @@ package _testdb
 import (
 	"context"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/testcontainers/testcontainers-go/wait"
 	"io"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	testcon "github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 const Timeout = time.Minute

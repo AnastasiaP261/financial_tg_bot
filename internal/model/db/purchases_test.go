@@ -2,10 +2,11 @@ package db
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
-	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 func TestService_AddPurchase(t *testing.T) {
@@ -18,8 +19,8 @@ func TestService_AddPurchase(t *testing.T) {
 		s, closeFunc := NewTestDB(ctx, t)
 
 		// заполнение необходимыми для теста данными
-		s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')")
-		s.db.ExecContext(ctx, "INSERT INTO categories (user_id, category_name) VALUES (123, 'some category')")
+		s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')")                              // nolint:errcheck
+		s.db.ExecContext(ctx, "INSERT INTO categories (user_id, category_name) VALUES (123, 'some category')") // nolint:errcheck
 
 		return ctx, s, closeFunc
 	}
@@ -54,7 +55,7 @@ func TestService_AddPurchase(t *testing.T) {
 
 		// проверим что трата действительно создалась
 		var purchases []purchase
-		s.db.SelectContext(ctx, &purchases, "SELECT sum, category_id, usd_ratio, cny_ratio, eur_ratio  FROM purchases")
+		s.db.SelectContext(ctx, &purchases, "SELECT sum, category_id, usd_ratio, cny_ratio, eur_ratio  FROM purchases") // nolint:errcheck
 		assert.EqualValues(t, []purchase{{Sum: 100, CategoryID: 1, USDRatio: 1, CNYRatio: 1, EURRatio: 1}}, purchases)
 	})
 

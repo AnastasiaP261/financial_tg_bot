@@ -2,7 +2,6 @@ package purchases
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -34,8 +33,6 @@ type CategoryRow struct {
 // Если category пустой, трата будет добавлена без категории.
 // Если rawDate пустой, для траты будет выставлена текущая дата.
 func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category, rawDate string) error {
-	fmt.Println("### AddPurchase")
-
 	var (
 		sumCurrency float64
 		date        time.Time

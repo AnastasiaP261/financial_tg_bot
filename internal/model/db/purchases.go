@@ -3,10 +3,9 @@ package db
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	sq "github.com/Masterminds/squirrel"
 	"time"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
@@ -22,7 +21,6 @@ type purchase struct {
 }
 
 func (s *Service) AddPurchase(ctx context.Context, req model.AddPurchaseReq) error {
-	fmt.Println("### AddPurchase")
 	if err := s.UserCreateIfNotExist(ctx, req.UserID); err != nil {
 		return errors.Wrap(err, "UserCreateIfNotExist")
 	}
@@ -40,8 +38,6 @@ func (s *Service) AddPurchase(ctx context.Context, req model.AddPurchaseReq) err
 		}
 	}
 
-	fmt.Println("### categoryID", req.CategoryID)
-
 	query := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Insert(tblPurchases).
 		Columns(tblPurchasesColCategoryID, tblPurchasesColSum, tblPurchasesColEURRatio,
@@ -53,24 +49,13 @@ func (s *Service) AddPurchase(ctx context.Context, req model.AddPurchaseReq) err
 		query.Columns(tblPurchasesColTimestamp).Values(sq.Expr("now()"))
 	}
 
-	fmt.Println("### query", query)
-
 	q, args, err := query.ToSql()
 	if err != nil {
 		return errors.Wrap(err, "query creating error")
 	}
 
-	fmt.Println("### q", q, args)
-
-	fmt.Println("### s", s == nil, s.db == nil)
-
 	_, err = s.db.ExecContext(ctx, q, args...)
-	//fmt.Println("### res")
-	//a, _ := res.RowsAffected()
-	//b, _ := res.LastInsertId()
-	//fmt.Println("### res", a, b)
 	if err != nil {
-		fmt.Println("### !!!")
 		return errors.Wrap(err, "db.ExecContext")
 	}
 
@@ -79,7 +64,6 @@ func (s *Service) AddPurchase(ctx context.Context, req model.AddPurchaseReq) err
 
 // GetUserPurchasesFromDate получить все траты пользователя
 func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Time, userID int64) ([]model.Purchase, error) {
-	fmt.Println("### GetUserPurchasesFromDate")
 	if err := s.UserCreateIfNotExist(ctx, userID); err != nil {
 		return nil, errors.Wrap(err, "UserCreateIfNotExist")
 	}
@@ -96,14 +80,10 @@ func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Ti
 		return nil, errors.Wrap(err, "query creating error")
 	}
 
-	fmt.Println("### q", q, args)
-
 	var rows []purchase
 	if err = s.db.SelectContext(ctx, &rows, q, args...); err != nil {
 		return nil, errors.Wrap(err, "db.SelectContext")
 	}
-
-	fmt.Println("### rows", rows)
 
 	purchases := make([]model.Purchase, 0)
 	for _, p := range rows {

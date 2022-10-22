@@ -2,9 +2,10 @@ package db
 
 import (
 	"context"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	"testing"
 )
 
 func TestService_ChangeCurrency(t *testing.T) {

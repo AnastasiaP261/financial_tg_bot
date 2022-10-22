@@ -2,7 +2,7 @@ package messages
 
 import (
 	"context"
-	"fmt"
+
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
@@ -47,7 +47,6 @@ func (m *Model) msgAddCategory(ctx context.Context, msg Message) error {
 }
 
 func (m *Model) msgAddPurchase(ctx context.Context, msg Message, sum, category, date string) error {
-	fmt.Println("### msgAddPurchase")
 	if err := m.purchasesModel.AddPurchase(ctx, msg.UserID, sum, category, date); err != nil {
 		err = errors.Wrap(err, "purchasesModel.AddPurchase")
 		if errors.Is(err, purchases.ErrCategoryNotExist) {

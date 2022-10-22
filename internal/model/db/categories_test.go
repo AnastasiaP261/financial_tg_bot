@@ -2,9 +2,10 @@ package db
 
 import (
 	"context"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	"testing"
 )
 
 func TestService_GetCategoryID(t *testing.T) {
@@ -18,8 +19,8 @@ func TestService_GetCategoryID(t *testing.T) {
 	defer close()
 
 	// заполнение необходимыми для теста данными
-	s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')")
-	s.db.ExecContext(ctx, "INSERT INTO categories (user_id, category_name) VALUES (123, 'some category')")
+	s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')")                              // nolint:errcheck
+	s.db.ExecContext(ctx, "INSERT INTO categories (user_id, category_name) VALUES (123, 'some category')") // nolint:errcheck
 
 	t.Run("категория существует", func(t *testing.T) {
 		id, err := s.GetCategoryID(ctx, model.CategoryRow{
@@ -62,7 +63,7 @@ func TestService_AddCategory(t *testing.T) {
 
 		// проверим что категория действительно создалась
 		var categories []category
-		s.db.SelectContext(ctx, &categories, "SELECT * FROM categories")
+		s.db.SelectContext(ctx, &categories, "SELECT * FROM categories") // nolint:errcheck
 
 		assert.EqualValues(t, []category{{1, 123, "some category"}}, categories)
 	})
@@ -77,7 +78,7 @@ func TestService_AddCategory(t *testing.T) {
 
 		// проверим что лишняя категория не создалась
 		var categories []category
-		s.db.SelectContext(ctx, &categories, "SELECT * FROM categories")
+		s.db.SelectContext(ctx, &categories, "SELECT * FROM categories") // nolint:errcheck
 
 		assert.EqualValues(t, []category{{1, 123, "some category"}}, categories)
 	})
