@@ -2,15 +2,26 @@ package db
 
 import (
 	"context"
+	"fmt"
 	sq "github.com/Masterminds/squirrel"
-	"log"
 	"time"
 
 	"github.com/pkg/errors"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
+type purchase struct {
+	Sum          float64 `db:"sum"` // сумма траты в рублях
+	CategoryName string  `db:"category_name"`
+
+	// коэффициенты валют на момент совершения траты
+	USDRatio float64 `db:"usd_ratio"`
+	CNYRatio float64 `db:"cny_ratio"`
+	EURRatio float64 `db:"eur_ratio"`
+}
+
 func (s *Service) AddPurchase(ctx context.Context, req model.AddPurchaseReq) error {
+	fmt.Println("### AddPurchase")
 	if err := s.UserCreateIfNotExist(ctx, req.UserID); err != nil {
 		return errors.Wrap(err, "UserCreateIfNotExist")
 	}
@@ -28,78 +39,86 @@ func (s *Service) AddPurchase(ctx context.Context, req model.AddPurchaseReq) err
 		}
 	}
 
+	var (
+		categoryID uint64
+		err        error
+	)
+	if req.Category != "" {
+		categoryID, err = s.GetCategoryID(ctx, model.CategoryRow{
+			UserID:   req.UserID,
+			Category: req.Category,
+		})
+	} // если название категории не указано, то в айди категории будет записан 0
+
+	fmt.Println("### categoryID", categoryID)
+
 	query := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Insert(tblPurchases).
 		Columns(tblPurchasesColCategoryID, tblPurchasesColSum, tblPurchasesColEURRatio,
 			tblPurchasesColUSDRatio, tblPurchasesColCNYRatio).
-		Values(req.Category, req.Sum, req.EURRatio, req.USDRatio, req.CNYRatio)
+		Values(categoryID, req.Sum, req.EURRatio, req.USDRatio, req.CNYRatio)
 
 	nullTime := time.Time{}
 	if req.Date == nullTime {
-		query.Columns(tblPurchasesColTimestamp).Values(req.Date)
+		query.Columns(tblPurchasesColTimestamp).Values(sq.Expr("now()"))
 	}
+
+	fmt.Println("### query", query)
 
 	q, args, err := query.ToSql()
 	if err != nil {
 		return errors.Wrap(err, "query creating error")
 	}
 
-	if _, err = s.db.ExecContext(ctx, q, args); err != nil {
+	fmt.Println("### q", q, args)
+
+	fmt.Println("### s", s == nil, s.db == nil)
+
+	_, err = s.db.ExecContext(ctx, q, args...)
+	//fmt.Println("### res")
+	//a, _ := res.RowsAffected()
+	//b, _ := res.LastInsertId()
+	//fmt.Println("### res", a, b)
+	if err != nil {
+		fmt.Println("### !!!")
 		return errors.Wrap(err, "db.ExecContext")
 	}
 
 	return nil
 }
 
-type purchase struct {
-	Sum      float64 `db:"sum"` // сумма траты в рублях
-	Category string  `db:"category"`
-
-	// коэффициенты валют на момент совершения траты
-	USDRatio float64 `db:"usd_ratio"`
-	CNYRatio float64 `db:"cny_ratio"`
-	EURRatio float64 `db:"eur_ratio"`
-}
-
 // GetUserPurchasesFromDate получить все траты пользователя
 func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Time, userID int64) ([]model.Purchase, error) {
+	fmt.Println("### GetUserPurchasesFromDate")
 	if err := s.UserCreateIfNotExist(ctx, userID); err != nil {
 		return nil, errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
-		Select(tblPurchasesColSum, tblPurchasesColCategoryID,
+		Select(tblPurchasesColSum, tblCategoriesColCategoryName,
 			tblPurchasesColUSDRatio, tblPurchasesColCNYRatio, tblPurchasesColEURRatio).
 		From(tblPurchases).
 		Where(sq.And{
-			sq.Eq{tblUsersColID: userID},
-			sq.Expr("$1 <= $2", tblPurchasesColTimestamp, fromDate),
+			sq.Eq{tblCategoriesColUserID: userID},
+			sq.Expr("purchases.ts >= $2", fromDate),
 		}).
+		LeftJoin("categories ON purchases.category_id=categories.id").
 		ToSql()
 	if err != nil {
 		return nil, errors.Wrap(err, "query creating error")
 	}
 
-	rows, err := s.db.QueryContext(ctx, q, args)
-	if err != nil {
-		log.Fatal(err)
+	fmt.Println("### q", q, args)
+
+	var rows []purchase
+	if err = s.db.SelectContext(ctx, &rows, q, args...); err != nil {
+		return nil, errors.Wrap(err, "db.SelectContext")
 	}
-	defer func() {
-		err := rows.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
 
 	purchases := make([]model.Purchase, 0)
-	for rows.Next() {
-		var p purchase
-		if err := rows.Scan(&p); err != nil {
-			log.Fatal(err)
-		}
-
+	for _, p := range rows {
 		purchases = append(purchases, model.Purchase{
-			PurchaseCategory: p.Category,
+			PurchaseCategory: p.CategoryName,
 			Summa:            p.Sum,
 			RateToRUB: model.RateToRUB{
 				USD: p.USDRatio,
@@ -107,10 +126,6 @@ func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Ti
 				EUR: p.EURRatio,
 			},
 		})
-	}
-
-	if err := rows.Err(); err != nil {
-		log.Fatal(err)
 	}
 
 	return purchases, nil

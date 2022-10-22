@@ -22,7 +22,7 @@ test:
 	go test ./...
 
 run:
-	go run ${PACKAGE}
+	go run ./cmd/bot
 
 generate: install-mockgen
 	${MOCKGEN} -source=internal/model/messages/incoming_msg.go -destination=internal/model/messages/_mocks/mocks.go
@@ -60,7 +60,7 @@ install-smartimports: bindir
 install-goose:
 	mkdir -p ${BIN_DIR}
 	test -f ${GOOSE_BIN} || GOBIN=${BIN_DIR} go install github.com/pressly/goose/cmd/goose@latest
-	chmod +x ${GOOSE_BIN}
+	sudo chmod +x ${GOOSE_BIN}
 
 
 .PHONY: dev-db-data

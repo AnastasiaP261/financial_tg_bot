@@ -9,18 +9,24 @@ import (
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
-// CategoryExist проверка, что категория существует
-func (s *Service) CategoryExist(ctx context.Context, req model.CategoryRow) (bool, error) {
-	fmt.Println("### CategoryExist")
+type category struct {
+	ID       uint64 `db:"id"`
+	UserID   uint64 `db:"user_id"`
+	Category string `db:"category_name"`
+}
+
+// GetCategoryID получить id категории
+func (s *Service) GetCategoryID(ctx context.Context, req model.CategoryRow) (uint64, error) {
+	fmt.Println("### GetCategoryID")
 	if req.UserID == 0 {
-		return false, errors.New("userID is empty")
+		return 0, errors.New("userID is empty")
 	}
 	if req.Category == "" {
-		return false, errors.New("category is empty")
+		return 0, errors.New("category is empty")
 	}
 
 	if err := s.UserCreateIfNotExist(ctx, req.UserID); err != nil {
-		return false, errors.Wrap(err, "UserCreateIfNotExist")
+		return 0, errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
@@ -32,18 +38,24 @@ func (s *Service) CategoryExist(ctx context.Context, req model.CategoryRow) (boo
 		}).
 		ToSql()
 	if err != nil {
-		return false, errors.Wrap(err, "query creating error")
+		return 0, errors.Wrap(err, "query creating error")
 	}
 
-	var id uint64
-	if err = s.db.QueryRowContext(ctx, q, args).Scan(&id); err != nil {
+	fmt.Println("### q", q, args)
+
+	rows, err := s.db.QueryContext(ctx, q, args...)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, nil
+			return 0, nil
 		}
-		return false, errors.Wrap(err, "db.QueryRowContext")
+		return 0, errors.Wrap(err, "db.QueryRowContext")
 	}
+	var id uint64
+	read(rows, &id)
 
-	return false, nil
+	fmt.Println("### id", id)
+
+	return id, nil
 }
 
 func (s *Service) AddCategory(ctx context.Context, req model.CategoryRow) error {
@@ -59,12 +71,12 @@ func (s *Service) AddCategory(ctx context.Context, req model.CategoryRow) error 
 		return errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
-	exist, err := s.CategoryExist(ctx, req)
+	categoryID, err := s.GetCategoryID(ctx, req)
 	if err != nil {
-		return errors.Wrap(err, "CategoryExist")
+		return errors.Wrap(err, "GetCategoryID")
 	}
-	if exist {
-		return errors.New("category is already exist")
+	if categoryID != 0 {
+		return ErrCategoryAlreadyExists
 	}
 
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
@@ -76,7 +88,7 @@ func (s *Service) AddCategory(ctx context.Context, req model.CategoryRow) error 
 		return errors.Wrap(err, "query creating error")
 	}
 
-	if _, err = s.db.ExecContext(ctx, q, args); err != nil {
+	if _, err = s.db.ExecContext(ctx, q, args...); err != nil {
 		return errors.Wrap(err, "db.ExecContext")
 	}
 

@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
@@ -9,8 +10,8 @@ import (
 )
 
 type user struct {
-	UserID   uint64
-	Currency Currency // выбранная пользователем валюта
+	UserID   uint64   `db:"id"`
+	Currency Currency `db:"curr"` // выбранная пользователем валюта
 }
 
 // Currency тип валюты
@@ -44,11 +45,26 @@ func currencyToModelTypeConv(c Currency) (model.Currency, error) {
 		return 0, errors.New("invalid currency")
 	}
 }
+func currencyFromModelTypeConv(c model.Currency) (Currency, error) {
+	switch c {
+	case model.RUB:
+		return RUB, nil
+	case model.USD:
+		return USD, nil
+	case model.EUR:
+		return EUR, nil
+	case model.CNY:
+		return CNY, nil
+	default:
+		return "", errors.New("invalid currency")
+	}
+}
 
 // UserCreateIfNotExist проверяет, что такой юзер есть в базе, и, если его нет, создает такого юзера.
 // Нужно вызывать эту функцию в начале каждой другой команды. Это позволит лениво создать запись о пользователе и
 // снимет с модели ответственность за нормализацию данных
 func (s *Service) UserCreateIfNotExist(ctx context.Context, userID int64) error {
+	fmt.Println("### UserCreateIfNotExist")
 	ok, err := s.userExist(ctx, userID)
 	if err != nil {
 		return errors.Wrap(err, "userExist")
@@ -65,20 +81,28 @@ func (s *Service) UserCreateIfNotExist(ctx context.Context, userID int64) error 
 
 // userExist проверка, что такой юзер уже создан в базе
 func (s *Service) userExist(ctx context.Context, userID int64) (bool, error) {
-	res, err := s.GetUserInfo(ctx, userID)
+	fmt.Println("### userExist")
+
+	res, err := s.getUserInfo(ctx, userID)
+	if errors.Is(err, ErrUserDoesntExists) {
+		return false, nil
+	}
 	if err != nil {
-		return false, errors.Wrap(err, "GetUserInfo")
+		return false, errors.Wrap(err, "getUserInfo")
 	}
 
 	if res.UserID == 0 {
+		fmt.Println("### user not Exist")
 		return false, nil
 	}
 
+	fmt.Println("### user exist")
 	return true, nil
 }
 
 // addUser добавляет юзера с такой айдишкой в базу
 func (s *Service) addUser(ctx context.Context, userID int64) error {
+	fmt.Println("### addUser")
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Insert(tblUsers).
 		Columns(tblUsersColID, tblUsersColCurrency).
@@ -88,7 +112,9 @@ func (s *Service) addUser(ctx context.Context, userID int64) error {
 		return errors.Wrap(err, "query creating error")
 	}
 
-	if _, err = s.db.ExecContext(ctx, q, args); err != nil {
+	fmt.Println("### q", q, args)
+
+	if _, err = s.db.ExecContext(ctx, q, args...); err != nil {
 		return errors.Wrap(err, "db.ExecContext")
 	}
 
@@ -97,20 +123,26 @@ func (s *Service) addUser(ctx context.Context, userID int64) error {
 
 // ChangeCurrency смена валюты пользователя
 func (s *Service) ChangeCurrency(ctx context.Context, userID int64, currency model.Currency) error {
+	fmt.Println("### ChangeCurrency")
 	if err := s.UserCreateIfNotExist(ctx, userID); err != nil {
 		return errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
+	curr, err := currencyFromModelTypeConv(currency)
+	if err != nil {
+		return errors.Wrap(err, "currencyFromModelTypeConv")
+	}
+
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Update(tblUsers).
-		Set(tblUsersColCurrency, currency).
+		Set(tblUsersColCurrency, curr).
 		Where(sq.Eq{tblUsersColID: userID}).
 		ToSql()
 	if err != nil {
 		return errors.Wrap(err, "query creating error")
 	}
 
-	if _, err = s.db.ExecContext(ctx, q, args); err != nil {
+	if _, err = s.db.ExecContext(ctx, q, args...); err != nil {
 		return errors.Wrap(err, "db.ExecContext")
 	}
 
@@ -120,7 +152,18 @@ func (s *Service) ChangeCurrency(ctx context.Context, userID int64, currency mod
 // GetUserInfo возвращает информацию о пользователе в формате модели
 func (s *Service) GetUserInfo(ctx context.Context, userID int64) (model.User, error) {
 	res, err := s.getUserInfo(ctx, userID)
-	if err != nil {
+	if err != nil && errors.Is(err, ErrUserDoesntExists) {
+
+		if err := s.addUser(ctx, userID); err != nil {
+			return model.User{}, errors.Wrap(err, "addUser")
+		}
+
+		res, err = s.getUserInfo(ctx, userID)
+		if err != nil {
+			return model.User{}, errors.Wrap(err, "getUserInfo")
+		}
+
+	} else if err != nil {
 		return model.User{}, errors.Wrap(err, "getUserInfo")
 	}
 
@@ -132,12 +175,9 @@ func (s *Service) GetUserInfo(ctx context.Context, userID int64) (model.User, er
 	}, nil
 }
 
-// возвращает информацию о пользователе (для использования внутри пакета)
+// getUserInfo возвращает информацию о пользователе (для использования внутри пакета)
 func (s *Service) getUserInfo(ctx context.Context, userID int64) (user, error) {
-	err := s.UserCreateIfNotExist(ctx, userID)
-	if err != nil {
-		return user{}, errors.Wrap(err, "UserCreateIfNotExist")
-	}
+	fmt.Println("### getUserInfo")
 
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Select(tblUsersColID, tblUsersColCurrency).
@@ -150,19 +190,18 @@ func (s *Service) getUserInfo(ctx context.Context, userID int64) (user, error) {
 		return user{}, errors.Wrap(err, "query creating error")
 	}
 
-	var (
-		id       uint64
-		currency Currency
-	)
+	rows, err := s.db.QueryxContext(ctx, q, args...)
 
-	fmt.Println("### ping", s.db.Ping())
+	data := user{}
+	readX(rows, &data)
 
-	if err = s.db.QueryRowContext(ctx, q, args).Scan(&id, &currency); err != nil {
-		return user{}, errors.Wrap(err, "db.QueryRowContext")
+	if err != nil && errors.Is(err, sql.ErrNoRows) || data.UserID == 0 {
+		return user{}, ErrUserDoesntExists
+	} else if err != nil {
+		return user{}, errors.Wrap(err, "db.QueryxContext")
 	}
 
-	return user{
-		UserID:   id,
-		Currency: currency,
-	}, nil
+	fmt.Println("### data", data)
+
+	return data, nil
 }

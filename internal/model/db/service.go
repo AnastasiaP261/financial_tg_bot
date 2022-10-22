@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"database/sql"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 )
@@ -27,16 +27,21 @@ var (
 	tblPurchasesColCNYRatio   = "cny_ratio"
 )
 
+var (
+	ErrUserDoesntExists      = errors.New("user doesnt exists")
+	ErrCategoryAlreadyExists = errors.New("category is already exists")
+)
+
 type configGetter interface {
 	DBUri() string
 }
 
 type Service struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
 func New(ctx context.Context, config configGetter) (*Service, error) {
-	db, err := sql.Open("postgres", config.DBUri())
+	db, err := sqlx.Open("postgres", config.DBUri())
 	if err != nil {
 		return nil, errors.Wrap(err, "sql.Open")
 	}
@@ -46,4 +51,34 @@ func New(ctx context.Context, config configGetter) (*Service, error) {
 	}
 
 	return &Service{db: db}, nil
+}
+
+type iterableScannerX interface {
+	Next() bool
+	StructScan(dest any) error
+}
+
+// readX позволяет считать в структуру данные полученные из QueryxContext
+func readX[T iterableScannerX](rows T, dest any) {
+	for rows.Next() {
+		err := rows.StructScan(dest)
+		if err != nil {
+			errors.Wrap(err, "rows.StructScan")
+		}
+	}
+}
+
+type iterableScanner interface {
+	Next() bool
+	Scan(dest ...any) error
+}
+
+// read позволяет считать в переменные данные полученные из QueryContext
+func read[T iterableScanner](rows T, dest any) {
+	for rows.Next() {
+		err := rows.Scan(dest)
+		if err != nil {
+			errors.Wrap(err, "rows.StructScan")
+		}
+	}
 }
