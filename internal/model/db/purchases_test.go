@@ -13,6 +13,7 @@ func TestService_AddPurchase(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
+	t.Parallel()
 
 	type purchase struct {
 		Sum        float64 `db:"sum"` // сумма траты в рублях
@@ -24,65 +25,31 @@ func TestService_AddPurchase(t *testing.T) {
 		EURRatio float64 `db:"eur_ratio"`
 	}
 
-	t.Run("создание траты с категорией", func(t *testing.T) {
-		t.Parallel()
+	ctx := context.Background()
+	s, close := NewTestDB(ctx, t)
+	defer close()
 
-		ctx := context.Background()
-		s, close := NewTestDB(ctx, t)
-		defer close()
+	// заполнение необходимыми для теста данными
+	s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')")                              // nolint:errcheck
+	s.db.ExecContext(ctx, "INSERT INTO categories (user_id, category_name) VALUES (123, 'some category')") // nolint:errcheck
 
-		// заполнение необходимыми для теста данными
-		s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')")                              // nolint:errcheck
-		s.db.ExecContext(ctx, "INSERT INTO categories (user_id, category_name) VALUES (123, 'some category')") // nolint:errcheck
-
-		nowTime := time.Now()
-		err := s.AddPurchase(ctx, model.AddPurchaseReq{
-			UserID:     123,
-			Sum:        100,
-			CategoryID: 1,
-			Date:       nowTime,
-			USDRatio:   1,
-			CNYRatio:   1,
-			EURRatio:   1,
-		})
-
-		assert.NoError(t, err)
-
-		// проверим что трата действительно создалась
-		var purchases []purchase
-		s.db.SelectContext(ctx, &purchases, "SELECT sum, category_id, usd_ratio, cny_ratio, eur_ratio  FROM purchases") // nolint:errcheck
-		assert.EqualValues(t, []purchase{{Sum: 100, CategoryID: 1, USDRatio: 1, CNYRatio: 1, EURRatio: 1}}, purchases)
+	nowTime := time.Now()
+	err := s.AddPurchase(ctx, model.AddPurchaseReq{
+		UserID:     123,
+		Sum:        100,
+		CategoryID: 1,
+		Date:       nowTime,
+		USDRatio:   1,
+		CNYRatio:   1,
+		EURRatio:   1,
 	})
 
-	t.Run("создание траты без категории", func(t *testing.T) {
-		t.Parallel()
+	assert.NoError(t, err)
 
-		ctx := context.Background()
-		s, close := NewTestDB(ctx, t)
-		defer close()
-
-		// заполнение необходимыми для теста данными
-		s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')")                              // nolint:errcheck
-		s.db.ExecContext(ctx, "INSERT INTO categories (user_id, category_name) VALUES (123, 'some category')") // nolint:errcheck
-
-		nowTime := time.Now()
-		err := s.AddPurchase(ctx, model.AddPurchaseReq{
-			UserID:     123,
-			Sum:        100,
-			CategoryID: 0,
-			Date:       nowTime,
-			USDRatio:   1,
-			CNYRatio:   1,
-			EURRatio:   1,
-		})
-
-		assert.NoError(t, err)
-
-		// проверим что трата действительно создалась
-		var purchases []purchase
-		s.db.SelectContext(ctx, &purchases, "SELECT sum, category_id, usd_ratio, cny_ratio, eur_ratio  FROM purchases") // nolint:errcheck
-		assert.EqualValues(t, []purchase{{Sum: 100, CategoryID: 0, USDRatio: 1, CNYRatio: 1, EURRatio: 1}}, purchases)
-	})
+	// проверим что трата действительно создалась
+	var purchases []purchase
+	s.db.SelectContext(ctx, &purchases, "SELECT sum, category_id, usd_ratio, cny_ratio, eur_ratio  FROM purchases") // nolint:errcheck
+	assert.EqualValues(t, []purchase{{Sum: 100, CategoryID: 1, USDRatio: 1, CNYRatio: 1, EURRatio: 1}}, purchases)
 }
 
 func TestService_GetUserPurchasesFromDate(t *testing.T) {
