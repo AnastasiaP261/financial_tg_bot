@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"time"
@@ -11,8 +12,8 @@ import (
 )
 
 type purchase struct {
-	Sum          float64 `db:"sum"` // сумма траты в рублях
-	CategoryName string  `db:"category_name"`
+	Sum          float64        `db:"sum"` // сумма траты в рублях
+	CategoryName sql.NullString `db:"category_name"`
 
 	// коэффициенты валют на момент совершения траты
 	USDRatio float64 `db:"usd_ratio"`
@@ -83,16 +84,14 @@ func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Ti
 		return nil, errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
-	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
-		Select(tblPurchasesColSum, tblCategoriesColCategoryName,
-			tblPurchasesColUSDRatio, tblPurchasesColCNYRatio, tblPurchasesColEURRatio).
-		From(tblPurchases).
-		Where(sq.And{
-			sq.Eq{tblCategoriesColUserID: userID},
-			sq.Expr("purchases.ts >= $2", fromDate),
-		}).
-		LeftJoin("categories ON purchases.category_id=categories.id").
-		ToSql()
+	q, args, err := sq.Expr(`SELECT "sum", category_name, usd_ratio, cny_ratio, eur_ratio 
+							FROM purchases 
+							LEFT JOIN (
+								SELECT id, category_name 
+								FROM categories 
+								WHERE user_id=$1 
+							) AS user_categories ON (purchases.category_id=user_categories.id) 
+							WHERE ts >= $2;`, userID, fromDate).ToSql()
 	if err != nil {
 		return nil, errors.Wrap(err, "query creating error")
 	}
@@ -104,10 +103,12 @@ func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Ti
 		return nil, errors.Wrap(err, "db.SelectContext")
 	}
 
+	fmt.Println("### rows", rows)
+
 	purchases := make([]model.Purchase, 0)
 	for _, p := range rows {
 		purchases = append(purchases, model.Purchase{
-			PurchaseCategory: p.CategoryName,
+			PurchaseCategory: p.CategoryName.String,
 			Summa:            p.Sum,
 			RateToRUB: model.RateToRUB{
 				USD: p.USDRatio,
