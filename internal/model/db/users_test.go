@@ -24,7 +24,7 @@ func TestService_ChangeCurrency(t *testing.T) {
 
 		// проверим что запись действительно создалась
 		var users []user
-		s.db.SelectContext(ctx, &users, "SELECT * FROM users")
+		s.db.SelectContext(ctx, &users, "SELECT * FROM users") // nolint:errcheck
 		assert.EqualValues(t, []user{{UserID: 123, Currency: USD}}, users)
 	})
 
@@ -34,7 +34,7 @@ func TestService_ChangeCurrency(t *testing.T) {
 
 		// проверим что запись действительно создалась
 		var users []user
-		s.db.SelectContext(ctx, &users, "SELECT * FROM users")
+		s.db.SelectContext(ctx, &users, "SELECT * FROM users") // nolint:errcheck
 		assert.EqualValues(t, []user{{UserID: 123, Currency: CNY}}, users)
 	})
 }
@@ -55,7 +55,7 @@ func TestService_GetUserInfo(t *testing.T) {
 
 	// проверим что запись действительно создалась
 	var users []user
-	s.db.SelectContext(ctx, &users, "SELECT * FROM users")
+	s.db.SelectContext(ctx, &users, "SELECT * FROM users") // nolint:errcheck
 	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB}}, users)
 
 	assert.Equal(t, model.User{UserID: 123, Currency: model.RUB}, userInfo)
@@ -76,7 +76,7 @@ func TestService_UserCreateIfNotExist(t *testing.T) {
 
 	// проверим что запись действительно создалась
 	var users []user
-	s.db.SelectContext(ctx, &users, "SELECT * FROM users")
+	s.db.SelectContext(ctx, &users, "SELECT * FROM users") // nolint:errcheck
 	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB}}, users)
 }
 
@@ -95,7 +95,7 @@ func TestService_addUser(t *testing.T) {
 
 	// проверим что запись действительно создалась
 	var users []user
-	s.db.SelectContext(ctx, &users, "SELECT * FROM users")
+	s.db.SelectContext(ctx, &users, "SELECT * FROM users") // nolint:errcheck
 	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB}}, users)
 }
 
@@ -110,7 +110,7 @@ func TestService_getUserInfo(t *testing.T) {
 	defer close()
 
 	// заполнение необходимыми для теста данными
-	s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'USD')")
+	s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'USD')") // nolint:errcheck
 
 	info, err := s.getUserInfo(ctx, 123)
 	assert.NoError(t, err)
@@ -135,7 +135,7 @@ func TestService_userExist(t *testing.T) {
 	})
 
 	// заполнение необходимыми для теста данными
-	s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')")
+	s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')") // nolint:errcheck
 
 	t.Run("пользователь существует", func(t *testing.T) {
 		ok, err := s.userExist(ctx, 123)
