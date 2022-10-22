@@ -159,6 +159,9 @@ func (s *Service) GetUserInfo(ctx context.Context, userID int64) (model.User, er
 	}
 
 	curr, err := currencyToModelTypeConv(res.Currency)
+	if err != nil {
+		return model.User{}, errors.Wrap(err, "currencyToModelTypeConv")
+	}
 
 	return model.User{
 		UserID:   res.UserID,
@@ -180,6 +183,9 @@ func (s *Service) getUserInfo(ctx context.Context, userID int64) (user, error) {
 	}
 
 	rows, err := s.db.QueryxContext(ctx, q, args...)
+	if err != nil {
+		return user{}, errors.Wrap(err, "db.QueryxContext")
+	}
 
 	data := user{}
 	if err = readX(rows, &data); err != nil {
