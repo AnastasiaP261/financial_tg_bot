@@ -197,3 +197,18 @@ func (mr *MockExchangeRateGetterMockRecorder) GetExchangeRateToRUB() *gomock.Cal
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExchangeRateToRUB", reflect.TypeOf((*MockExchangeRateGetter)(nil).GetExchangeRateToRUB))
 }
+
+// GetExchangeRateToRUBFromDate mocks base method.
+func (m_2 *MockExchangeRateGetter) GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (purchases.RateToRUB, error) {
+	m_2.ctrl.T.Helper()
+	ret := m_2.ctrl.Call(m_2, "GetExchangeRateToRUBFromDate", ctx, y, m, d)
+	ret0, _ := ret[0].(purchases.RateToRUB)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetExchangeRateToRUBFromDate indicates an expected call of GetExchangeRateToRUBFromDate.
+func (mr *MockExchangeRateGetterMockRecorder) GetExchangeRateToRUBFromDate(ctx, y, m, d interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExchangeRateToRUBFromDate", reflect.TypeOf((*MockExchangeRateGetter)(nil).GetExchangeRateToRUBFromDate), ctx, y, m, d)
+}
