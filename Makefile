@@ -9,7 +9,10 @@ SMARTIMPORTS=${BINDIR}/smartimports_${GOVER}
 LINTVER=v1.49.0
 LINTBIN=${BINDIR}/lint_${GOVER}_${LINTVER}
 PACKAGE=gitlab.ozon.dev/apetrichuk/financial-tg-bot/cmd/bot
-DEV_CREDS := postgresql://finance-user:finanse-pass@127.0.0.1:5432
+POSTGRES_USER=finance-user
+POSTGRES_PASS=finanse-pass
+POSTGRES_HOST=pg
+DEV_CREDS := postgresql://$(POSTGRES_USER):$(POSTGRES_PASS)@$(POSTGRES_HOST):5432
 DEV_DBNAME := finance
 DEV_DBCONTAINER := postgres
 
