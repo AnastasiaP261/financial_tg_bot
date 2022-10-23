@@ -1,3 +1,5 @@
+//go:build test_all || integration_test
+
 package db
 
 import (
@@ -12,6 +14,7 @@ func TestService_ChangeCurrency(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
+	t.Parallel()
 
 	ctx := context.Background()
 	s, close := NewTestDB(ctx, t)
@@ -42,6 +45,7 @@ func TestService_GetUserInfo(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
+	t.Parallel()
 
 	ctx := context.Background()
 	s, close := NewTestDB(ctx, t)
@@ -63,6 +67,7 @@ func TestService_UserCreateIfNotExist(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
+	t.Parallel()
 
 	ctx := context.Background()
 	s, close := NewTestDB(ctx, t)
@@ -81,6 +86,7 @@ func TestService_addUser(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
+	t.Parallel()
 
 	ctx := context.Background()
 	s, close := NewTestDB(ctx, t)
@@ -99,6 +105,7 @@ func TestService_getUserInfo(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
+	t.Parallel()
 
 	ctx := context.Background()
 	s, close := NewTestDB(ctx, t)
@@ -116,6 +123,7 @@ func TestService_userExist(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
+	t.Parallel()
 
 	ctx := context.Background()
 	s, close := NewTestDB(ctx, t)

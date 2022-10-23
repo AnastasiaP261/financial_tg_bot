@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"testing"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
@@ -11,6 +12,8 @@ import (
 
 func NewTestDB(ctx context.Context, t *testing.T) (testServ *Service, close func()) {
 	container := _testdb.NewTestDatabase(ctx, t)
+
+	time.Sleep(5 * time.Second)
 
 	db, err := New(ctx, container)
 	assert.NoError(t, err, "NewTestDB")

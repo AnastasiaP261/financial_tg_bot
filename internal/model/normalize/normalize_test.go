@@ -1,3 +1,5 @@
+//go:build test_all || unit_test
+
 package normalize
 
 import (

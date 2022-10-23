@@ -22,7 +22,11 @@ build: bindir
 	go build -o ${BINDIR}/bot ${PACKAGE}
 
 test:
-	go clean -testcache && go test ./...
+	echo "skipping integration test"
+	go clean -testcache && go test ./... -tags=unit_test
+
+integration_test:
+	go clean -testcache && go test ./... -tags=integration_test
 
 run:
 	go run ./cmd/bot LOCAL
