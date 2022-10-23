@@ -2,6 +2,7 @@ package purchases
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -61,6 +62,14 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 	}
 
 	if rawDate != "" {
+		t := strings.Split(rawDate, ".")
+		if len(t) != 3 {
+			return errors.Wrap(err, "invalid date")
+		}
+		y, m, d := t[0], t[1], t[2]
+
+		fmt.Println("###", y, m, d)
+
 		date, err = time.Parse("02.01.2006", rawDate)
 		if err != nil {
 			return ErrDateParsing

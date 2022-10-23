@@ -32,6 +32,7 @@ type ChartDrawer interface {
 
 type ExchangeRateGetter interface {
 	GetExchangeRateToRUB() RateToRUB
+	GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (RateToRUB, error)
 }
 
 type Model struct {
