@@ -12,6 +12,7 @@ var (
 	ErrDateParsing      = errors.New("date parsing error")
 	ErrCategoryNotExist = errors.New("such category doesn't exist")
 	ErrUnknownPeriod    = errors.New("unknown period")
+	ErrInvalidDate      = errors.New("invalid date")
 )
 
 // Repo репозиторий
@@ -22,6 +23,8 @@ type Repo interface {
 	GetUserPurchasesFromDate(ctx context.Context, fromDate time.Time, userID int64) ([]Purchase, error)
 	ChangeCurrency(ctx context.Context, userID int64, currency Currency) error
 	GetUserInfo(ctx context.Context, userID int64) (User, error)
+	GetRate(ctx context.Context, y, m, d int) (bool, RateToRUB, error)
+	AddRate(ctx context.Context, y, m, d int, rates RateToRUB) error
 }
 
 // ChartDrawer рисовальщик

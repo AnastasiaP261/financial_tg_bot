@@ -2,7 +2,7 @@ package purchases
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -61,24 +61,40 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		}
 	}
 
+	rates := RateToRUB{}
 	if rawDate != "" {
-		t := strings.Split(rawDate, ".")
-		if len(t) != 3 {
-			return errors.Wrap(err, "invalid date")
-		}
-		y, m, d := t[0], t[1], t[2]
-
-		fmt.Println("###", y, m, d)
-
 		date, err = time.Parse("02.01.2006", rawDate)
 		if err != nil {
-			return ErrDateParsing
+			return errors.Wrap(ErrInvalidDate, "parsing err")
+		}
+
+		day, month, year, err := RawDateToYMD(rawDate)
+		if err != nil {
+			return errors.Wrap(err, "RawDateToYMD")
+		}
+
+		var ok bool
+		ok, rates, err = m.Repo.GetRate(ctx, year, month, day)
+		if err != nil {
+			return errors.Wrap(err, "Repo.GetRate")
+		}
+		if !ok {
+			rates, err = m.ExchangeRatesModel.GetExchangeRateToRUBFromDate(ctx, year, month, day)
+			if err != nil {
+				return errors.Wrap(err, "ExchangeRatesModel.GetExchangeRateToRUBFromDate")
+			}
+
+			go func() {
+				err := m.Repo.AddRate(ctx, year, month, day, rates)
+				if err != nil {
+					log.Printf("[ERROR] rate has not been added to the database, date:%s, rate:%#v", rawDate, rates)
+				}
+			}()
 		}
 	} else {
 		date = time.Now()
+		rates = m.ExchangeRatesModel.GetExchangeRateToRUB()
 	}
-
-	rates := m.ExchangeRatesModel.GetExchangeRateToRUB()
 
 	info, err := m.Repo.GetUserInfo(ctx, userID)
 	if err != nil {
@@ -103,4 +119,27 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 	}
 
 	return nil
+}
+
+func RawDateToYMD(rawDate string) (year, month, day int, err error) {
+	t := strings.Split(rawDate, ".")
+	if len(t) != 3 {
+		return 0, 0, 0, ErrInvalidDate
+	}
+	y, m, d := t[0], t[1], t[2]
+
+	y1, err := strconv.ParseInt(y, 10, 64)
+	if err != nil {
+		return 0, 0, 0, ErrInvalidDate
+	}
+	m1, err := strconv.ParseInt(m, 10, 64)
+	if err != nil {
+		return 0, 0, 0, ErrInvalidDate
+	}
+	d1, err := strconv.ParseInt(d, 10, 64)
+	if err != nil {
+		return 0, 0, 0, ErrInvalidDate
+	}
+
+	return int(y1), int(m1), int(d1), nil
 }

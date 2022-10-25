@@ -132,6 +132,8 @@ func (c *Client) getData(ctx context.Context) {
 
 // getDataFromDate получает из апи данные по курсу валют на указанную дату
 func (c *Client) getDataFromDate(ctx context.Context, y, m, d int) (map[string]float64, error) {
+	fmt.Println("### ymd", y, m, d)
+
 	if y <= 1999 {
 		return nil, errors.New("invalid date")
 	}
