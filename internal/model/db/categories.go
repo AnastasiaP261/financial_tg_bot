@@ -9,7 +9,7 @@ import (
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
-type category struct {
+type category struct { // nolint:unused
 	ID       uint64 `db:"id"`
 	UserID   uint64 `db:"user_id"`
 	Category string `db:"category_name"`

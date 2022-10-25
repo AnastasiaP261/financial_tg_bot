@@ -1,3 +1,5 @@
+//go:build test_all || integration_test
+
 package db
 
 import (
@@ -71,6 +73,7 @@ func TestService_AddCategory(t *testing.T) {
 			UserID:   123,
 			Category: "some category",
 		})
+		t.Parallel()
 
 		assert.ErrorIs(t, err, ErrCategoryAlreadyExists)
 
@@ -78,6 +81,6 @@ func TestService_AddCategory(t *testing.T) {
 		var categories []category
 		s.db.SelectContext(ctx, &categories, "SELECT * FROM categories") // nolint:errcheck
 
-		assert.EqualValues(t, []category{{1, 123, "some category"}}, categories)
+		assert.Nil(t, categories)
 	})
 }
