@@ -26,6 +26,12 @@ var (
 	tblPurchasesColEURRatio   = "eur_ratio"
 	tblPurchasesColUSDRatio   = "usd_ratio"
 	tblPurchasesColCNYRatio   = "cny_ratio"
+
+	tblRate            = "rate"
+	tblRateColDate     = "date"
+	tblRateColEURRatio = "eur_ratio"
+	tblRateColUSDRatio = "usd_ratio"
+	tblRateColCNYRatio = "cny_ratio"
 )
 
 var (

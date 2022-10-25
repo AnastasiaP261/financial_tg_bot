@@ -55,6 +55,14 @@ CREATE TABLE purchases
 );
 
 CREATE INDEX purchases_idx ON purchases (category_id, ts);
+
+CREATE TABLE rate
+(
+    "date"    int PRIMARY KEY NOT NULL, -- уникальный id записи
+    eur_ratio numeric         NOT NULL,
+    usd_ratio numeric         NOT NULL,
+    cny_ratio numeric         NOT NULL
+);
 `)
 	return err
 }
