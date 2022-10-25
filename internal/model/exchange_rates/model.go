@@ -2,6 +2,7 @@ package exchange_rates
 
 import (
 	"context"
+
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )

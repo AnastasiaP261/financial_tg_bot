@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"

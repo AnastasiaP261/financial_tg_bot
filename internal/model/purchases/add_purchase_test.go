@@ -129,11 +129,7 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 		model := purchases.New(repo, nil, excRateModel)
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
-		excRateModel.EXPECT().GetExchangeRateToRUB().Return(purchases.RateToRUB{
-			USD: 1,
-			EUR: 1,
-			CNY: 1,
-		})
+		repo.EXPECT().GetRate(gomock.Any(), 2022, 01, 01).Return(true, purchases.RateToRUB{USD: 1, EUR: 1, CNY: 1}, nil)
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
 			Currency: purchases.RUB,

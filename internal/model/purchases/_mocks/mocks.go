@@ -64,6 +64,20 @@ func (mr *MockRepoMockRecorder) AddPurchase(ctx, req interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPurchase", reflect.TypeOf((*MockRepo)(nil).AddPurchase), ctx, req)
 }
 
+// AddRate mocks base method.
+func (m_2 *MockRepo) AddRate(ctx context.Context, y, m, d int, rates purchases.RateToRUB) error {
+	m_2.ctrl.T.Helper()
+	ret := m_2.ctrl.Call(m_2, "AddRate", ctx, y, m, d, rates)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddRate indicates an expected call of AddRate.
+func (mr *MockRepoMockRecorder) AddRate(ctx, y, m, d, rates interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddRate", reflect.TypeOf((*MockRepo)(nil).AddRate), ctx, y, m, d, rates)
+}
+
 // ChangeCurrency mocks base method.
 func (m *MockRepo) ChangeCurrency(ctx context.Context, userID int64, currency purchases.Currency) error {
 	m.ctrl.T.Helper()
@@ -91,6 +105,22 @@ func (m *MockRepo) GetCategoryID(ctx context.Context, req purchases.CategoryRow)
 func (mr *MockRepoMockRecorder) GetCategoryID(ctx, req interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategoryID", reflect.TypeOf((*MockRepo)(nil).GetCategoryID), ctx, req)
+}
+
+// GetRate mocks base method.
+func (m_2 *MockRepo) GetRate(ctx context.Context, y, m, d int) (bool, purchases.RateToRUB, error) {
+	m_2.ctrl.T.Helper()
+	ret := m_2.ctrl.Call(m_2, "GetRate", ctx, y, m, d)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(purchases.RateToRUB)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetRate indicates an expected call of GetRate.
+func (mr *MockRepoMockRecorder) GetRate(ctx, y, m, d interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRate", reflect.TypeOf((*MockRepo)(nil).GetRate), ctx, y, m, d)
 }
 
 // GetUserInfo mocks base method.

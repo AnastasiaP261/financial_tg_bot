@@ -1,10 +1,13 @@
+//go:build test_all || integration_test
+
 package db
 
 import (
 	"context"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	"testing"
 )
 
 func Test_AddRate(t *testing.T) {
