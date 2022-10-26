@@ -3,6 +3,7 @@ package _testdb
 import (
 	"context"
 	"fmt"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot"
 	"io"
 	"testing"
 	"time"
@@ -12,7 +13,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-const Timeout = time.Minute
+const timeout = time.Minute
 
 type TestDatabase struct {
 	instance testcon.Container
@@ -27,7 +28,7 @@ type TestDatabase struct {
 // 	defer testDB.Close(t)
 // 	println(testDB.DBUri())
 func NewTestDatabase(ctx context.Context, t *testing.T) *TestDatabase {
-	ctx, cancel := context.WithTimeout(ctx, Timeout)
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	req := testcon.ContainerRequest{
 		Image:        "postgres:12",
@@ -51,11 +52,14 @@ func NewTestDatabase(ctx context.Context, t *testing.T) *TestDatabase {
 	}
 	tdb.uri = fmt.Sprintf("postgres://postgres:postgres@127.0.0.1:%d/postgres?sslmode=disable", tdb.port(t))
 
+	// run migrations
+	err = migrate.Migrate(tdb.uri, migrate.Migrations)
+
 	return tdb
 }
 
 func (db *TestDatabase) port(t *testing.T) int {
-	ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	p, err := db.instance.MappedPort(ctx, "5432")
 	assert.NoError(t, err, "instance.MappedPort")
@@ -67,7 +71,7 @@ func (db *TestDatabase) DBUri() string {
 }
 
 func (db *TestDatabase) Close(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	assert.NoError(t, db.instance.Terminate(ctx), "db.instance.Terminate(ctx)")
 }
