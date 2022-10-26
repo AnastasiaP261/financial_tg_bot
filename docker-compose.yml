@@ -2,10 +2,8 @@ version: "3.9"
 services:
   pg:
     image: postgres:latest
-    environment:
-      POSTGRES_DB: "finance"
-      POSTGRES_USER: "finance-user"
-      POSTGRES_PASSWORD: "finance-pass"
+    env_file:
+      - config/pg.env
     ports:
       - "5432:5432"
 

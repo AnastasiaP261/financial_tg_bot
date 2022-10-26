@@ -4,3 +4,4 @@
 /config/
 !/config/config_local.example.yaml
 !/config/config_prod.example.yaml
+!/config/pg.example.env
