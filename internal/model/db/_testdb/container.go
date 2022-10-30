@@ -3,7 +3,6 @@ package _testdb
 import (
 	"context"
 	"fmt"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot"
 	"io"
 	"testing"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	testcon "github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot"
 )
 
 const timeout = time.Minute

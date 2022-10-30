@@ -6,22 +6,29 @@ import (
 	"context"
 	"testing"
 
+	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/stretchr/testify/assert"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
-func TestService_GetCategoryID(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
+func Test_GetCategoryID(t *testing.T) {
+	t.Parallel()
 
 	ctx := context.Background()
-	s, close := NewTestDB(ctx, t)
+	s, close := newTestDB(ctx, t)
 	defer close()
 
-	// заполнение необходимыми для теста данными
-	s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')")                              // nolint:errcheck
-	s.db.ExecContext(ctx, "INSERT INTO categories (user_id, category_name) VALUES (123, 'some category')") // nolint:errcheck
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(s.db.DB),
+		testfixtures.Dialect("postgres"),
+		testfixtures.DangerousSkipTestDatabaseCheck(),
+		testfixtures.Files(
+			"./../../../test_data/fixtures/users.yml",
+			"./../../../test_data/fixtures/categories.yml",
+		),
+	)
+	assert.NoError(t, err)
+	assert.NoError(t, fixtures.Load())
 
 	t.Run("категория существует", func(t *testing.T) {
 		id, err := s.GetCategoryID(ctx, model.CategoryRow{
@@ -44,13 +51,11 @@ func TestService_GetCategoryID(t *testing.T) {
 	})
 }
 
-func TestService_AddCategory(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
+func Test_AddCategory(t *testing.T) {
+	t.Parallel()
 
 	ctx := context.Background()
-	s, close := NewTestDB(ctx, t)
+	s, close := newTestDB(ctx, t)
 	defer close()
 
 	t.Run("добавление категории", func(t *testing.T) {
@@ -63,7 +68,7 @@ func TestService_AddCategory(t *testing.T) {
 
 		// проверим что категория действительно создалась
 		var categories []category
-		s.db.SelectContext(ctx, &categories, "SELECT * FROM categories") // nolint:errcheck
+		selectAllFromTestTableCategories(ctx, s, &categories)
 
 		assert.EqualValues(t, []category{{1, 123, "some category"}}, categories)
 	})
@@ -73,14 +78,13 @@ func TestService_AddCategory(t *testing.T) {
 			UserID:   123,
 			Category: "some category",
 		})
-		t.Parallel()
 
 		assert.ErrorIs(t, err, ErrCategoryAlreadyExists)
 
 		// проверим что лишняя категория не создалась
 		var categories []category
-		s.db.SelectContext(ctx, &categories, "SELECT * FROM categories") // nolint:errcheck
+		selectAllFromTestTableCategories(ctx, s, &categories)
 
-		assert.Nil(t, categories)
+		assert.EqualValues(t, []category{{1, 123, "some category"}}, categories)
 	})
 }

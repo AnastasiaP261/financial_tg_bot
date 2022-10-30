@@ -1,0 +1,42 @@
+users:
+  - id: 123
+    curr: "RUB"
+
+categories:
+  - id: 1
+    user_id: 123
+    category_name: "some category 1"
+  - id: 2
+    user_id: 123
+    category_name: "some category 2"
+
+purchases:
+  - id: 1
+    category_id: 1
+    sum: 100
+    ts: "2022-09-27"
+    eur_ratio: 0.5
+    usd_ratio: 0.5
+    cny_ratio: 0.5
+  - id: 2
+    category_id: 1
+    sum: 200
+    ts: "2022-10-01"
+    eur_ratio: 0.5
+    usd_ratio: 0.5
+    cny_ratio: 0.5
+  - id: 3
+    category_id: 0
+    sum: 300
+    ts: "2022-10-06"
+    eur_ratio: 0.5
+    usd_ratio: 0.5
+    cny_ratio: 0.5
+  - id: 4
+    category_id: 2
+    sum: 400
+    ts: "2022-10-24"
+    eur_ratio: 0.5
+    usd_ratio: 0.5
+    cny_ratio: 0.5
+

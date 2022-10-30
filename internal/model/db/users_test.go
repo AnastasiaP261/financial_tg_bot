@@ -6,17 +6,16 @@ import (
 	"context"
 	"testing"
 
+	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/stretchr/testify/assert"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
-func TestService_ChangeCurrency(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
+func Test_ChangeCurrency(t *testing.T) {
+	t.Parallel()
 
 	ctx := context.Background()
-	s, close := NewTestDB(ctx, t)
+	s, close := newTestDB(ctx, t)
 	defer close()
 
 	t.Run("изменение валюты еще не существующего пользователя", func(t *testing.T) {
@@ -25,7 +24,8 @@ func TestService_ChangeCurrency(t *testing.T) {
 
 		// проверим что запись действительно создалась
 		var users []user
-		s.db.SelectContext(ctx, &users, "SELECT * FROM users") // nolint:errcheck
+		selectAllFromTestTableUsers(ctx, s, &users)
+
 		assert.EqualValues(t, []user{{UserID: 123, Currency: USD}}, users)
 	})
 
@@ -35,18 +35,17 @@ func TestService_ChangeCurrency(t *testing.T) {
 
 		// проверим что запись действительно создалась
 		var users []user
-		s.db.SelectContext(ctx, &users, "SELECT * FROM users") // nolint:errcheck
+		selectAllFromTestTableUsers(ctx, s, &users)
+
 		assert.EqualValues(t, []user{{UserID: 123, Currency: CNY}}, users)
 	})
 }
 
-func TestService_GetUserInfo(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
+func Test_GetUserInfo(t *testing.T) {
+	t.Parallel()
 
 	ctx := context.Background()
-	s, close := NewTestDB(ctx, t)
+	s, close := newTestDB(ctx, t)
 	defer close()
 
 	// должен сначала создать пользователя, а потом вывести инфу о нем
@@ -55,19 +54,17 @@ func TestService_GetUserInfo(t *testing.T) {
 
 	// проверим что запись действительно создалась
 	var users []user
-	s.db.SelectContext(ctx, &users, "SELECT * FROM users") // nolint:errcheck
-	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB}}, users)
+	selectAllFromTestTableUsers(ctx, s, &users)
 
+	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB}}, users)
 	assert.Equal(t, model.User{UserID: 123, Currency: model.RUB}, userInfo)
 }
 
-func TestService_UserCreateIfNotExist(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
+func Test_UserCreateIfNotExist(t *testing.T) {
+	t.Parallel()
 
 	ctx := context.Background()
-	s, close := NewTestDB(ctx, t)
+	s, close := newTestDB(ctx, t)
 	defer close()
 
 	err := s.UserCreateIfNotExist(ctx, 123)
@@ -75,17 +72,16 @@ func TestService_UserCreateIfNotExist(t *testing.T) {
 
 	// проверим что запись действительно создалась
 	var users []user
-	s.db.SelectContext(ctx, &users, "SELECT * FROM users") // nolint:errcheck
+	selectAllFromTestTableUsers(ctx, s, &users)
+
 	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB}}, users)
 }
 
-func TestService_addUser(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
+func Test_addUser(t *testing.T) {
+	t.Parallel()
 
 	ctx := context.Background()
-	s, close := NewTestDB(ctx, t)
+	s, close := newTestDB(ctx, t)
 	defer close()
 
 	err := s.addUser(ctx, 123)
@@ -93,34 +89,39 @@ func TestService_addUser(t *testing.T) {
 
 	// проверим что запись действительно создалась
 	var users []user
-	s.db.SelectContext(ctx, &users, "SELECT * FROM users") // nolint:errcheck
+	selectAllFromTestTableUsers(ctx, s, &users)
+
 	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB}}, users)
 }
 
-func TestService_getUserInfo(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
+func Test_getUserInfo(t *testing.T) {
+	t.Parallel()
 
 	ctx := context.Background()
-	s, close := NewTestDB(ctx, t)
+	s, close := newTestDB(ctx, t)
 	defer close()
 
-	// заполнение необходимыми для теста данными
-	s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'USD')") // nolint:errcheck
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(s.db.DB),
+		testfixtures.Dialect("postgres"),
+		testfixtures.DangerousSkipTestDatabaseCheck(),
+		testfixtures.Files(
+			"./../../../test_data/fixtures/users.yml",
+		),
+	)
+	assert.NoError(t, err)
+	assert.NoError(t, fixtures.Load())
 
 	info, err := s.getUserInfo(ctx, 123)
 	assert.NoError(t, err)
-	assert.Equal(t, user{UserID: 123, Currency: USD}, info)
+	assert.Equal(t, user{UserID: 123, Currency: RUB}, info)
 }
 
-func TestService_userExist(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
+func Test_userExist(t *testing.T) {
+	t.Parallel()
 
 	ctx := context.Background()
-	s, close := NewTestDB(ctx, t)
+	s, close := newTestDB(ctx, t)
 	defer close()
 
 	t.Run("пользователь не существует", func(t *testing.T) {
@@ -130,8 +131,16 @@ func TestService_userExist(t *testing.T) {
 		assert.False(t, ok)
 	})
 
-	// заполнение необходимыми для теста данными
-	s.db.ExecContext(ctx, "INSERT INTO users (id, curr) VALUES (123, 'RUB')") // nolint:errcheck
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(s.db.DB),
+		testfixtures.Dialect("postgres"),
+		testfixtures.DangerousSkipTestDatabaseCheck(),
+		testfixtures.Files(
+			"./../../../test_data/fixtures/users.yml",
+		),
+	)
+	assert.NoError(t, err)
+	assert.NoError(t, fixtures.Load())
 
 	t.Run("пользователь существует", func(t *testing.T) {
 		ok, err := s.userExist(ctx, 123)
