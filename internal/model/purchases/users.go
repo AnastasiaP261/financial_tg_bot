@@ -9,6 +9,7 @@ import (
 type User struct {
 	UserID   uint64
 	Currency Currency // выбранная пользователем валюта
+	Limit    int64
 }
 
 func (m *Model) ChangeUserCurrency(ctx context.Context, userID int64, currency Currency) error {

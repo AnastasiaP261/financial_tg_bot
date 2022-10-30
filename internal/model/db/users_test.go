@@ -26,7 +26,7 @@ func Test_ChangeCurrency(t *testing.T) {
 		var users []user
 		selectAllFromTestTableUsers(ctx, s, &users)
 
-		assert.EqualValues(t, []user{{UserID: 123, Currency: USD}}, users)
+		assert.EqualValues(t, []user{{UserID: 123, Currency: USD, Limit: -1}}, users)
 	})
 
 	t.Run("изменение валюты уже существующего пользователя", func(t *testing.T) {
@@ -37,7 +37,7 @@ func Test_ChangeCurrency(t *testing.T) {
 		var users []user
 		selectAllFromTestTableUsers(ctx, s, &users)
 
-		assert.EqualValues(t, []user{{UserID: 123, Currency: CNY}}, users)
+		assert.EqualValues(t, []user{{UserID: 123, Currency: CNY, Limit: -1}}, users)
 	})
 }
 
@@ -56,8 +56,8 @@ func Test_GetUserInfo(t *testing.T) {
 	var users []user
 	selectAllFromTestTableUsers(ctx, s, &users)
 
-	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB}}, users)
-	assert.Equal(t, model.User{UserID: 123, Currency: model.RUB}, userInfo)
+	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1}}, users)
+	assert.Equal(t, model.User{UserID: 123, Currency: model.RUB, Limit: -1}, userInfo)
 }
 
 func Test_UserCreateIfNotExist(t *testing.T) {
@@ -74,7 +74,7 @@ func Test_UserCreateIfNotExist(t *testing.T) {
 	var users []user
 	selectAllFromTestTableUsers(ctx, s, &users)
 
-	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB}}, users)
+	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1}}, users)
 }
 
 func Test_addUser(t *testing.T) {
@@ -91,7 +91,7 @@ func Test_addUser(t *testing.T) {
 	var users []user
 	selectAllFromTestTableUsers(ctx, s, &users)
 
-	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB}}, users)
+	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1}}, users)
 }
 
 func Test_getUserInfo(t *testing.T) {
@@ -114,7 +114,7 @@ func Test_getUserInfo(t *testing.T) {
 
 	info, err := s.getUserInfo(ctx, 123)
 	assert.NoError(t, err)
-	assert.Equal(t, user{UserID: 123, Currency: RUB}, info)
+	assert.Equal(t, user{UserID: 123, Currency: RUB, Limit: -1}, info)
 }
 
 func Test_userExist(t *testing.T) {
@@ -147,5 +147,35 @@ func Test_userExist(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.True(t, ok)
+	})
+}
+
+func TestService_ChangeUserLimit(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	s, close := newTestDB(ctx, t)
+	defer close()
+
+	t.Run("изменение месячного лимита еще не существующего пользователя", func(t *testing.T) {
+		err := s.ChangeUserLimit(ctx, 123, 100)
+		assert.NoError(t, err)
+
+		// проверим что запись действительно создалась
+		var users []user
+		selectAllFromTestTableUsers(ctx, s, &users)
+
+		assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: 100}}, users)
+	})
+
+	t.Run("изменение месячного лимита уже существующего пользователя", func(t *testing.T) {
+		err := s.ChangeUserLimit(ctx, 123, 200)
+		assert.NoError(t, err)
+
+		// проверим что запись действительно создалась
+		var users []user
+		selectAllFromTestTableUsers(ctx, s, &users)
+
+		assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: 200}}, users)
 	})
 }

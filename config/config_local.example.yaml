@@ -1,4 +1,4 @@
 token: sometokensometokensometokensometoken
 fixer-api-token: sometokensometokensometokensometoken
 
-dbUri: someuri://someuri:port/db
+dbUri: postgresql://user:pass@pg:5432/db

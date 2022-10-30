@@ -12,6 +12,7 @@ var (
 	tblUsers            = "users"
 	tblUsersColID       = "id"
 	tblUsersColCurrency = "curr"
+	tblUsersColLimit    = "month_limit"
 
 	tblCategories                = "categories"
 	tblCategoriesColID           = "id"

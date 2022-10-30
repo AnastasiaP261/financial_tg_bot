@@ -12,6 +12,7 @@ import (
 type user struct {
 	UserID   uint64   `db:"id"`
 	Currency Currency `db:"curr"` // выбранная пользователем валюта
+	Limit    float64  `db:"month_limit"`
 }
 
 // Currency тип валюты
@@ -166,13 +167,14 @@ func (s *Service) GetUserInfo(ctx context.Context, userID int64) (model.User, er
 	return model.User{
 		UserID:   res.UserID,
 		Currency: curr,
+		Limit:    res.Limit,
 	}, nil
 }
 
 // getUserInfo возвращает информацию о пользователе (для использования внутри пакета)
 func (s *Service) getUserInfo(ctx context.Context, userID int64) (user, error) {
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
-		Select(tblUsersColID, tblUsersColCurrency).
+		Select(tblUsersColID, tblUsersColCurrency, tblUsersColLimit).
 		From(tblUsers).
 		Where(sq.Eq{
 			tblUsersColID: userID,
@@ -199,4 +201,25 @@ func (s *Service) getUserInfo(ctx context.Context, userID int64) (user, error) {
 	}
 
 	return data, nil
+}
+
+func (s *Service) ChangeUserLimit(ctx context.Context, userID int64, newLimit float64) error {
+	if err := s.UserCreateIfNotExist(ctx, userID); err != nil {
+		return errors.Wrap(err, "UserCreateIfNotExist")
+	}
+
+	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
+		Update(tblUsers).
+		Set(tblUsersColLimit, newLimit).
+		Where(sq.Eq{tblUsersColID: userID}).
+		ToSql()
+	if err != nil {
+		return errors.Wrap(err, "query creating error")
+	}
+
+	if _, err = s.db.ExecContext(ctx, q, args...); err != nil {
+		return errors.Wrap(err, "db.ExecContext")
+	}
+
+	return nil
 }

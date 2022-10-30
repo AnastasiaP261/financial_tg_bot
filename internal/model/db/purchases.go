@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -99,4 +100,40 @@ func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Ti
 	}
 
 	return purchases, nil
+}
+
+// GetUserPurchasesSumFromMonth получить сумму расходов пользователя за календарный месяц (на вход отправить текущую дату)
+func (s *Service) GetUserPurchasesSumFromMonth(ctx context.Context, userID int64, date time.Time) (float64, error) {
+	if userID == 0 {
+		return 0, errors.New("userID is empty")
+	}
+
+	if err := s.UserCreateIfNotExist(ctx, userID); err != nil {
+		return 0, errors.Wrap(err, "UserCreateIfNotExist")
+	}
+
+	y, m, d := date.Date()
+	from := fmt.Sprintf("%d-%d-01", y, m)
+	to := fmt.Sprintf("%d-%d-%d", y, m, d)
+
+	q, args, err := sq.Expr(`SELECT SUM(sum) 
+							FROM purchases
+							WHERE $1 <= ts AND ts <= $2`, from, to).ToSql()
+	if err != nil {
+		return 0, errors.Wrap(err, "query creating error")
+	}
+
+	rows, err := s.db.QueryContext(ctx, q, args...)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, nil
+		}
+		return 0, errors.Wrap(err, "db.QueryRowContext")
+	}
+	var sum float64
+	if err = read(rows, &sum); err != nil {
+		return 0, errors.Wrap(err, "read")
+	}
+
+	return sum, nil
 }

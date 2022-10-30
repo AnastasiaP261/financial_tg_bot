@@ -1,2 +1,3 @@
 - id: 123
   curr: "RUB"
+  month_limit: -1

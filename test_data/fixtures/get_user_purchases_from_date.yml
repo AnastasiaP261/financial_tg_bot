@@ -1,6 +1,7 @@
 users:
   - id: 123
     curr: "RUB"
+    month_limit: -1
 
 categories:
   - id: 1
