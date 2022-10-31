@@ -2,6 +2,7 @@ package messages
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
@@ -47,14 +48,25 @@ func (m *Model) msgAddCategory(ctx context.Context, msg Message) error {
 }
 
 func (m *Model) msgAddPurchase(ctx context.Context, msg Message, sum, category, date string) error {
-	if err := m.purchasesModel.AddPurchase(ctx, msg.UserID, sum, category, date); err != nil {
+	expAndLim, err := m.purchasesModel.AddPurchase(ctx, msg.UserID, sum, category, date)
+	if err != nil {
 		err = errors.Wrap(err, "purchasesModel.AddPurchase")
 		if errors.Is(err, purchases.ErrCategoryNotExist) {
 			return m.tgClient.SendMessage(ErrTxtCategoryDoesntExist, msg.UserID, msg.UserName)
 		}
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 	}
-	return m.tgClient.SendMessage(ScsTxtPurchaseAdded, msg.UserID, msg.UserName)
+
+	txt := ScsTxtPurchaseAdded
+	if expAndLim.Limit != -1 {
+		txt += fmt.Sprintf("\n\nУ вас установлен лимит: %.2f %s. За этот месяц вы потратили уже %.2f %s.",
+			expAndLim.Limit, string(expAndLim.Currency), expAndLim.Limit, string(expAndLim.Currency))
+		if expAndLim.LimitExceeded {
+			txt += "\nВЫ ПРЕВЫСИЛИ ЛИМИТ!"
+		}
+	}
+
+	return m.tgClient.SendMessage(txt, msg.UserID, msg.UserName)
 }
 
 func (m *Model) msgCurrency(ctx context.Context, msg Message, rawCY string) error {
@@ -65,6 +77,17 @@ func (m *Model) msgCurrency(ctx context.Context, msg Message, rawCY string) erro
 
 	if err = m.purchasesModel.ChangeUserCurrency(ctx, msg.UserID, cy); err != nil {
 		err = errors.Wrap(err, "purchasesModel.ChangeUserCurrency")
+		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+	}
+	return m.tgClient.SendMessage(ScsTxtCurrencyChanged, msg.UserID, msg.UserName)
+}
+
+func (m *Model) msgLimit(ctx context.Context, msg Message, limit string) error {
+	if err := m.purchasesModel.ChangeUserLimit(ctx, msg.UserID, limit); err != nil {
+		if errors.Is(err, purchases.ErrLimitParsing) {
+			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+		}
+		err = errors.Wrap(err, "purchasesModel.ChangeUserLimit")
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
 	}
 	return m.tgClient.SendMessage(ScsTxtCurrencyChanged, msg.UserID, msg.UserName)

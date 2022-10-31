@@ -13,11 +13,12 @@ type MessageSender interface {
 }
 
 type PurchasesModel interface {
-	AddPurchase(ctx context.Context, userID int64, rawSum, category, rawDate string) error
+	AddPurchase(ctx context.Context, userID int64, rawSum, category, rawDate string) (purchases.ExpensesAndLimit, error)
 	AddCategory(ctx context.Context, userID int64, category string) error
 	Report(ctx context.Context, period purchases.Period, userID int64) (txt string, img []byte, err error)
 	ToPeriod(str string) (purchases.Period, error)
 	ChangeUserCurrency(ctx context.Context, userID int64, currency purchases.Currency) error
+	ChangeUserLimit(ctx context.Context, userID int64, rawLimit string) error
 	StrToCurrency(str string) (purchases.Currency, error)
 }
 
@@ -54,8 +55,10 @@ var (
 	// report создание отчета за выбранный период
 	report = regexp.MustCompile(`/report (month|week|year)`)
 
-	// команда для смены основной валюты пользователя
+	// currency команда для смены основной валюты пользователя
 	currency = regexp.MustCompile(`/currency ([A-Za-z]{3})`)
+	// limit команда для задания месячного лимита трат пользователю
+	limit = regexp.MustCompile(`/limit (\d+.?\d*)`)
 )
 
 func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
@@ -100,6 +103,14 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 		}
 
 		return m.msgCurrency(ctx, msg, res[1])
+
+	case limit.MatchString(msg.Text):
+		res := limit.FindStringSubmatch(msg.Text)
+		if len(res) < 2 {
+			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+		}
+
+		return m.msgLimit(ctx, msg, res[1])
 
 	default:
 		return m.tgClient.SendMessage(ErrTxtUnknownCommand, msg.UserID, msg.UserName)
