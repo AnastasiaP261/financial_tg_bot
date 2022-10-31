@@ -98,19 +98,19 @@ func Test_GetUserPurchasesSumFromMonth(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NoError(t, fixtures.Load())
 
-	t.Run("получить сумму трат за 11-ый месяц (до 15 числа включительно)", func(t *testing.T) {
+	t.Run("получить сумму трат за 11-ый месяц", func(t *testing.T) {
 		date, _ := time.Parse("02.01.2006", "15.11.2022")
 		res, err := s.GetUserPurchasesSumFromMonth(ctx, 123, date)
 
 		assert.NoError(t, err)
-		assert.Equal(t, float64(300), res)
+		assert.Equal(t, float64(400), res)
 	})
 
-	t.Run("получить сумму трат за 12-ый месяц (до 15 числа включительно)", func(t *testing.T) {
+	t.Run("получить сумму трат за 12-ый месяц", func(t *testing.T) {
 		date, _ := time.Parse("02.01.2006", "15.12.2022")
 		res, err := s.GetUserPurchasesSumFromMonth(ctx, 123, date)
 
 		assert.NoError(t, err)
-		assert.Equal(t, float64(500), res)
+		assert.Equal(t, float64(600), res)
 	})
 }

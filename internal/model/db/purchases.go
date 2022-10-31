@@ -71,7 +71,7 @@ func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Ti
 
 	q, args, err := sq.Expr(`SELECT "sum", category_name, usd_ratio, cny_ratio, eur_ratio 
 							FROM purchases 
-							LEFT JOIN (
+							INNER JOIN (
 								SELECT id, category_name 
 								FROM categories 
 								WHERE user_id=$1 
@@ -103,7 +103,7 @@ func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Ti
 }
 
 // GetUserPurchasesSumFromMonth получить сумму расходов пользователя за календарный месяц (на вход отправить текущую дату)
-func (s *Service) GetUserPurchasesSumFromMonth(ctx context.Context, userID int64, date time.Time) (float64, error) {
+func (s *Service) GetUserPurchasesSumFromMonth(ctx context.Context, userID int64, fromDate time.Time) (float64, error) {
 	if userID == 0 {
 		return 0, errors.New("userID is empty")
 	}
@@ -112,16 +112,27 @@ func (s *Service) GetUserPurchasesSumFromMonth(ctx context.Context, userID int64
 		return 0, errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
-	y, m, d := date.Date()
+	y, m, _ := fromDate.Date()
 	from := fmt.Sprintf("%d-%d-01", y, m)
-	to := fmt.Sprintf("%d-%d-%d", y, m, d)
+	var to string
+	if m < 12 {
+		to = fmt.Sprintf("%d-%d-01", y, m+1)
+	} else {
+		to = fmt.Sprintf("%d-01-01", y+1)
+	}
 
 	q, args, err := sq.Expr(`SELECT SUM(sum) 
 							FROM purchases
-							WHERE $1 <= ts AND ts <= $2`, from, to).ToSql()
+							LEFT JOIN (
+								SELECT id, category_name, user_id
+								FROM categories 
+								WHERE user_id=$1 
+							) AS user_categories ON (purchases.category_id=user_categories.id) 
+							WHERE $2 <= ts AND ts <= $3`, userID, from, to).ToSql()
 	if err != nil {
 		return 0, errors.Wrap(err, "query creating error")
 	}
+	fmt.Println("### q", q, args)
 
 	rows, err := s.db.QueryContext(ctx, q, args...)
 	if err != nil {
