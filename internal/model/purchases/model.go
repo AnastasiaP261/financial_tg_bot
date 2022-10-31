@@ -9,6 +9,7 @@ import (
 
 var (
 	ErrSummaParsing     = errors.New("summa parsing error")
+	ErrLimitParsing     = errors.New("limit parsing error")
 	ErrDateParsing      = errors.New("date parsing error")
 	ErrCategoryNotExist = errors.New("such category doesn't exist")
 	ErrUnknownPeriod    = errors.New("unknown period")
@@ -25,6 +26,8 @@ type Repo interface {
 	GetUserInfo(ctx context.Context, userID int64) (User, error)
 	GetRate(ctx context.Context, y, m, d int) (bool, RateToRUB, error)
 	AddRate(ctx context.Context, y, m, d int, rates RateToRUB) error
+	ChangeUserLimit(ctx context.Context, userID int64, newLimit float64) error
+	GetUserPurchasesSumFromMonth(ctx context.Context, userID int64, date time.Time) (float64, error)
 }
 
 // ChartDrawer рисовальщик

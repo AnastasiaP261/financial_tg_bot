@@ -31,9 +31,11 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
 			Currency: purchases.RUB,
+			Limit:    -1,
 		}, nil)
+		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(gomock.Any(), nil)
 
-		err := model.AddPurchase(ctx, 123, "123", "", "")
+		_, err := model.AddPurchase(ctx, 123, "123", "", "")
 		assert.NoError(t, err)
 	})
 
@@ -54,11 +56,12 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
 			Currency: purchases.RUB,
+			Limit:    -1,
 		}, nil)
-
+		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(gomock.Any(), nil)
 		repo.EXPECT().AddPurchase(gomock.Any(), gomock.Any()).Return(nil)
 
-		err := model.AddPurchase(ctx, 123, "234.5", "", "")
+		_, err := model.AddPurchase(ctx, 123, "234.5", "", "")
 		assert.NoError(t, err)
 	})
 
@@ -71,7 +74,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 
 		model := purchases.New(repo, nil, excRateModel)
 
-		err := model.AddPurchase(ctx, 123, "12o.o5", "", "")
+		_, err := model.AddPurchase(ctx, 123, "12o.o5", "", "")
 		assert.Error(t, err, purchases.ErrSummaParsing)
 	})
 }
@@ -95,10 +98,12 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
 			Currency: purchases.RUB,
+			Limit:    -1,
 		}, nil)
+		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(gomock.Any(), nil)
 		repo.EXPECT().AddPurchase(gomock.Any(), gomock.Any()).Return(nil)
 
-		err := model.AddPurchase(ctx, 123, "234.5", "some category", "")
+		_, err := model.AddPurchase(ctx, 123, "234.5", "some category", "")
 		assert.NoError(t, err)
 	})
 
@@ -113,7 +118,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(0), nil)
 
-		err := model.AddPurchase(ctx, 123, "234.5", "some category", "")
+		_, err := model.AddPurchase(ctx, 123, "234.5", "some category", "")
 		assert.Error(t, err, purchases.ErrCategoryNotExist)
 	})
 }
@@ -133,10 +138,12 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
 			Currency: purchases.RUB,
+			Limit:    -1,
 		}, nil)
+		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(gomock.Any(), nil)
 		repo.EXPECT().AddPurchase(gomock.Any(), gomock.Any()).Return(nil)
 
-		err := model.AddPurchase(ctx, 123, "234.5", "some category", "01.01.2022")
+		_, err := model.AddPurchase(ctx, 123, "234.5", "some category", "01.01.2022")
 		assert.NoError(t, err)
 	})
 
@@ -151,7 +158,129 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 
-		err := model.AddPurchase(ctx, 123, "234.5", "some category", "01-01-2022")
+		_, err := model.AddPurchase(ctx, 123, "234.5", "some category", "01-01-2022")
 		assert.Error(t, err, purchases.ErrDateParsing)
+	})
+}
+
+func Test_AddPurchase_Limits(t *testing.T) {
+	t.Run("у юзера не установлен лимит", func(t *testing.T) {
+		ctx := context.Background()
+
+		ctrl := gomock.NewController(t)
+		repo := mocks.NewMockRepo(ctrl)
+		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
+
+		model := purchases.New(repo, nil, excRateModel)
+
+		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
+		repo.EXPECT().GetRate(gomock.Any(), 2022, 01, 01).Return(true, purchases.RateToRUB{USD: 1, EUR: 1, CNY: 1}, nil)
+		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
+			UserID:   123,
+			Currency: purchases.RUB,
+			Limit:    -1,
+		}, nil)
+		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(500), nil)
+		repo.EXPECT().AddPurchase(gomock.Any(), gomock.Any()).Return(nil)
+
+		expAndLim, err := model.AddPurchase(ctx, 123, "234.5", "some category", "01.01.2022")
+
+		assert.NoError(t, err)
+		assert.Equal(t, purchases.ExpensesAndLimit{
+			Limit:         -1,
+			Expenses:      500 + 234.5,
+			Currency:      purchases.RUB,
+			LimitExceeded: false,
+		}, expAndLim)
+	})
+
+	t.Run("лимит установлен, не превышен", func(t *testing.T) {
+		ctx := context.Background()
+
+		ctrl := gomock.NewController(t)
+		repo := mocks.NewMockRepo(ctrl)
+		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
+
+		model := purchases.New(repo, nil, excRateModel)
+
+		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
+		repo.EXPECT().GetRate(gomock.Any(), 2022, 01, 01).Return(true, purchases.RateToRUB{USD: 1, EUR: 1, CNY: 1}, nil)
+		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
+			UserID:   123,
+			Currency: purchases.RUB,
+			Limit:    1000,
+		}, nil)
+		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(500), nil)
+		repo.EXPECT().AddPurchase(gomock.Any(), gomock.Any()).Return(nil)
+
+		expAndLim, err := model.AddPurchase(ctx, 123, "234.5", "some category", "01.01.2022")
+
+		assert.NoError(t, err)
+		assert.Equal(t, purchases.ExpensesAndLimit{
+			Limit:         1000,
+			Expenses:      500 + 234.5,
+			Currency:      purchases.RUB,
+			LimitExceeded: false,
+		}, expAndLim)
+	})
+
+	t.Run("лимит установлен, превышен", func(t *testing.T) {
+		ctx := context.Background()
+
+		ctrl := gomock.NewController(t)
+		repo := mocks.NewMockRepo(ctrl)
+		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
+
+		model := purchases.New(repo, nil, excRateModel)
+
+		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
+		repo.EXPECT().GetRate(gomock.Any(), 2022, 01, 01).Return(true, purchases.RateToRUB{USD: 1, EUR: 1, CNY: 1}, nil)
+		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
+			UserID:   123,
+			Currency: purchases.RUB,
+			Limit:    1000,
+		}, nil)
+		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(800), nil)
+		repo.EXPECT().AddPurchase(gomock.Any(), gomock.Any()).Return(nil)
+
+		expAndLim, err := model.AddPurchase(ctx, 123, "234.5", "some category", "01.01.2022")
+
+		assert.NoError(t, err)
+		assert.Equal(t, purchases.ExpensesAndLimit{
+			Limit:         1000,
+			Expenses:      800 + 234.5,
+			Currency:      purchases.RUB,
+			LimitExceeded: true,
+		}, expAndLim)
+	})
+
+	t.Run("лимит установлен, не превышен, основная валюта не рубль", func(t *testing.T) {
+		ctx := context.Background()
+
+		ctrl := gomock.NewController(t)
+		repo := mocks.NewMockRepo(ctrl)
+		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
+
+		model := purchases.New(repo, nil, excRateModel)
+
+		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
+		repo.EXPECT().GetRate(gomock.Any(), 2022, 01, 01).Return(true, purchases.RateToRUB{USD: 2, EUR: 2, CNY: 2}, nil)
+		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
+			UserID:   123,
+			Currency: purchases.USD,
+			Limit:    1000,
+		}, nil)
+		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(500), nil)
+		repo.EXPECT().AddPurchase(gomock.Any(), gomock.Any()).Return(nil)
+
+		expAndLim, err := model.AddPurchase(ctx, 123, "234.5", "some category", "01.01.2022")
+
+		assert.NoError(t, err)
+		assert.Equal(t, purchases.ExpensesAndLimit{
+			Limit:         1000 * 2,
+			Expenses:      500*2 + 234.5,
+			Currency:      purchases.USD,
+			LimitExceeded: false,
+		}, expAndLim)
 	})
 }

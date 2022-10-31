@@ -92,6 +92,20 @@ func (mr *MockRepoMockRecorder) ChangeCurrency(ctx, userID, currency interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeCurrency", reflect.TypeOf((*MockRepo)(nil).ChangeCurrency), ctx, userID, currency)
 }
 
+// ChangeUserLimit mocks base method.
+func (m *MockRepo) ChangeUserLimit(ctx context.Context, userID int64, newLimit float64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangeUserLimit", ctx, userID, newLimit)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ChangeUserLimit indicates an expected call of ChangeUserLimit.
+func (mr *MockRepoMockRecorder) ChangeUserLimit(ctx, userID, newLimit interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeUserLimit", reflect.TypeOf((*MockRepo)(nil).ChangeUserLimit), ctx, userID, newLimit)
+}
+
 // GetCategoryID mocks base method.
 func (m *MockRepo) GetCategoryID(ctx context.Context, req purchases.CategoryRow) (uint64, error) {
 	m.ctrl.T.Helper()
@@ -151,6 +165,21 @@ func (m *MockRepo) GetUserPurchasesFromDate(ctx context.Context, fromDate time.T
 func (mr *MockRepoMockRecorder) GetUserPurchasesFromDate(ctx, fromDate, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPurchasesFromDate", reflect.TypeOf((*MockRepo)(nil).GetUserPurchasesFromDate), ctx, fromDate, userID)
+}
+
+// GetUserPurchasesSumFromMonth mocks base method.
+func (m *MockRepo) GetUserPurchasesSumFromMonth(ctx context.Context, userID int64, date time.Time) (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserPurchasesSumFromMonth", ctx, userID, date)
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserPurchasesSumFromMonth indicates an expected call of GetUserPurchasesSumFromMonth.
+func (mr *MockRepoMockRecorder) GetUserPurchasesSumFromMonth(ctx, userID, date interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPurchasesSumFromMonth", reflect.TypeOf((*MockRepo)(nil).GetUserPurchasesSumFromMonth), ctx, userID, date)
 }
 
 // MockChartDrawer is a mock of ChartDrawer interface.

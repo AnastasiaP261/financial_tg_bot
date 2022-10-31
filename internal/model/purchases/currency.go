@@ -1,6 +1,8 @@
 package purchases
 
 import (
+	"context"
+	"log"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -91,4 +93,29 @@ func (m *Model) rubToCurrentCurrency(userCurrency Currency, sum float64, rates R
 	default:
 		return 0, errors.New("invalid currency")
 	}
+}
+
+func (m *Model) getTodayRates(ctx context.Context, year, month, day int) (RateToRUB, error) {
+	var ok bool
+	var rates RateToRUB
+
+	ok, rates, err := m.Repo.GetRate(ctx, year, month, day)
+	if err != nil {
+		return RateToRUB{}, errors.Wrap(err, "Repo.GetRate")
+	}
+	if !ok {
+		rates, err = m.ExchangeRatesModel.GetExchangeRateToRUBFromDate(ctx, year, month, day)
+		if err != nil {
+			return RateToRUB{}, errors.Wrap(err, "ExchangeRatesModel.GetExchangeRateToRUBFromDate")
+		}
+
+		go func() {
+			err := m.Repo.AddRate(ctx, year, month, day, rates)
+			if err != nil {
+				log.Printf("[ERROR] rate has not been added to the database, date:%d.%02d.%02d, rate:%#v", year, month, day, rates)
+			}
+		}()
+	}
+
+	return rates, nil
 }
