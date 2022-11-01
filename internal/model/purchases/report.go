@@ -82,13 +82,8 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 	resStr.WriteString(cy)
 	resStr.WriteString("\nВаш отчет:\n")
 	for _, item := range reportItems {
-		ctgr := item.PurchaseCategory
-		if ctgr == "" {
-			ctgr = "не указанные категории"
-		}
-
 		resStr.WriteString("\t")
-		resStr.WriteString(ctgr)
+		resStr.WriteString(item.PurchaseCategory)
 		resStr.WriteString(": ")
 		resStr.WriteString(strconv.FormatFloat(item.Summa, 'f', 2, 64))
 		resStr.WriteString("\n")
@@ -107,17 +102,12 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 func (m *Model) packagingByCategory(purchases []Purchase, currentCurrency Currency) ([]ReportItem, error) {
 	tempCategoryOnSum := make(map[string]float64, len(purchases))
 	for _, p := range purchases {
-		ctgr := p.PurchaseCategory
-		if ctgr == "" {
-			ctgr = "не указанные категории"
-		}
-
 		resSum, err := m.rubToCurrentCurrency(currentCurrency, p.Summa, p.RateToRUB)
 		if err != nil {
 			return nil, errors.Wrap(err, "rubToCurrentCurrency")
 		}
 
-		tempCategoryOnSum[ctgr] += resSum
+		tempCategoryOnSum[p.PurchaseCategory] += resSum
 	}
 
 	res := make([]ReportItem, 0, len(tempCategoryOnSum))

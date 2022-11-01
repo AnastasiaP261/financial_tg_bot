@@ -2,6 +2,7 @@ package purchases
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/normalize"
 	"strconv"
 	"time"
 
@@ -48,6 +49,14 @@ func (m *Model) ChangeUserLimit(ctx context.Context, userID int64, rawLimit stri
 	err = m.Repo.ChangeUserLimit(ctx, userID, limit)
 	if err != nil {
 		return errors.Wrap(err, "Repo.ChangeCurrency")
+	}
+	return nil
+}
+
+// AddCategoryToUser добавить новую категорию пользователю
+func (m *Model) AddCategoryToUser(ctx context.Context, userID int64, category string) error {
+	if err := m.Repo.AddCategoryToUser(ctx, userID, normalize.Category(category)); err != nil {
+		return errors.Wrap(err, "Repo.AddCategoryToUser")
 	}
 	return nil
 }

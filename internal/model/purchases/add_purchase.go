@@ -2,6 +2,7 @@ package purchases
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -25,7 +26,7 @@ type AddPurchaseReq struct {
 
 // CategoryRow тело запроса в Repo для проверки существования категории у пользователя
 type CategoryRow struct {
-	UserID   int64
+	ID       uint64
 	Category string
 }
 
@@ -51,21 +52,29 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		return ExpensesAndLimit{}, ErrSummaParsing
 	}
 
-	// получаем id категории которую выбрал пользователь
+	// получаем id категории которую выбрал пользователь и проверяем что такая категория существует
 	var categoryID uint64
 	if category != "" {
 		category = strings.ToLower(category)
-		categoryID, err = m.Repo.GetCategoryID(ctx, CategoryRow{
-			UserID:   userID,
-			Category: normalize.Category(category),
-		})
-
+		categoryID, err = m.Repo.GetCategoryID(ctx, normalize.Category(category))
 		if err != nil {
 			return ExpensesAndLimit{}, errors.Wrap(err, "Repo.GetCategoryID")
 		}
 		if categoryID == 0 {
 			return ExpensesAndLimit{}, ErrCategoryNotExist
 		}
+	} else {
+		categoryID = 1
+	}
+
+	fmt.Println("### categoryID", categoryID)
+	// проверяем, создана ли такая категория у юзера
+	has, err := m.Repo.UserHasCategory(ctx, userID, categoryID)
+	if err != nil {
+		return ExpensesAndLimit{}, errors.Wrap(err, "Repo.UserHasCategory")
+	}
+	if !has {
+		return ExpensesAndLimit{}, ErrUserHasntCategory
 	}
 
 	// переводим сумму траты которую он ввел в рубли
