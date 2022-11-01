@@ -18,10 +18,14 @@ const (
 type Config struct {
 	Token         string `yaml:"token"`
 	FixerAPIToken string `yaml:"fixer-api-token"`
-	DBUri         string `yaml:"dbUri"`
-	DBName        string `yaml:"dbName"`
-	DBUser        string `yaml:"dbUser"`
-	DBPass        string `yaml:"dbPass"`
+
+	DBUri  string `yaml:"dbUri"`
+	DBName string `yaml:"dbName"`
+	DBUser string `yaml:"dbUser"`
+	DBPass string `yaml:"dbPass"`
+
+	RedisUri  string `yaml:"redisUri"`
+	RedisPass string `yaml:"redisPass"`
 }
 
 type Service struct {
@@ -62,4 +66,12 @@ func (s *Service) FixerAPIToken() string {
 
 func (s *Service) DBUri() string {
 	return s.config.DBUri
+}
+
+func (s *Service) RedisUri() string {
+	return s.config.RedisUri
+}
+
+func (s *Service) RedisPass() string {
+	return s.config.RedisPass
 }
