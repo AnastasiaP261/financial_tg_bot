@@ -48,7 +48,7 @@ func Test_AddPurchase(t *testing.T) {
 	var purchases []purchaseTestRow
 	selectAllFromTestTablePurchases(ctx, s, &purchases)
 
-	assert.EqualValues(t, []purchaseTestRow{{Sum: 100, CategoryID: 1, USDRatio: 1, CNYRatio: 1, EURRatio: 1}}, purchases)
+	assert.EqualValues(t, []purchaseTestRow{{Sum: 100, UserID: 123, CategoryID: 1, USDRatio: 1, CNYRatio: 1, EURRatio: 1}}, purchases)
 }
 
 func Test_GetUserPurchasesFromDate(t *testing.T) {
@@ -75,7 +75,7 @@ func Test_GetUserPurchasesFromDate(t *testing.T) {
 	assert.NoError(t, err)
 	assert.EqualValues(t, []model.Purchase{
 		{PurchaseCategory: "some category 1", Summa: 200, RateToRUB: model.RateToRUB{USD: 0.5, EUR: 0.5, CNY: 0.5}},
-		{PurchaseCategory: "", Summa: 300, RateToRUB: model.RateToRUB{USD: 0.5, EUR: 0.5, CNY: 0.5}},
+		{PurchaseCategory: "Не заданная категория", Summa: 300, RateToRUB: model.RateToRUB{USD: 0.5, EUR: 0.5, CNY: 0.5}},
 		{PurchaseCategory: "some category 2", Summa: 400, RateToRUB: model.RateToRUB{USD: 0.5, EUR: 0.5, CNY: 0.5}},
 	}, res)
 }

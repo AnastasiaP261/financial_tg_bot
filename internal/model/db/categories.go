@@ -3,37 +3,28 @@ package db
 import (
 	"context"
 	"database/sql"
+	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
-	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 type category struct { // nolint:unused
 	ID       uint64 `db:"id"`
-	UserID   uint64 `db:"user_id"`
 	Category string `db:"category_name"`
 }
 
 // GetCategoryID получить id категории
-func (s *Service) GetCategoryID(ctx context.Context, req model.CategoryRow) (uint64, error) {
-	if req.UserID == 0 {
-		return 0, errors.New("userID is empty")
-	}
-	if req.Category == "" {
+func (s *Service) GetCategoryID(ctx context.Context, categoryName string) (uint64, error) {
+	if categoryName == "" {
 		return 0, errors.New("category is empty")
-	}
-
-	if err := s.UserCreateIfNotExist(ctx, req.UserID); err != nil {
-		return 0, errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Select(tblCategoriesColID).
 		From(tblCategories).
 		Where(sq.Eq{
-			tblCategoriesColUserID:       req.UserID,
-			tblCategoriesColCategoryName: req.Category,
+			tblCategoriesColCategoryName: categoryName,
 		}).
 		ToSql()
 	if err != nil {
@@ -55,19 +46,12 @@ func (s *Service) GetCategoryID(ctx context.Context, req model.CategoryRow) (uin
 	return id, nil
 }
 
-func (s *Service) AddCategory(ctx context.Context, req model.CategoryRow) error {
-	if req.UserID == 0 {
-		return errors.New("userID is empty")
-	}
-	if req.Category == "" {
+func (s *Service) AddCategory(ctx context.Context, categoryName string) error {
+	if categoryName == "" {
 		return errors.New("category is empty")
 	}
 
-	if err := s.UserCreateIfNotExist(ctx, req.UserID); err != nil {
-		return errors.Wrap(err, "UserCreateIfNotExist")
-	}
-
-	categoryID, err := s.GetCategoryID(ctx, req)
+	categoryID, err := s.GetCategoryID(ctx, categoryName)
 	if err != nil {
 		return errors.Wrap(err, "GetCategoryID")
 	}
@@ -77,8 +61,8 @@ func (s *Service) AddCategory(ctx context.Context, req model.CategoryRow) error 
 
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Insert(tblCategories).
-		Columns(tblCategoriesColCategoryName, tblCategoriesColUserID).
-		Values(req.Category, req.UserID).
+		Columns(tblCategoriesColCategoryName).
+		Values(categoryName).
 		ToSql()
 	if err != nil {
 		return errors.Wrap(err, "query creating error")
@@ -89,4 +73,30 @@ func (s *Service) AddCategory(ctx context.Context, req model.CategoryRow) error 
 	}
 
 	return nil
+}
+
+// GetAllCategories получить все категории
+func (s *Service) GetAllCategories(ctx context.Context) ([]model.CategoryRow, error) {
+	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
+		Select(tblCategoriesColID, tblCategoriesColCategoryName).
+		From(tblCategories).
+		ToSql()
+	if err != nil {
+		return nil, errors.Wrap(err, "query creating error")
+	}
+
+	var categories []category
+	if err = s.db.SelectContext(ctx, &categories, q, args...); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, errors.Wrap(err, "db.QueryRowContext")
+	}
+
+	res := make([]model.CategoryRow, len(categories))
+	for i := range categories {
+		res[i] = model.CategoryRow(categories[i])
+	}
+
+	return res, nil
 }

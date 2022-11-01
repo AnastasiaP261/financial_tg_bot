@@ -53,6 +53,7 @@ func NewTestDatabase(ctx context.Context, t *testing.T) *TestDatabase {
 	tdb.uri = fmt.Sprintf("postgres://postgres:postgres@127.0.0.1:%d/postgres?sslmode=disable", tdb.port(t))
 
 	// run migrations
+	time.Sleep(time.Second * 5)
 	err = migrate.Migrate(tdb.uri, migrate.Migrations)
 
 	return tdb

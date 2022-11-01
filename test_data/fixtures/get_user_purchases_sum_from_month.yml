@@ -2,24 +2,26 @@ users:
   - id: 123
     curr: "RUB"
     month_limit: -1
+    category_ids: '{1,2,3}'
   - id: 234
     curr: "RUB"
     month_limit: -1
+    category_ids: '{1,3,4}'
 
 categories:
   - id: 1
-    user_id: 123
-    category_name: "some category 1"
+    category_name: "Не заданная категория" # фикстуры затрут таблицу, поэтому нужно добавить значение заново
   - id: 2
-    user_id: 123
-    category_name: "some category 2"
+    category_name: "some category 1"
   - id: 3
-    user_id: 234
+    category_name: "some category 2"
+  - id: 4
     category_name: "some category 3"
 
 purchases:
   - id: 1 # эта трата должна войти в первый кейс
-    category_id: 1
+    category_id: 2
+    user_id: 123
     sum: 100
     ts: "2022-11-05"
     eur_ratio: 0.5
@@ -27,7 +29,8 @@ purchases:
     cny_ratio: 0.5
 
   - id: 2 # эта трата должна войти в первый кейс
-    category_id: 1
+    category_id: 2
+    user_id: 123
     sum: 100
     ts: "2022-11-07"
     eur_ratio: 0.5
@@ -35,7 +38,8 @@ purchases:
     cny_ratio: 0.5
 
   - id: 3 # эта трата должна войти в первый кейс
-    category_id: 0
+    category_id: 1
+    user_id: 123
     sum: 100
     ts: "2022-11-15"
     eur_ratio: 0.5
@@ -43,7 +47,8 @@ purchases:
     cny_ratio: 0.5
 
   - id: 4 # эта трата должна войти в первый кейс
-    category_id: 2
+    category_id: 3
+    user_id: 123
     sum: 100
     ts: "2022-11-27"
     eur_ratio: 0.5
@@ -51,7 +56,8 @@ purchases:
     cny_ratio: 0.5
 
   - id: 5 # эта трата должна войти во второй кейс
-    category_id: 2
+    category_id: 3
+    user_id: 123
     sum: 100
     ts: "2022-12-01"
     eur_ratio: 0.5
@@ -59,7 +65,8 @@ purchases:
     cny_ratio: 0.5
 
   - id: 6 # эта трата должна войти во второй кейс
-    category_id: 2
+    category_id: 3
+    user_id: 123
     sum: 100
     ts: "2022-12-06"
     eur_ratio: 0.5
@@ -67,7 +74,8 @@ purchases:
     cny_ratio: 0.5
 
   - id: 7 # эта трата должна войти во второй кейс
-    category_id: 1
+    category_id: 2
+    user_id: 123
     sum: 100
     ts: "2022-12-06"
     eur_ratio: 0.5
@@ -75,7 +83,8 @@ purchases:
     cny_ratio: 0.5
 
   - id: 8 # эта трата должна войти во второй кейс
-    category_id: 0
+    category_id: 1
+    user_id: 123
     sum: 100
     ts: "2022-12-09"
     eur_ratio: 0.5
@@ -83,7 +92,8 @@ purchases:
     cny_ratio: 0.5
 
   - id: 9 # эта трата должна войти во второй кейс
-    category_id: 2
+    category_id: 3
+    user_id: 123
     sum: 100
     ts: "2022-12-15"
     eur_ratio: 0.5
@@ -91,23 +101,26 @@ purchases:
     cny_ratio: 0.5
 
   - id: 10 # эта трата должна войти во второй кейс
-    category_id: 2
+    category_id: 3
+    user_id: 123
     sum: 100
     ts: "2022-12-17"
     eur_ratio: 0.5
     usd_ratio: 0.5
     cny_ratio: 0.5
 
-  - id: 11
-    category_id: 3 # трата другого юзера не должна войти
+  - id: 11 # трата другого юзера не должна войти
+    category_id: 4 # трата другого юзера не должна войти
+    user_id: 234
     sum: 100
     ts: "2022-12-17"
     eur_ratio: 0.5
     usd_ratio: 0.5
     cny_ratio: 0.5
 
-  - id: 12
-    category_id: 3 # трата другого юзера не должна войти
+  - id: 12 # трата другого юзера не должна войти
+    category_id: 3
+    user_id: 234
     sum: 100
     ts: "2022-11-03"
     eur_ratio: 0.5

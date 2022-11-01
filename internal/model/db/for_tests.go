@@ -3,6 +3,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -31,6 +32,7 @@ func selectAllFromTestTableCategories(ctx context.Context, s *Service, categorie
 type purchaseTestRow struct {
 	Sum        float64 `db:"sum"` // сумма траты в рублях
 	CategoryID uint64  `db:"category_id"`
+	UserID     int64   `db:"user_id"`
 
 	// коэффициенты валют на момент совершения траты
 	USDRatio float64 `db:"usd_ratio"`
@@ -39,7 +41,7 @@ type purchaseTestRow struct {
 }
 
 func selectAllFromTestTablePurchases(ctx context.Context, s *Service, purchases *[]purchaseTestRow) {
-	_ = s.db.SelectContext(ctx, purchases, "SELECT sum, category_id, usd_ratio, cny_ratio, eur_ratio  FROM purchases") // nolint:errcheck
+	_ = s.db.SelectContext(ctx, purchases, "SELECT sum, user_id, category_id, usd_ratio, cny_ratio, eur_ratio  FROM purchases") // nolint:errcheck
 }
 
 // rate курс валют к RUB
@@ -55,5 +57,6 @@ func selectAllFromTestTableRate(ctx context.Context, s *Service, rate *[]rateTes
 }
 
 func selectAllFromTestTableUsers(ctx context.Context, s *Service, users *[]user) {
-	_ = s.db.SelectContext(ctx, users, "SELECT * FROM users") // nolint:errcheck
+	err := s.db.SelectContext(ctx, users, "SELECT * FROM users") // nolint:errcheck
+	fmt.Println("### err", err)
 }

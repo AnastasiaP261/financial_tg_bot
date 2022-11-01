@@ -42,8 +42,8 @@ func (s *Service) AddPurchase(ctx context.Context, req model.AddPurchaseReq) err
 	query := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Insert(tblPurchases).
 		Columns(tblPurchasesColCategoryID, tblPurchasesColSum, tblPurchasesColEURRatio,
-			tblPurchasesColUSDRatio, tblPurchasesColCNYRatio).
-		Values(req.CategoryID, req.Sum, req.EURRatio, req.USDRatio, req.CNYRatio)
+			tblPurchasesColUSDRatio, tblPurchasesColCNYRatio, tblPurchasesColUserID).
+		Values(req.CategoryID, req.Sum, req.EURRatio, req.USDRatio, req.CNYRatio, req.UserID)
 
 	nullTime := time.Time{}
 	if req.Date == nullTime {
@@ -71,12 +71,11 @@ func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Ti
 
 	q, args, err := sq.Expr(`SELECT "sum", category_name, usd_ratio, cny_ratio, eur_ratio 
 							FROM purchases 
-							INNER JOIN (
+							LEFT JOIN (
 								SELECT id, category_name 
 								FROM categories 
-								WHERE user_id=$1 
 							) AS user_categories ON (purchases.category_id=user_categories.id) 
-							WHERE ts >= $2;`, userID, fromDate).ToSql()
+							WHERE user_id = $1 AND ts >= $2;`, userID, fromDate).ToSql()
 	if err != nil {
 		return nil, errors.Wrap(err, "query creating error")
 	}
@@ -122,13 +121,12 @@ func (s *Service) GetUserPurchasesSumFromMonth(ctx context.Context, userID int64
 	}
 
 	q, args, err := sq.Expr(`SELECT SUM(sum) 
-							FROM purchases
+							FROM purchases 
 							LEFT JOIN (
-								SELECT id, category_name, user_id
+								SELECT id, category_name 
 								FROM categories 
-								WHERE user_id=$1 
 							) AS user_categories ON (purchases.category_id=user_categories.id) 
-							WHERE $2 <= ts AND ts <= $3`, userID, from, to).ToSql()
+							WHERE user_id = $1 AND $2 <= ts AND ts < $3`, userID, from, to).ToSql()
 	if err != nil {
 		return 0, errors.Wrap(err, "query creating error")
 	}
@@ -141,10 +139,10 @@ func (s *Service) GetUserPurchasesSumFromMonth(ctx context.Context, userID int64
 		}
 		return 0, errors.Wrap(err, "db.QueryRowContext")
 	}
-	var sum float64
+	var sum sql.NullFloat64
 	if err = read(rows, &sum); err != nil {
 		return 0, errors.Wrap(err, "read")
 	}
 
-	return sum, nil
+	return sum.Float64, nil
 }

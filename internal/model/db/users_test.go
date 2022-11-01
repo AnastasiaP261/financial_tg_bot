@@ -4,6 +4,7 @@ package db
 
 import (
 	"context"
+	"github.com/lib/pq"
 	"testing"
 
 	"github.com/go-testfixtures/testfixtures/v3"
@@ -26,7 +27,7 @@ func Test_ChangeCurrency(t *testing.T) {
 		var users []user
 		selectAllFromTestTableUsers(ctx, s, &users)
 
-		assert.EqualValues(t, []user{{UserID: 123, Currency: USD, Limit: -1}}, users)
+		assert.EqualValues(t, []user{{UserID: 123, Currency: USD, Limit: -1, CategoryIDs: pq.Int64Array{1}}}, users)
 	})
 
 	t.Run("изменение валюты уже существующего пользователя", func(t *testing.T) {
@@ -37,7 +38,7 @@ func Test_ChangeCurrency(t *testing.T) {
 		var users []user
 		selectAllFromTestTableUsers(ctx, s, &users)
 
-		assert.EqualValues(t, []user{{UserID: 123, Currency: CNY, Limit: -1}}, users)
+		assert.EqualValues(t, []user{{UserID: 123, Currency: CNY, Limit: -1, CategoryIDs: pq.Int64Array{1}}}, users)
 	})
 }
 
@@ -56,8 +57,8 @@ func Test_GetUserInfo(t *testing.T) {
 	var users []user
 	selectAllFromTestTableUsers(ctx, s, &users)
 
-	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1}}, users)
-	assert.Equal(t, model.User{UserID: 123, Currency: model.RUB, Limit: -1}, userInfo)
+	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1, CategoryIDs: pq.Int64Array{1}}}, users)
+	assert.Equal(t, model.User{UserID: 123, Currency: model.RUB, Limit: -1, Categories: []int64{1}}, userInfo)
 }
 
 func Test_UserCreateIfNotExist(t *testing.T) {
@@ -74,7 +75,7 @@ func Test_UserCreateIfNotExist(t *testing.T) {
 	var users []user
 	selectAllFromTestTableUsers(ctx, s, &users)
 
-	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1}}, users)
+	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1, CategoryIDs: pq.Int64Array{1}}}, users)
 }
 
 func Test_addUser(t *testing.T) {
@@ -91,7 +92,7 @@ func Test_addUser(t *testing.T) {
 	var users []user
 	selectAllFromTestTableUsers(ctx, s, &users)
 
-	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1}}, users)
+	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1, CategoryIDs: pq.Int64Array{1}}}, users)
 }
 
 func Test_getUserInfo(t *testing.T) {
@@ -114,7 +115,7 @@ func Test_getUserInfo(t *testing.T) {
 
 	info, err := s.getUserInfo(ctx, 123)
 	assert.NoError(t, err)
-	assert.Equal(t, user{UserID: 123, Currency: RUB, Limit: -1}, info)
+	assert.Equal(t, user{UserID: 123, Currency: RUB, Limit: -1, CategoryIDs: pq.Int64Array{1, 2}}, info)
 }
 
 func Test_userExist(t *testing.T) {
@@ -150,7 +151,7 @@ func Test_userExist(t *testing.T) {
 	})
 }
 
-func TestService_ChangeUserLimit(t *testing.T) {
+func Test_ChangeUserLimit(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -165,7 +166,7 @@ func TestService_ChangeUserLimit(t *testing.T) {
 		var users []user
 		selectAllFromTestTableUsers(ctx, s, &users)
 
-		assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: 100}}, users)
+		assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: 100, CategoryIDs: pq.Int64Array{1}}}, users)
 	})
 
 	t.Run("изменение месячного лимита уже существующего пользователя", func(t *testing.T) {
@@ -176,6 +177,68 @@ func TestService_ChangeUserLimit(t *testing.T) {
 		var users []user
 		selectAllFromTestTableUsers(ctx, s, &users)
 
-		assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: 200}}, users)
+		assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: 200, CategoryIDs: pq.Int64Array{1}}}, users)
+	})
+}
+
+func Test_AddCategoryToUser(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	s, close := newTestDB(ctx, t)
+	defer close()
+
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(s.db.DB),
+		testfixtures.Dialect("postgres"),
+		testfixtures.DangerousSkipTestDatabaseCheck(),
+		testfixtures.FilesMultiTables(
+			"./../../../test_data/fixtures/add_category_to_user.yml",
+		),
+	)
+	assert.NoError(t, err)
+	assert.NoError(t, fixtures.Load())
+
+	err = s.AddCategoryToUser(ctx, 123, "some category")
+
+	assert.NoError(t, err)
+
+	// проверим что запись действительно изменилась
+	var users []user
+	selectAllFromTestTableUsers(ctx, s, &users)
+
+	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1, CategoryIDs: pq.Int64Array{1, 2}}}, users)
+}
+
+func Test_UserHasCategory(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	s, close := newTestDB(ctx, t)
+	defer close()
+
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(s.db.DB),
+		testfixtures.Dialect("postgres"),
+		testfixtures.DangerousSkipTestDatabaseCheck(),
+		testfixtures.Files(
+			"./../../../test_data/fixtures/users.yml",
+			"./../../../test_data/fixtures/categories.yml",
+		),
+	)
+	assert.NoError(t, err)
+	assert.NoError(t, fixtures.Load())
+
+	t.Run("у юзера есть категория", func(t *testing.T) {
+		has, err := s.UserHasCategory(ctx, 123, 1)
+
+		assert.NoError(t, err)
+		assert.True(t, has)
+	})
+	t.Run("у юзера нет категории", func(t *testing.T) {
+		has, err := s.UserHasCategory(ctx, 123, 3)
+
+		assert.NoError(t, err)
+		assert.False(t, has)
 	})
 }

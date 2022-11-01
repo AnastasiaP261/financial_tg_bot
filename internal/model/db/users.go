@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"github.com/lib/pq"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
@@ -10,9 +11,10 @@ import (
 )
 
 type user struct {
-	UserID   uint64   `db:"id"`
-	Currency Currency `db:"curr"` // выбранная пользователем валюта
-	Limit    float64  `db:"month_limit"`
+	UserID      int64         `db:"id"`
+	Currency    Currency      `db:"curr"` // выбранная пользователем валюта
+	CategoryIDs pq.Int64Array `db:"category_ids"`
+	Limit       float64       `db:"month_limit"`
 }
 
 // Currency тип валюты
@@ -100,8 +102,8 @@ func (s *Service) userExist(ctx context.Context, userID int64) (bool, error) {
 func (s *Service) addUser(ctx context.Context, userID int64) error {
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Insert(tblUsers).
-		Columns(tblUsersColID, tblUsersColCurrency).
-		Values(userID, RUB).
+		Columns(tblUsersColID).
+		Values(userID).
 		ToSql()
 	if err != nil {
 		return errors.Wrap(err, "query creating error")
@@ -165,16 +167,17 @@ func (s *Service) GetUserInfo(ctx context.Context, userID int64) (model.User, er
 	}
 
 	return model.User{
-		UserID:   res.UserID,
-		Currency: curr,
-		Limit:    res.Limit,
+		UserID:     res.UserID,
+		Currency:   curr,
+		Categories: res.CategoryIDs,
+		Limit:      res.Limit,
 	}, nil
 }
 
 // getUserInfo возвращает информацию о пользователе (для использования внутри пакета)
 func (s *Service) getUserInfo(ctx context.Context, userID int64) (user, error) {
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
-		Select(tblUsersColID, tblUsersColCurrency, tblUsersColLimit).
+		Select(tblUsersColID, tblUsersColCurrency, tblUsersColLimit, tblUsersColCategoriesIDs).
 		From(tblUsers).
 		Where(sq.Eq{
 			tblUsersColID: userID,
@@ -222,4 +225,55 @@ func (s *Service) ChangeUserLimit(ctx context.Context, userID int64, newLimit fl
 	}
 
 	return nil
+}
+
+func (s *Service) AddCategoryToUser(ctx context.Context, userID int64, catName string) error {
+	if err := s.UserCreateIfNotExist(ctx, userID); err != nil {
+		return errors.Wrap(err, "UserCreateIfNotExist")
+	}
+	catID, err := s.GetCategoryID(ctx, catName)
+	if err != nil {
+		return errors.Wrap(err, "GetCategoryID")
+	}
+
+	q, args, err := sq.Expr(`UPDATE users 
+							SET category_ids=array_append(category_ids, $1)
+							WHERE id=$2`,
+		catID, userID).ToSql()
+	if err != nil {
+		return errors.Wrap(err, "query creating error")
+	}
+
+	if _, err = s.db.ExecContext(ctx, q, args...); err != nil {
+		return errors.Wrap(err, "db.ExecContext")
+	}
+
+	return nil
+}
+
+func (s *Service) UserHasCategory(ctx context.Context, userID int64, categoryID uint64) (bool, error) {
+	if err := s.UserCreateIfNotExist(ctx, userID); err != nil {
+		return false, errors.Wrap(err, "UserCreateIfNotExist")
+	}
+
+	q, args, err := sq.Expr(`SELECT array_position(category_ids, $1) as has
+							FROM users
+							WHERE id=$2;`, categoryID, userID).ToSql()
+	if err != nil {
+		return false, errors.Wrap(err, "query creating error")
+	}
+
+	rows, err := s.db.QueryContext(ctx, q, args...)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		return false, errors.Wrap(err, "db.QueryRowContext")
+	}
+	var has sql.NullBool
+	if err = read(rows, &has); err != nil {
+		return false, errors.Wrap(err, "read")
+	}
+
+	return has.Bool, nil
 }

@@ -9,19 +9,20 @@ import (
 )
 
 var (
-	tblUsers            = "users"
-	tblUsersColID       = "id"
-	tblUsersColCurrency = "curr"
-	tblUsersColLimit    = "month_limit"
+	tblUsers                 = "users"
+	tblUsersColID            = "id"
+	tblUsersColCurrency      = "curr"
+	tblUsersColLimit         = "month_limit"
+	tblUsersColCategoriesIDs = "category_ids"
 
 	tblCategories                = "categories"
 	tblCategoriesColID           = "id"
-	tblCategoriesColUserID       = "user_id"
 	tblCategoriesColCategoryName = "category_name"
 
 	tblPurchases = "purchases"
 	//tblPurchasesColID         = "id"
 	tblPurchasesColCategoryID = "category_id"
+	tblPurchasesColUserID     = "user_id"
 	tblPurchasesColSum        = "sum"
 	tblPurchasesColTimestamp  = "ts"
 	tblPurchasesColEURRatio   = "eur_ratio"
