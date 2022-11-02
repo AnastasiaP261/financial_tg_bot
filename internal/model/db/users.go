@@ -256,7 +256,7 @@ func (s *Service) UserHasCategory(ctx context.Context, userID int64, categoryID 
 		return false, errors.Wrap(err, "UserCreateIfNotExist")
 	}
 
-	q, args, err := sq.Expr(`SELECT array_position(category_ids, $1) as has
+	q, args, err := sq.Expr(`SELECT array_position(category_ids, $1) as pos
 							FROM users
 							WHERE id=$2;`, categoryID, userID).ToSql()
 	if err != nil {
@@ -270,12 +270,12 @@ func (s *Service) UserHasCategory(ctx context.Context, userID int64, categoryID 
 		}
 		return false, errors.Wrap(err, "db.QueryRowContext")
 	}
-	var has sql.NullBool
-	if err = read(rows, &has); err != nil {
+	var pos sql.NullInt16
+	if err = read(rows, &pos); err != nil {
 		return false, errors.Wrap(err, "read")
 	}
 
-	return has.Bool, nil
+	return pos.Int16 != 0, nil
 }
 
 func (s *Service) GetUserCategories(ctx context.Context, userID int64) ([]string, error) {

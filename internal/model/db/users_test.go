@@ -230,7 +230,7 @@ func Test_UserHasCategory(t *testing.T) {
 	assert.NoError(t, fixtures.Load())
 
 	t.Run("у юзера есть категория", func(t *testing.T) {
-		has, err := s.UserHasCategory(ctx, 123, 1)
+		has, err := s.UserHasCategory(ctx, 123, 2)
 
 		assert.NoError(t, err)
 		assert.True(t, has)
