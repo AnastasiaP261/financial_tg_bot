@@ -3,41 +3,11 @@ package messages
 import (
 	"context"
 	"regexp"
-
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
-
-type MessageSender interface {
-	SendMessage(text string, userID int64, userName string) error
-	SendImage(img []byte, chatID int64, userName string) error
-}
-
-type PurchasesModel interface {
-	AddPurchase(ctx context.Context, userID int64, rawSum, category, rawDate string) (purchases.ExpensesAndLimit, error)
-	AddCategory(ctx context.Context, userID int64, category string) error
-	Report(ctx context.Context, period purchases.Period, userID int64) (txt string, img []byte, err error)
-	ToPeriod(str string) (purchases.Period, error)
-	ChangeUserCurrency(ctx context.Context, userID int64, currency purchases.Currency) error
-	ChangeUserLimit(ctx context.Context, userID int64, rawLimit string) error
-	StrToCurrency(str string) (purchases.Currency, error)
-}
-
-type Model struct {
-	tgClient       MessageSender
-	purchasesModel PurchasesModel
-}
-
-func New(tgClient MessageSender, purchasesModel PurchasesModel) *Model {
-	return &Model{
-		tgClient:       tgClient,
-		purchasesModel: purchasesModel,
-	}
-}
 
 type Message struct {
 	Text     string
 	UserID   int64
-	ChatID   int64
 	UserName string
 }
 

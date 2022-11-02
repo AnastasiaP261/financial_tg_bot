@@ -41,7 +41,7 @@ func (m *Model) StrToCurrency(str string) (Currency, error) {
 	}
 }
 
-func (m *Model) currencyToStr(cy Currency) (string, error) {
+func (m *Model) CurrencyToStr(cy Currency) (string, error) {
 	switch cy {
 	case RUB:
 		return "RUB", nil

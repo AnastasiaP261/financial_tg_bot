@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"github.com/pkg/errors"
 	"strconv"
 )
@@ -12,8 +11,8 @@ import (
 type status string
 
 const (
-	statusNonExistentCategory status = "nonExistentCategory"
-	statusNotAddedCategory    status = "notAddedCategory"
+	statusNonExistentCategory status = "msgNonExistentCategory"
+	statusNotAddedCategory    status = "msgNotAddedCategory"
 )
 
 type userInfo struct {
@@ -30,7 +29,6 @@ func (m *Model) getUserInfo(ctx context.Context, userID int64) (userInfo, error)
 		return userInfo{}, errors.Wrap(err, "statusStore.Get")
 	}
 
-	fmt.Println("### redis val", res)
 	rawJson, err := base64.StdEncoding.DecodeString(res)
 	if err != nil {
 		return userInfo{}, errors.Wrap(err, "base64.StdEncoding.DecodeString")

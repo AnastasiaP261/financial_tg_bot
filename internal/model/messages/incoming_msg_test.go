@@ -8,19 +8,13 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	mocks "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages/_mocks"
 )
-
-func mocksUp(t *testing.T) (*mocks.MockMessageSender, *mocks.MockPurchasesModel) {
-	ctrl := gomock.NewController(t)
-	return mocks.NewMockMessageSender(ctrl), mocks.NewMockPurchasesModel(ctrl)
-}
 
 func Test_OnStartCommand_ShouldAnswerWithIntroMessage(t *testing.T) {
 	ctx := context.Background()
 
-	sender, purchasesModel := mocksUp(t)
-	model := New(sender, purchasesModel)
+	sender, purchasesModel, _ := mocksUp(t)
+	model := New(sender, purchasesModel, nil)
 
 	sender.EXPECT().SendMessage("hello", int64(123), "name")
 
@@ -36,8 +30,8 @@ func Test_OnStartCommand_ShouldAnswerWithIntroMessage(t *testing.T) {
 func Test_OnUnknownCommand_ShouldAnswerWithHelpMessage(t *testing.T) {
 	ctx := context.Background()
 
-	sender, purchasesModel := mocksUp(t)
-	model := New(sender, purchasesModel)
+	sender, purchasesModel, _ := mocksUp(t)
+	model := New(sender, purchasesModel, nil)
 
 	sender.EXPECT().SendMessage("Не знаю эту команду", int64(123), "name")
 
@@ -54,8 +48,8 @@ func Test_OnAddPurchaseCommand(t *testing.T) {
 	t.Run("записать только сумму без категории", func(t *testing.T) {
 		ctx := context.Background()
 
-		sender, purchasesModel := mocksUp(t)
-		model := New(sender, purchasesModel)
+		sender, purchasesModel, _ := mocksUp(t)
+		model := New(sender, purchasesModel, nil)
 
 		sender.EXPECT().SendMessage("Трата добавлена", int64(123), "name")
 		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), gomock.Any(), "", "").Return(nil)
@@ -72,8 +66,8 @@ func Test_OnAddPurchaseCommand(t *testing.T) {
 	t.Run("записать сумму и категорию", func(t *testing.T) {
 		ctx := context.Background()
 
-		sender, purchasesModel := mocksUp(t)
-		model := New(sender, purchasesModel)
+		sender, purchasesModel, _ := mocksUp(t)
+		model := New(sender, purchasesModel, nil)
 
 		sender.EXPECT().SendMessage("Трата добавлена", int64(123), "name")
 		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), "").Return(nil)
@@ -90,8 +84,8 @@ func Test_OnAddPurchaseCommand(t *testing.T) {
 	t.Run("записать сумму, категорию и указать дату", func(t *testing.T) {
 		ctx := context.Background()
 
-		sender, purchasesModel := mocksUp(t)
-		model := New(sender, purchasesModel)
+		sender, purchasesModel, _ := mocksUp(t)
+		model := New(sender, purchasesModel, nil)
 
 		sender.EXPECT().SendMessage("Трата добавлена", int64(123), "name")
 		purchasesModel.EXPECT().AddPurchase(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
@@ -109,11 +103,11 @@ func Test_OnAddPurchaseCommand(t *testing.T) {
 func Test_OnAddCategoryCommand(t *testing.T) {
 	ctx := context.Background()
 
-	sender, purchasesModel := mocksUp(t)
-	model := New(sender, purchasesModel)
+	sender, purchasesModel, _ := mocksUp(t)
+	model := New(sender, purchasesModel, nil)
 
-	sender.EXPECT().SendMessage("Категория добавлена", int64(123), "name")
-	purchasesModel.EXPECT().AddCategory(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+	sender.EXPECT().SendMessage("Категория создана", int64(123), "name")
+	purchasesModel.EXPECT().AddCategory(gomock.Any(), gomock.Any()).Return(nil)
 
 	err := model.IncomingMessage(ctx, Message{
 		Text:     "/category категория",

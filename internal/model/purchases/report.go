@@ -72,9 +72,9 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 		return "", nil, errors.Wrap(err, "packagingByCategory")
 	}
 
-	cy, err := m.currencyToStr(info.Currency)
+	cy, err := m.CurrencyToStr(info.Currency)
 	if err != nil {
-		return "", nil, errors.Wrap(err, "currencyToStr")
+		return "", nil, errors.Wrap(err, "CurrencyToStr")
 	}
 
 	resStr := strings.Builder{}

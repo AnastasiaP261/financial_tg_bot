@@ -109,6 +109,7 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		return ExpensesAndLimit{}, errors.Wrap(err, "toRUB")
 	}
 
+	fmt.Println("### userCur", info.Currency)
 	// определяем превышен ли лимит и сколько потрачено за этот календарный месяц
 	expAndLim, err := m.getExpensesAndLimit(ctx, userID, info.Currency, info.Limit, sumCurrency, rates)
 	if err != nil {
