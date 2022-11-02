@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"github.com/go-redis/redis/v8"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -39,7 +40,11 @@ func (c *Client) Set(ctx context.Context, key, value string) error {
 
 func (c *Client) Get(ctx context.Context, key string) (string, error) {
 	res := c.rdb.Get(ctx, key)
-	return res.String(), res.Err()
+	if errors.Is(res.Err(), redis.Nil) {
+		return "", nil
+	}
+
+	return res.Val(), res.Err()
 }
 
 func (c *Client) Delete(ctx context.Context, key string) error {
