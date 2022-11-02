@@ -242,3 +242,28 @@ func Test_UserHasCategory(t *testing.T) {
 		assert.False(t, has)
 	})
 }
+
+func TestService_GetUserCategories(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	s, close := newTestDB(ctx, t)
+	defer close()
+
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(s.db.DB),
+		testfixtures.Dialect("postgres"),
+		testfixtures.DangerousSkipTestDatabaseCheck(),
+		testfixtures.Files(
+			"./../../../test_data/fixtures/users.yml",
+			"./../../../test_data/fixtures/categories.yml",
+		),
+	)
+	assert.NoError(t, err)
+	assert.NoError(t, fixtures.Load())
+
+	data, err := s.GetUserCategories(ctx, 123)
+
+	assert.NoError(t, err)
+	assert.EqualValues(t, []string{"Не заданная категория", "some category"}, data)
+}

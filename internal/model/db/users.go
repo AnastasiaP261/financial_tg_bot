@@ -277,3 +277,45 @@ func (s *Service) UserHasCategory(ctx context.Context, userID int64, categoryID 
 
 	return has.Bool, nil
 }
+
+func (s *Service) GetUserCategories(ctx context.Context, userID int64) ([]string, error) {
+	if err := s.UserCreateIfNotExist(ctx, userID); err != nil {
+		return nil, errors.Wrap(err, "UserCreateIfNotExist")
+	}
+
+	userInfo, err := s.getUserInfo(ctx, userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "getUserInfo")
+	}
+
+	catIDs := make([]int64, len(userInfo.CategoryIDs))
+	for i := range userInfo.CategoryIDs {
+		catIDs[i] = userInfo.CategoryIDs[i]
+	}
+
+	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
+		Select(tblCategoriesColID, tblCategoriesColCategoryName).
+		From(tblCategories).
+		Where(sq.Eq{
+			tblCategoriesColID: catIDs,
+		}).
+		ToSql()
+	if err != nil {
+		return nil, errors.Wrap(err, "query creating error")
+	}
+
+	var categories []category
+	if err = s.db.SelectContext(ctx, &categories, q, args...); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, errors.Wrap(err, "db.QueryRowContext")
+	}
+
+	data := make([]string, len(categories))
+	for i := range categories {
+		data[i] = categories[i].Category
+	}
+
+	return data, nil
+}
