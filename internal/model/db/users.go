@@ -3,9 +3,9 @@ package db
 import (
 	"context"
 	"database/sql"
-	"github.com/lib/pq"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
@@ -288,16 +288,11 @@ func (s *Service) GetUserCategories(ctx context.Context, userID int64) ([]string
 		return nil, errors.Wrap(err, "getUserInfo")
 	}
 
-	catIDs := make([]int64, len(userInfo.CategoryIDs))
-	for i := range userInfo.CategoryIDs {
-		catIDs[i] = userInfo.CategoryIDs[i]
-	}
-
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Select(tblCategoriesColID, tblCategoriesColCategoryName).
 		From(tblCategories).
 		Where(sq.Eq{
-			tblCategoriesColID: catIDs,
+			tblCategoriesColID: userInfo.CategoryIDs,
 		}).
 		ToSql()
 	if err != nil {

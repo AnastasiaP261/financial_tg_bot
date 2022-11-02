@@ -166,6 +166,21 @@ func (mr *MockRepoMockRecorder) GetRate(ctx, y, m, d interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRate", reflect.TypeOf((*MockRepo)(nil).GetRate), ctx, y, m, d)
 }
 
+// GetUserCategories mocks base method.
+func (m *MockRepo) GetUserCategories(ctx context.Context, userID int64) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserCategories", ctx, userID)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserCategories indicates an expected call of GetUserCategories.
+func (mr *MockRepoMockRecorder) GetUserCategories(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserCategories", reflect.TypeOf((*MockRepo)(nil).GetUserCategories), ctx, userID)
+}
+
 // GetUserInfo mocks base method.
 func (m *MockRepo) GetUserInfo(ctx context.Context, userID int64) (purchases.User, error) {
 	m.ctrl.T.Helper()

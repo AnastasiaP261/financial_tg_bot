@@ -4,10 +4,10 @@ package db
 
 import (
 	"context"
-	"github.com/lib/pq"
 	"testing"
 
 	"github.com/go-testfixtures/testfixtures/v3"
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )

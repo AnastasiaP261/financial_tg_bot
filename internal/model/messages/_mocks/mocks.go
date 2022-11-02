@@ -171,6 +171,21 @@ func (mr *MockPurchasesModelMockRecorder) ChangeUserLimit(ctx, userID, rawLimit 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeUserLimit", reflect.TypeOf((*MockPurchasesModel)(nil).ChangeUserLimit), ctx, userID, rawLimit)
 }
 
+// CurrencyToStr mocks base method.
+func (m *MockPurchasesModel) CurrencyToStr(cy purchases.Currency) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CurrencyToStr", cy)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CurrencyToStr indicates an expected call of CurrencyToStr.
+func (mr *MockPurchasesModelMockRecorder) CurrencyToStr(cy interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CurrencyToStr", reflect.TypeOf((*MockPurchasesModel)(nil).CurrencyToStr), cy)
+}
+
 // GetAllCategories mocks base method.
 func (m *MockPurchasesModel) GetAllCategories(ctx context.Context) ([]purchases.CategoryRow, error) {
 	m.ctrl.T.Helper()
@@ -184,6 +199,21 @@ func (m *MockPurchasesModel) GetAllCategories(ctx context.Context) ([]purchases.
 func (mr *MockPurchasesModelMockRecorder) GetAllCategories(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCategories", reflect.TypeOf((*MockPurchasesModel)(nil).GetAllCategories), ctx)
+}
+
+// GetUserCategories mocks base method.
+func (m *MockPurchasesModel) GetUserCategories(ctx context.Context, userID int64) ([]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserCategories", ctx, userID)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserCategories indicates an expected call of GetUserCategories.
+func (mr *MockPurchasesModelMockRecorder) GetUserCategories(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserCategories", reflect.TypeOf((*MockPurchasesModel)(nil).GetUserCategories), ctx, userID)
 }
 
 // Report mocks base method.

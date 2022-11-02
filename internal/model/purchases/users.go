@@ -2,11 +2,11 @@ package purchases
 
 import (
 	"context"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/normalize"
 	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/normalize"
 )
 
 type User struct {

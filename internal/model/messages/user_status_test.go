@@ -2,8 +2,9 @@ package messages
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // base64('{"status":"someStatus","command":"/command 123"}') = 'eyJzdGF0dXMiOiJzb21lU3RhdHVzIiwiY29tbWFuZCI6Ii9jb21tYW5kIDEyMyJ9'

@@ -4,11 +4,11 @@ package db
 
 import (
 	"context"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	"testing"
 
 	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/stretchr/testify/assert"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 func Test_GetCategoryID(t *testing.T) {

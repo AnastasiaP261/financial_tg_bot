@@ -130,7 +130,6 @@ func (s *Service) GetUserPurchasesSumFromMonth(ctx context.Context, userID int64
 	if err != nil {
 		return 0, errors.Wrap(err, "query creating error")
 	}
-	fmt.Println("### q", q, args)
 
 	rows, err := s.db.QueryContext(ctx, q, args...)
 	if err != nil {

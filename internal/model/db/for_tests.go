@@ -3,7 +3,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -57,6 +56,5 @@ func selectAllFromTestTableRate(ctx context.Context, s *Service, rate *[]rateTes
 }
 
 func selectAllFromTestTableUsers(ctx context.Context, s *Service, users *[]user) {
-	err := s.db.SelectContext(ctx, users, "SELECT * FROM users") // nolint:errcheck
-	fmt.Println("### err", err)
+	_ = s.db.SelectContext(ctx, users, "SELECT * FROM users") // nolint:errcheck
 }

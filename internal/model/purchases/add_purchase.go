@@ -2,7 +2,6 @@ package purchases
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -63,18 +62,17 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		if categoryID == 0 {
 			return ExpensesAndLimit{}, ErrCategoryNotExist
 		}
+
+		// проверяем, создана ли такая категория у юзера
+		has, err := m.Repo.UserHasCategory(ctx, userID, categoryID)
+		if err != nil {
+			return ExpensesAndLimit{}, errors.Wrap(err, "Repo.UserHasCategory")
+		}
+		if !has {
+			return ExpensesAndLimit{}, ErrUserHasntCategory
+		}
 	} else {
 		categoryID = 1
-	}
-
-	fmt.Println("### categoryID", categoryID)
-	// проверяем, создана ли такая категория у юзера
-	has, err := m.Repo.UserHasCategory(ctx, userID, categoryID)
-	if err != nil {
-		return ExpensesAndLimit{}, errors.Wrap(err, "Repo.UserHasCategory")
-	}
-	if !has {
-		return ExpensesAndLimit{}, ErrUserHasntCategory
 	}
 
 	// переводим сумму траты которую он ввел в рубли
@@ -109,7 +107,6 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		return ExpensesAndLimit{}, errors.Wrap(err, "toRUB")
 	}
 
-	fmt.Println("### userCur", info.Currency)
 	// определяем превышен ли лимит и сколько потрачено за этот календарный месяц
 	expAndLim, err := m.getExpensesAndLimit(ctx, userID, info.Currency, info.Limit, sumCurrency, rates)
 	if err != nil {

@@ -1,9 +1,10 @@
 package messages
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	mocks "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages/_mocks"
-	"testing"
 )
 
 func mocksUp(t *testing.T) (*mocks.MockMessageSender, *mocks.MockPurchasesModel, *mocks.MockStatusStore) {

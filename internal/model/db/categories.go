@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 	"database/sql"
-	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
+	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 type category struct { // nolint:unused
