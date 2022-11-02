@@ -28,6 +28,7 @@ type Repo interface {
 	ChangeUserLimit(ctx context.Context, userID int64, newLimit float64) error
 	AddCategoryToUser(ctx context.Context, userID int64, catName string) error
 	UserHasCategory(ctx context.Context, userID int64, categoryID uint64) (bool, error)
+	GetUserCategories(ctx context.Context, userID int64) ([]string, error)
 
 	AddPurchase(ctx context.Context, req AddPurchaseReq) error
 	GetUserPurchasesFromDate(ctx context.Context, fromDate time.Time, userID int64) ([]Purchase, error)

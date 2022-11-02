@@ -60,3 +60,11 @@ func (m *Model) AddCategoryToUser(ctx context.Context, userID int64, category st
 	}
 	return nil
 }
+
+func (m *Model) GetUserCategories(ctx context.Context, userID int64) ([]string, error) {
+	res, err := m.Repo.GetUserCategories(ctx, userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "Repo.AddCategoryToUser")
+	}
+	return res, nil
+}

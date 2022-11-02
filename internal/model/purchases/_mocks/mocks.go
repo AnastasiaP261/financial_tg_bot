@@ -37,17 +37,31 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 }
 
 // AddCategory mocks base method.
-func (m *MockRepo) AddCategory(ctx context.Context, req purchases.CategoryRow) error {
+func (m *MockRepo) AddCategory(ctx context.Context, categoryName string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddCategory", ctx, req)
+	ret := m.ctrl.Call(m, "AddCategory", ctx, categoryName)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddCategory indicates an expected call of AddCategory.
-func (mr *MockRepoMockRecorder) AddCategory(ctx, req interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) AddCategory(ctx, categoryName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCategory", reflect.TypeOf((*MockRepo)(nil).AddCategory), ctx, req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCategory", reflect.TypeOf((*MockRepo)(nil).AddCategory), ctx, categoryName)
+}
+
+// AddCategoryToUser mocks base method.
+func (m *MockRepo) AddCategoryToUser(ctx context.Context, userID int64, catName string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddCategoryToUser", ctx, userID, catName)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddCategoryToUser indicates an expected call of AddCategoryToUser.
+func (mr *MockRepoMockRecorder) AddCategoryToUser(ctx, userID, catName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddCategoryToUser", reflect.TypeOf((*MockRepo)(nil).AddCategoryToUser), ctx, userID, catName)
 }
 
 // AddPurchase mocks base method.
@@ -106,19 +120,34 @@ func (mr *MockRepoMockRecorder) ChangeUserLimit(ctx, userID, newLimit interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeUserLimit", reflect.TypeOf((*MockRepo)(nil).ChangeUserLimit), ctx, userID, newLimit)
 }
 
-// GetCategoryID mocks base method.
-func (m *MockRepo) GetCategoryID(ctx context.Context, req purchases.CategoryRow) (uint64, error) {
+// GetAllCategories mocks base method.
+func (m *MockRepo) GetAllCategories(ctx context.Context) ([]purchases.CategoryRow, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCategoryID", ctx, req)
+	ret := m.ctrl.Call(m, "GetAllCategories", ctx)
+	ret0, _ := ret[0].([]purchases.CategoryRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllCategories indicates an expected call of GetAllCategories.
+func (mr *MockRepoMockRecorder) GetAllCategories(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCategories", reflect.TypeOf((*MockRepo)(nil).GetAllCategories), ctx)
+}
+
+// GetCategoryID mocks base method.
+func (m *MockRepo) GetCategoryID(ctx context.Context, categoryName string) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCategoryID", ctx, categoryName)
 	ret0, _ := ret[0].(uint64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetCategoryID indicates an expected call of GetCategoryID.
-func (mr *MockRepoMockRecorder) GetCategoryID(ctx, req interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) GetCategoryID(ctx, categoryName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategoryID", reflect.TypeOf((*MockRepo)(nil).GetCategoryID), ctx, req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategoryID", reflect.TypeOf((*MockRepo)(nil).GetCategoryID), ctx, categoryName)
 }
 
 // GetRate mocks base method.
@@ -168,18 +197,47 @@ func (mr *MockRepoMockRecorder) GetUserPurchasesFromDate(ctx, fromDate, userID i
 }
 
 // GetUserPurchasesSumFromMonth mocks base method.
-func (m *MockRepo) GetUserPurchasesSumFromMonth(ctx context.Context, userID int64, date time.Time) (float64, error) {
+func (m *MockRepo) GetUserPurchasesSumFromMonth(ctx context.Context, userID int64, fromDate time.Time) (float64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserPurchasesSumFromMonth", ctx, userID, date)
+	ret := m.ctrl.Call(m, "GetUserPurchasesSumFromMonth", ctx, userID, fromDate)
 	ret0, _ := ret[0].(float64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserPurchasesSumFromMonth indicates an expected call of GetUserPurchasesSumFromMonth.
-func (mr *MockRepoMockRecorder) GetUserPurchasesSumFromMonth(ctx, userID, date interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) GetUserPurchasesSumFromMonth(ctx, userID, fromDate interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPurchasesSumFromMonth", reflect.TypeOf((*MockRepo)(nil).GetUserPurchasesSumFromMonth), ctx, userID, date)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserPurchasesSumFromMonth", reflect.TypeOf((*MockRepo)(nil).GetUserPurchasesSumFromMonth), ctx, userID, fromDate)
+}
+
+// UserCreateIfNotExist mocks base method.
+func (m *MockRepo) UserCreateIfNotExist(ctx context.Context, userID int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserCreateIfNotExist", ctx, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UserCreateIfNotExist indicates an expected call of UserCreateIfNotExist.
+func (mr *MockRepoMockRecorder) UserCreateIfNotExist(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserCreateIfNotExist", reflect.TypeOf((*MockRepo)(nil).UserCreateIfNotExist), ctx, userID)
+}
+
+// UserHasCategory mocks base method.
+func (m *MockRepo) UserHasCategory(ctx context.Context, userID int64, categoryID uint64) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UserHasCategory", ctx, userID, categoryID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UserHasCategory indicates an expected call of UserHasCategory.
+func (mr *MockRepoMockRecorder) UserHasCategory(ctx, userID, categoryID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UserHasCategory", reflect.TypeOf((*MockRepo)(nil).UserHasCategory), ctx, userID, categoryID)
 }
 
 // MockChartDrawer is a mock of ChartDrawer interface.
