@@ -5,6 +5,7 @@
 package mock_exchange_rates
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -45,4 +46,19 @@ func (m *MockClient) GetExchangeRateToRUB() map[string]float64 {
 func (mr *MockClientMockRecorder) GetExchangeRateToRUB() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExchangeRateToRUB", reflect.TypeOf((*MockClient)(nil).GetExchangeRateToRUB))
+}
+
+// GetExchangeRateToRUBFromDate mocks base method.
+func (m_2 *MockClient) GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (map[string]float64, error) {
+	m_2.ctrl.T.Helper()
+	ret := m_2.ctrl.Call(m_2, "GetExchangeRateToRUBFromDate", ctx, y, m, d)
+	ret0, _ := ret[0].(map[string]float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetExchangeRateToRUBFromDate indicates an expected call of GetExchangeRateToRUBFromDate.
+func (mr *MockClientMockRecorder) GetExchangeRateToRUBFromDate(ctx, y, m, d interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExchangeRateToRUBFromDate", reflect.TypeOf((*MockClient)(nil).GetExchangeRateToRUBFromDate), ctx, y, m, d)
 }

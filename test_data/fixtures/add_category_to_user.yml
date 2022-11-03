@@ -1,0 +1,11 @@
+users:
+  - id: 123
+    curr: "RUB"
+    month_limit: -1
+    category_ids: '{1}'
+
+categories:
+  - id: 1
+    category_name: "Не заданная категория" # фикстуры затрут таблицу, поэтому нужно добавить значение заново
+  - id: 2
+    category_name: "some category"

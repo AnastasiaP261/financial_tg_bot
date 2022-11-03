@@ -3,24 +3,41 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/fixer"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/config"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/chart_drawing"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/db"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/exchange_rates"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/store"
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		log.Fatal("unknown environment")
+	}
+	env := os.Args[1]
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	conf, err := config.New()
+	conf, err := config.New(env)
 	if err != nil {
 		log.Fatal("config init failed:", err)
+	}
+
+	db, err := db.New(ctx, conf)
+	if err != nil {
+		log.Fatal("database init failed:", err)
+	}
+
+	redis, err := redis.New(ctx, conf)
+	if err != nil {
+		log.Fatal("redis init failed:", err)
 	}
 
 	tgClient, err := tg.New(conf)
@@ -29,13 +46,11 @@ func main() {
 	}
 	fixerClient := fixer.New(ctx, conf)
 
-	db := store.New()
-
 	chartDrawingModel := chart_drawing.New()
 	exchangesRatesModel := exchange_rates.New(fixerClient)
 	purchasesModel := purchases.New(db, chartDrawingModel, exchangesRatesModel)
 
-	msgModel := messages.New(tgClient, purchasesModel)
+	msgModel := messages.New(tgClient, purchasesModel, redis)
 
-	tgClient.ListenUpdates(msgModel)
+	tgClient.ListenUpdates(ctx, msgModel)
 }

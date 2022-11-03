@@ -1,6 +1,7 @@
 package tg
 
 import (
+	"context"
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -37,10 +38,10 @@ func (c *Client) SendMessage(text string, userID int64, userName string) error {
 	return nil
 }
 
-func (c *Client) SendImage(img []byte, chatID int64, userName string) error {
+func (c *Client) SendImage(img []byte, userId int64, userName string) error {
 	b := tgbotapi.FileBytes{Bytes: img}
 
-	_, err := c.client.Send(tgbotapi.NewPhoto(chatID, b))
+	_, err := c.client.Send(tgbotapi.NewPhoto(userId, b))
 	if err != nil {
 		return errors.Wrap(err, "client.Send")
 	}
@@ -50,7 +51,30 @@ func (c *Client) SendImage(img []byte, chatID int64, userName string) error {
 	return nil
 }
 
-func (c *Client) ListenUpdates(msgModel *messages.Model) {
+func (c *Client) SendKeyboard(text string, userId int64, buttonTexts []string, userName string) error {
+	msg := tgbotapi.NewMessage(userId, text)
+
+	keyboard := tgbotapi.InlineKeyboardMarkup{}
+	for _, txt := range buttonTexts {
+		var row []tgbotapi.InlineKeyboardButton
+		btn := tgbotapi.NewInlineKeyboardButtonData(txt, txt)
+		row = append(row, btn)
+		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, row)
+	}
+
+	msg.ReplyMarkup = keyboard
+
+	_, err := c.client.Send(msg)
+	if err != nil {
+		return errors.Wrap(err, "client.Send")
+	}
+
+	log.Printf("[%s] inline keyboard sended: %s", userName, text)
+
+	return nil
+}
+
+func (c *Client) ListenUpdates(ctx context.Context, msgModel *messages.Model) {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -59,13 +83,25 @@ func (c *Client) ListenUpdates(msgModel *messages.Model) {
 	log.Println("listening for messages")
 
 	for update := range updates {
-		if update.Message != nil { // If we got a message
-			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		switch {
+		case update.CallbackQuery != nil:
+			log.Printf("NEW CALLBACK - [%s] %s", update.CallbackQuery.From.UserName, update.CallbackQuery.Message.Text)
 
-			err := msgModel.IncomingMessage(messages.Message{
+			err := msgModel.IncomingCallback(ctx, messages.Callback{
+				UserID:   update.CallbackQuery.From.ID,
+				UserName: update.CallbackQuery.From.UserName,
+				Data:     update.CallbackQuery.Data,
+			})
+			if err != nil {
+				log.Println("error processing callback:", err)
+			}
+
+		case update.Message != nil:
+			log.Printf("NEW MESSAGE - [%s] %s", update.Message.From.UserName, update.Message.Text)
+
+			err := msgModel.IncomingMessage(ctx, messages.Message{
 				Text:     update.Message.Text,
 				UserID:   update.Message.From.ID,
-				ChatID:   update.Message.Chat.ID,
 				UserName: update.Message.From.UserName,
 			})
 			if err != nil {

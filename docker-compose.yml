@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  pg:
+    image: postgres:latest
+    env_file:
+      - config/pg.env
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: 'bitnami/redis:latest'
+    env_file:
+      - config/redis.env
+    ports:
+      - "6379:6379"
+
+  tgbot:
+    volumes:
+      - ./config:/config
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    restart: unless-stopped
+    depends_on:
+      - pg
+      - redis
+    links:
+      - pg
+      - redis

@@ -1,6 +1,7 @@
 package purchases
 
 import (
+	"context"
 	"sort"
 	"strconv"
 	"strings"
@@ -50,18 +51,18 @@ type Segment struct {
 }
 
 // Report создание отчета
-func (m *Model) Report(period Period, userID int64) (txt string, img []byte, err error) {
+func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt string, img []byte, err error) {
 	from, err := fromTime(time.Now(), period)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "fromTime")
 	}
 
-	purchases, err := m.Repo.GetUserPurchasesFromDate(from, userID)
+	purchases, err := m.Repo.GetUserPurchasesFromDate(ctx, from, userID)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "Repo.GetUserPurchasesFromDate")
 	}
 
-	info, err := m.Repo.GetUserInfo(userID)
+	info, err := m.Repo.GetUserInfo(ctx, userID)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "Repo.GetUserInfo")
 	}
@@ -71,9 +72,9 @@ func (m *Model) Report(period Period, userID int64) (txt string, img []byte, err
 		return "", nil, errors.Wrap(err, "packagingByCategory")
 	}
 
-	cy, err := m.currencyToStr(info.Currency)
+	cy, err := m.CurrencyToStr(info.Currency)
 	if err != nil {
-		return "", nil, errors.Wrap(err, "currencyToStr")
+		return "", nil, errors.Wrap(err, "CurrencyToStr")
 	}
 
 	resStr := strings.Builder{}
@@ -81,13 +82,8 @@ func (m *Model) Report(period Period, userID int64) (txt string, img []byte, err
 	resStr.WriteString(cy)
 	resStr.WriteString("\nВаш отчет:\n")
 	for _, item := range reportItems {
-		ctgr := item.PurchaseCategory
-		if ctgr == "" {
-			ctgr = "не указанные категории"
-		}
-
 		resStr.WriteString("\t")
-		resStr.WriteString(ctgr)
+		resStr.WriteString(item.PurchaseCategory)
 		resStr.WriteString(": ")
 		resStr.WriteString(strconv.FormatFloat(item.Summa, 'f', 2, 64))
 		resStr.WriteString("\n")
@@ -106,17 +102,12 @@ func (m *Model) Report(period Period, userID int64) (txt string, img []byte, err
 func (m *Model) packagingByCategory(purchases []Purchase, currentCurrency Currency) ([]ReportItem, error) {
 	tempCategoryOnSum := make(map[string]float64, len(purchases))
 	for _, p := range purchases {
-		ctgr := p.PurchaseCategory
-		if ctgr == "" {
-			ctgr = "не указанные категории"
-		}
-
 		resSum, err := m.rubToCurrentCurrency(currentCurrency, p.Summa, p.RateToRUB)
 		if err != nil {
 			return nil, errors.Wrap(err, "rubToCurrentCurrency")
 		}
 
-		tempCategoryOnSum[ctgr] += resSum
+		tempCategoryOnSum[p.PurchaseCategory] += resSum
 	}
 
 	res := make([]ReportItem, 0, len(tempCategoryOnSum))

@@ -1,0 +1,6 @@
+token: 5728053506:AAGuCxOnYzIDCY-pkaU5bIy-Z0cKclWcTT0
+fixer-api-token: KThUp0CyBzGdrhyRwfZbDaw7JyXotqPV
+
+dbUri: postgresql://user:pass@pg:5432/db
+redisUri: host:port
+redisPass: "r_pass"

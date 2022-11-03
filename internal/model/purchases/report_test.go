@@ -1,3 +1,5 @@
+//go:build test_all || unit_test
+
 package purchases
 
 import (
@@ -21,11 +23,6 @@ func Test_packagingByCategory(t *testing.T) {
 			EUR: 2,
 			CNY: 2,
 		}},
-		{PurchaseCategory: "", Summa: 100, RateToRUB: RateToRUB{
-			USD: 2,
-			EUR: 2,
-			CNY: 2,
-		}},
 		{PurchaseCategory: "cat1", Summa: 50, RateToRUB: RateToRUB{
 			USD: 2,
 			EUR: 2,
@@ -41,17 +38,11 @@ func Test_packagingByCategory(t *testing.T) {
 			EUR: 2,
 			CNY: 2,
 		}},
-		{PurchaseCategory: "", Summa: 200, RateToRUB: RateToRUB{
-			USD: 2,
-			EUR: 2,
-			CNY: 2,
-		}},
 	}, RUB)
 
 	assert.NoError(t, err)
 	assert.Equal(t, []ReportItem{
 		{PurchaseCategory: "cat3", Summa: 350},
-		{PurchaseCategory: "не указанные категории", Summa: 100 + 200},
 		{PurchaseCategory: "cat1", Summa: 100 + 50 + 120},
 		{PurchaseCategory: "cat2", Summa: 150},
 	}, res)
