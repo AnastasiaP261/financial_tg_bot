@@ -16,6 +16,32 @@ DEV_CREDS := postgresql://$(POSTGRES_USER):$(POSTGRES_PASS)@$(POSTGRES_HOST):543
 DEV_DBNAME := finance
 DEV_DBCONTAINER := postgres
 
+.PHONY: logs
+logs:
+	mkdir -p logs/data
+	touch logs/data/log.txt
+	touch logs/data/offsets.yaml
+	sudo chmod -R 777 logs/data
+	sudo docker-compose up -d filed
+
+.PHONY: tracing
+tracing:
+	sudo docker-compose up -d jaeger
+
+.PHONY: metrics
+metrics:
+	mkdir -p metrics/data
+	sudo chmod -R 777 metrics/data
+	sudo docker-compose up -d grafana
+
+pull:
+	sudo docker pull prom/prometheus
+	sudo docker pull grafana/grafana-oss
+	sudo docker pull ozonru/file.d:latest-linux-amd64
+	sudo docker pull elasticsearch:7.17.6
+	sudo docker pull graylog/graylog:4.3
+	sudo docker pull jaegertracing/all-in-one:1.18
+
 all: format generate build test lint
 
 build: bindir
