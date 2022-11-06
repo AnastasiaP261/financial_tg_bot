@@ -17,6 +17,11 @@ type Client struct {
 	client *tgbotapi.BotAPI
 }
 
+type MsgModel interface {
+	IncomingCallback(ctx context.Context, msg messages.Callback) error
+	IncomingMessage(ctx context.Context, msg messages.Message) error
+}
+
 func New(tokenGetter TokenGetter) (*Client, error) {
 	client, err := tgbotapi.NewBotAPI(tokenGetter.Token())
 	if err != nil {
@@ -74,7 +79,7 @@ func (c *Client) SendKeyboard(text string, userId int64, buttonTexts []string, u
 	return nil
 }
 
-func (c *Client) ListenUpdates(ctx context.Context, msgModel *messages.Model) {
+func (c *Client) ListenUpdates(ctx context.Context, msgModel MsgModel) {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 

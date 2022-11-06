@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/env"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"log"
 	"os"
 
@@ -20,37 +22,50 @@ func main() {
 	if len(os.Args) < 2 {
 		log.Fatal("unknown environment")
 	}
-	env := os.Args[1]
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	conf, err := config.New(env)
+	if err := env.SetEnvVariable(os.Args[1]); err != nil {
+		log.Fatal("environment variable set failed:", err)
+	}
+
+	// CONFIG
+	config, err := config.New(env.GetConfigFilePath())
 	if err != nil {
 		log.Fatal("config init failed:", err)
 	}
 
-	db, err := db.New(ctx, conf)
+	// REPOSITORIES
+	db, err := db.New(ctx, config)
 	if err != nil {
 		log.Fatal("database init failed:", err)
 	}
 
-	redis, err := redis.New(ctx, conf)
+	redis, err := redis.New(ctx, config)
 	if err != nil {
 		log.Fatal("redis init failed:", err)
 	}
 
-	tgClient, err := tg.New(conf)
+	// CLIENTS
+	tgClient, err := tg.New(config)
 	if err != nil {
 		log.Fatal("tg client init failed:", err)
 	}
-	fixerClient := fixer.New(ctx, conf)
+	fixerClient := fixer.New(ctx, config)
 
+	// MODELS
 	chartDrawingModel := chart_drawing.New()
 	exchangesRatesModel := exchange_rates.New(fixerClient)
 	purchasesModel := purchases.New(db, chartDrawingModel, exchangesRatesModel)
 
 	msgModel := messages.New(tgClient, purchasesModel, redis)
 
-	tgClient.ListenUpdates(ctx, msgModel)
+	// INFRA
+	logs.InitLogger()
+	receiver := logs.NewMsgReceiverWrapper(msgModel)
+	sender := logs.NewMsgSenderWrapper(tgClient)
+
+	// ПОЕХАЛИ!!
+	sender.ListenUpdates(ctx, receiver)
 }
