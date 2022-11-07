@@ -2,7 +2,7 @@ package env
 
 import (
 	"github.com/pkg/errors"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"log"
 )
 
 const (
@@ -21,10 +21,10 @@ func SetEnvVariable(env string) error {
 	switch env {
 	case envLocal:
 		inProd = false
-		logs.Info("app started in LOCAL env")
+		log.Printf("app started in LOCAL env")
 	case envProd:
 		inProd = true
-		logs.Info("app started in PROD env")
+		log.Printf("app started in PROD env")
 	default:
 		return errors.New("invalid env variable")
 	}

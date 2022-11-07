@@ -34,7 +34,7 @@ var (
 func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 	switch {
 	case msg.Text == "/start":
-		return m.tgClient.SendMessage("hello", msg.UserID, msg.UserName)
+		return m.SendMessage("hello", msg.UserID)
 
 	case report.MatchString(msg.Text):
 		return m.msgReport(ctx, msg)
@@ -45,7 +45,7 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 	case addPurchaseSumAndCategoryAndDate.MatchString(msg.Text):
 		res := addPurchaseSumAndCategoryAndDate.FindStringSubmatch(msg.Text)
 		if len(res) < 4 {
-			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+			return m.SendMessage(ErrTxtInvalidInput, msg.UserID)
 		}
 
 		return m.msgAddPurchase(ctx, msg, res[1], res[2], res[3])
@@ -53,7 +53,7 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 	case addPurchaseSumAndCategory.MatchString(msg.Text):
 		res := addPurchaseSumAndCategory.FindStringSubmatch(msg.Text)
 		if len(res) < 3 {
-			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+			return m.SendMessage(ErrTxtInvalidInput, msg.UserID)
 		}
 
 		return m.msgAddPurchase(ctx, msg, res[1], res[2], "")
@@ -61,7 +61,7 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 	case addPurchaseOnlySum.MatchString(msg.Text):
 		res := addPurchaseOnlySum.FindStringSubmatch(msg.Text)
 		if len(res) < 2 {
-			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+			return m.SendMessage(ErrTxtInvalidInput, msg.UserID)
 		}
 
 		return m.msgAddPurchase(ctx, msg, res[1], "", "")
@@ -69,7 +69,7 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 	case currency.MatchString(msg.Text):
 		res := currency.FindStringSubmatch(msg.Text)
 		if len(res) < 2 {
-			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+			return m.SendMessage(ErrTxtInvalidInput, msg.UserID)
 		}
 
 		return m.msgCurrency(ctx, msg, res[1])
@@ -77,12 +77,12 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 	case limit.MatchString(msg.Text):
 		res := limit.FindStringSubmatch(msg.Text)
 		if len(res) < 2 {
-			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+			return m.SendMessage(ErrTxtInvalidInput, msg.UserID)
 		}
 
 		return m.msgLimit(ctx, msg, res[1])
 
 	default:
-		return m.tgClient.SendMessage(ErrTxtUnknownCommand, msg.UserID, msg.UserName)
+		return m.SendMessage(ErrTxtUnknownCommand, msg.UserID)
 	}
 }

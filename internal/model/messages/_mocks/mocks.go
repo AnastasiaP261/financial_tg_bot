@@ -36,45 +36,45 @@ func (m *MockMessageSender) EXPECT() *MockMessageSenderMockRecorder {
 }
 
 // SendImage mocks base method.
-func (m *MockMessageSender) SendImage(img []byte, chatID int64, userName string) error {
+func (m *MockMessageSender) SendImage(img []byte, chatID int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendImage", img, chatID, userName)
+	ret := m.ctrl.Call(m, "SendImage", img, chatID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SendImage indicates an expected call of SendImage.
-func (mr *MockMessageSenderMockRecorder) SendImage(img, chatID, userName interface{}) *gomock.Call {
+func (mr *MockMessageSenderMockRecorder) SendImage(img, chatID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendImage", reflect.TypeOf((*MockMessageSender)(nil).SendImage), img, chatID, userName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendImage", reflect.TypeOf((*MockMessageSender)(nil).SendImage), img, chatID)
 }
 
 // SendKeyboard mocks base method.
-func (m *MockMessageSender) SendKeyboard(text string, chatID int64, buttonTexts []string, userName string) error {
+func (m *MockMessageSender) SendKeyboard(text string, userID int64, buttonTexts []string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendKeyboard", text, chatID, buttonTexts, userName)
+	ret := m.ctrl.Call(m, "SendKeyboard", text, userID, buttonTexts)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SendKeyboard indicates an expected call of SendKeyboard.
-func (mr *MockMessageSenderMockRecorder) SendKeyboard(text, chatID, buttonTexts, userName interface{}) *gomock.Call {
+func (mr *MockMessageSenderMockRecorder) SendKeyboard(text, userID, buttonTexts interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendKeyboard", reflect.TypeOf((*MockMessageSender)(nil).SendKeyboard), text, chatID, buttonTexts, userName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendKeyboard", reflect.TypeOf((*MockMessageSender)(nil).SendKeyboard), text, userID, buttonTexts)
 }
 
 // SendMessage mocks base method.
-func (m *MockMessageSender) SendMessage(text string, userID int64, userName string) error {
+func (m *MockMessageSender) SendMessage(text string, userID int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendMessage", text, userID, userName)
+	ret := m.ctrl.Call(m, "SendMessage", text, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SendMessage indicates an expected call of SendMessage.
-func (mr *MockMessageSenderMockRecorder) SendMessage(text, userID, userName interface{}) *gomock.Call {
+func (mr *MockMessageSenderMockRecorder) SendMessage(text, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMessage", reflect.TypeOf((*MockMessageSender)(nil).SendMessage), text, userID, userName)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMessage", reflect.TypeOf((*MockMessageSender)(nil).SendMessage), text, userID)
 }
 
 // MockPurchasesModel is a mock of PurchasesModel interface.

@@ -12,9 +12,9 @@ func (m *Model) msgNonExistentCategory(ctx context.Context, msg Callback, info u
 	if msg.Data == ButtonTxtCreateCategory {
 		if err := m.setUserInfo(ctx, msg.UserID, userInfo{}); err != nil {
 			err = errors.Wrap(err, "setUserInfo")
-			return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+			return m.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
 		}
-		return m.tgClient.SendMessage(ScsTxtCategoryAddSelected, msg.UserID, msg.UserName)
+		return m.SendMessage(ScsTxtCategoryAddSelected, msg.UserID)
 	}
 	catName := msg.Data
 
@@ -37,14 +37,14 @@ func (m *Model) msgNonExistentCategory(ctx context.Context, msg Callback, info u
 	if !userHasThisCat {
 		if err := m.purchasesModel.AddCategoryToUser(ctx, msg.UserID, normalize.Category(catName)); err != nil {
 			err = errors.Wrap(err, "purchasesModel.AddCategoryToUser")
-			return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+			return m.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
 		}
-		_ = m.tgClient.SendMessage(ScsTxtCategoryAddedToUser, msg.UserID, msg.UserName)
+		_ = m.SendMessage(ScsTxtCategoryAddedToUser, msg.UserID)
 	}
 
 	if err := m.setUserInfo(ctx, msg.UserID, userInfo{}); err != nil {
 		err = errors.Wrap(err, "setUserInfo")
-		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+		return m.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
 	}
 
 	return m.IncomingMessage(ctx, Message{

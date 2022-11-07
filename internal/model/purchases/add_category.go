@@ -7,8 +7,6 @@ import (
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/normalize"
 )
 
-const EmptyCategory = "Не заданная категория"
-
 // AddCategory создать новую категорию
 func (m *Model) AddCategory(ctx context.Context, category string) error {
 	if err := m.Repo.AddCategory(ctx, normalize.Category(category)); err != nil {

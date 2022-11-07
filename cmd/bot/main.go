@@ -2,14 +2,16 @@ package main
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
+	tgmsghandler "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg/messages"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/env"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	logswrapper "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/logs"
 	"log"
 	"os"
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/fixer"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/config"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/chart_drawing"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/db"
@@ -48,10 +50,7 @@ func main() {
 	}
 
 	// CLIENTS
-	tgClient, err := tg.New(config)
-	if err != nil {
-		log.Fatal("tg client init failed:", err)
-	}
+	msgHandler := initTgMsgHandler(config)
 	fixerClient := fixer.New(ctx, config)
 
 	// MODELS
@@ -59,13 +58,24 @@ func main() {
 	exchangesRatesModel := exchange_rates.New(fixerClient)
 	purchasesModel := purchases.New(db, chartDrawingModel, exchangesRatesModel)
 
-	msgModel := messages.New(tgClient, purchasesModel, redis)
+	msgModel := messages.New(msgHandler, purchasesModel, redis)
 
 	// INFRA
 	logs.InitLogger()
-	receiver := logs.NewMsgReceiverWrapper(msgModel)
-	sender := logs.NewMsgSenderWrapper(tgClient)
 
 	// ПОЕХАЛИ!!
-	sender.ListenUpdates(ctx, receiver)
+	listener, err := tg.New(config, msgHandler)
+	if err != nil {
+		log.Fatal("tg listener init failed")
+	}
+	logs.Info("messages listen started")
+	listener.ListenUpdates(ctx, msgModel)
+}
+
+func initTgMsgHandler(conf *config.Service) *logswrapper.MsgSenderWrapper {
+	msgHandler, err := tgmsghandler.New(conf)
+	if err != nil {
+		log.Fatal("tg msg handler init failed:", err)
+	}
+	return logswrapper.NewMsgSenderWrapper(msgHandler)
 }

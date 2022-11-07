@@ -7,9 +7,9 @@ import (
 )
 
 type MessageSender interface {
-	SendMessage(text string, userID int64, userName string) error
-	SendImage(img []byte, chatID int64, userName string) error
-	SendKeyboard(text string, chatID int64, buttonTexts []string, userName string) error
+	SendMessage(text string, userID int64) error
+	SendImage(img []byte, chatID int64) error
+	SendKeyboard(text string, userID int64, buttonTexts []string) error
 }
 
 type PurchasesModel interface {

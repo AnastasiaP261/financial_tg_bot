@@ -11,7 +11,7 @@ type Callback struct {
 func (m *Model) IncomingCallback(ctx context.Context, msg Callback) error {
 	info, err := m.getUserInfo(ctx, msg.UserID)
 	if err != nil {
-		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+		return m.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
 	}
 
 	switch info.Status {
@@ -20,8 +20,8 @@ func (m *Model) IncomingCallback(ctx context.Context, msg Callback) error {
 
 	default:
 		if err = m.setUserInfo(ctx, msg.UserID, userInfo{}); err != nil {
-			return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+			return m.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
 		}
-		return m.tgClient.SendMessage(ErrTxtInvalidStatus, msg.UserID, msg.UserName)
+		return m.SendMessage(ErrTxtInvalidStatus, msg.UserID)
 	}
 }
