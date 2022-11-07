@@ -1,9 +1,10 @@
 package logs
 
 import (
+	"log"
+
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/env"
 	"go.uber.org/zap"
-	"log"
 )
 
 var logger *zap.Logger

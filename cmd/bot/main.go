@@ -2,22 +2,22 @@ package main
 
 import (
 	"context"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
-	tgmsghandler "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg/messages"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/env"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
-	logswrapper "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/logs"
 	"log"
 	"os"
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/fixer"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
+	tgmsghandler "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg/messages"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/config"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/env"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/chart_drawing"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/db"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/exchange_rates"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
+	logswrapper "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/logs"
 )
 
 func main() {

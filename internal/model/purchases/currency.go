@@ -3,11 +3,11 @@ package purchases
 import (
 	"context"
 	"fmt"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
-	"go.uber.org/zap"
 	"strings"
 
 	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"go.uber.org/zap"
 )
 
 // Currency тип валюты

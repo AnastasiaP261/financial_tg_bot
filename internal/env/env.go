@@ -1,8 +1,9 @@
 package env
 
 import (
-	"github.com/pkg/errors"
 	"log"
+
+	"github.com/pkg/errors"
 )
 
 const (

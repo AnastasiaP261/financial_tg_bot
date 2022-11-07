@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"net/url"
@@ -13,6 +11,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"go.uber.org/zap"
 )
 
 const (

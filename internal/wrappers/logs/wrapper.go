@@ -2,6 +2,7 @@ package logs
 
 import (
 	"context"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
