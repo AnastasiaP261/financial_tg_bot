@@ -54,8 +54,9 @@ test:
 integration_test:
 	go clean -testcache && go test ./... -tags=integration_test
 
-run:
-	go run ./cmd/bot LOCAL
+local:
+	mkdir -p logs/data
+	go run ./cmd/bot LOCAL | tee logs/data/log.txt
 
 generate: install-mockgen
 	${MOCKGEN} -source=internal/model/messages/model.go -destination=internal/model/messages/_mocks/mocks.go

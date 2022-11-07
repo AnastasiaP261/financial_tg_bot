@@ -26,12 +26,13 @@ services:
     depends_on:
       - pg
       - redis
-      - filed
-      - grafana
-      - jaeger
+#      - filed
+#      - grafana
+#      - jaeger
     links:
       - pg
       - redis
+#      - graylog
 
   # ------------LOGS----------
   filed:
