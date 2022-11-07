@@ -19,8 +19,8 @@ DEV_DBCONTAINER := postgres
 .PHONY: logs
 logs:
 	mkdir -p logs/data
-	touch logs/data/log.txt
-	touch logs/data/offsets.yaml
+	touch ${CURDIR}/logs/data/log.txt
+	touch ${CURDIR}/logs/data/offsets.yaml
 	sudo chmod -R 777 logs/data
 	sudo docker-compose up -d filed
 

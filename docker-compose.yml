@@ -35,12 +35,12 @@ services:
 
   # ------------LOGS----------
   filed:
-    command: /file.d/file.d --config config.yaml
+    command: /file.d/file.d --config /config.yaml
     image: ozonru/file.d:latest-linux-amd64
     volumes:
       - ./logs/data/log.txt:/tmp/logs/log.txt
       - ./logs/data/offsets.yaml:/tmp/offsets.yaml
-      - ./logs/filed.yml:config.yaml
+      - ./logs/filed.yml:/config.yaml
     links:
       - graylog
     depends_on:
