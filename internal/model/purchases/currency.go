@@ -2,7 +2,9 @@ package purchases
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"go.uber.org/zap"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -112,7 +114,11 @@ func (m *Model) getTodayRates(ctx context.Context, year, month, day int) (RateTo
 		go func() {
 			err := m.Repo.AddRate(ctx, year, month, day, rates)
 			if err != nil {
-				log.Printf("[ERROR] rate has not been added to the database, date:%d.%02d.%02d, rate:%#v", year, month, day, rates)
+				logs.Error(
+					"rate has not been added to the database",
+					zap.String("date", fmt.Sprintf("%d.%02d.%02d", year, month, day)),
+					zap.Any("rates", rates),
+				)
 			}
 		}()
 	}

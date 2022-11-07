@@ -2,8 +2,6 @@ package tg
 
 import (
 	"context"
-	"log"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
@@ -38,7 +36,6 @@ func (c *Client) SendMessage(text string, userID int64, userName string) error {
 	if err != nil {
 		return errors.Wrap(err, "client.Send")
 	}
-	log.Printf("[%s] %s", userName, text)
 
 	return nil
 }
@@ -50,8 +47,6 @@ func (c *Client) SendImage(img []byte, userId int64, userName string) error {
 	if err != nil {
 		return errors.Wrap(err, "client.Send")
 	}
-
-	log.Printf("[%s] image sended", userName)
 
 	return nil
 }
@@ -74,8 +69,6 @@ func (c *Client) SendKeyboard(text string, userId int64, buttonTexts []string, u
 		return errors.Wrap(err, "client.Send")
 	}
 
-	log.Printf("[%s] inline keyboard sended: %s", userName, text)
-
 	return nil
 }
 
@@ -85,33 +78,21 @@ func (c *Client) ListenUpdates(ctx context.Context, msgModel MsgModel) {
 
 	updates := c.client.GetUpdatesChan(u)
 
-	log.Println("listening for messages")
-
 	for update := range updates {
 		switch {
 		case update.CallbackQuery != nil:
-			log.Printf("NEW CALLBACK - [%s] %s", update.CallbackQuery.From.UserName, update.CallbackQuery.Message.Text)
-
-			err := msgModel.IncomingCallback(ctx, messages.Callback{
+			_ = msgModel.IncomingCallback(ctx, messages.Callback{
 				UserID:   update.CallbackQuery.From.ID,
 				UserName: update.CallbackQuery.From.UserName,
 				Data:     update.CallbackQuery.Data,
 			})
-			if err != nil {
-				log.Println("error processing callback:", err)
-			}
 
 		case update.Message != nil:
-			log.Printf("NEW MESSAGE - [%s] %s", update.Message.From.UserName, update.Message.Text)
-
-			err := msgModel.IncomingMessage(ctx, messages.Message{
+			_ = msgModel.IncomingMessage(ctx, messages.Message{
 				Text:     update.Message.Text,
 				UserID:   update.Message.From.ID,
 				UserName: update.Message.From.UserName,
 			})
-			if err != nil {
-				log.Println("error processing message:", err)
-			}
 		}
 	}
 }

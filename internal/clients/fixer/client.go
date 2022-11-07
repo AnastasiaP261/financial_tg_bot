@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"go.uber.org/zap"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"sync"
@@ -45,7 +46,7 @@ func (c *Client) process(ctx context.Context) {
 	ticker := time.NewTicker(sleepTime)
 
 	run := func() {
-		log.Println("[FIXER]: Запущен процесс получения актуальных курсов валют из fixer")
+		logs.Info("fixer background process running")
 		ctxNew, cancel := context.WithTimeout(ctx, fixerTimeout)
 		c.getData(ctxNew)
 		cancel()
@@ -98,13 +99,13 @@ func (c *Client) getData(ctx context.Context) {
 	req = req.WithContext(ctx)
 	req.Header.Set("apikey", c.tokenGetter.FixerAPIToken())
 	if err != nil {
-		log.Printf("[FIXER CLIENT ERR]: %s\n", errors.Wrap(err, "http.NewRequest").Error())
+		logs.Error(errors.Wrap(err, "http.NewRequest").Error())
 		return
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
-		log.Printf("[FIXER CLIENT ERR]: %s\n", errors.Wrap(err, "client.Do").Error())
+		logs.Error(errors.Wrap(err, "client.Do").Error())
 		return
 	}
 	if res.Body != nil {
@@ -112,21 +113,21 @@ func (c *Client) getData(ctx context.Context) {
 	}
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Printf("[FIXER CLIENT ERR]: %s\n", errors.Wrap(err, "ioutil.ReadAll").Error())
+		logs.Error(errors.Wrap(err, "ioutil.ReadAll").Error())
 		return
 	}
 
 	var response Response
 	err = json.Unmarshal(body, &response)
 	if err != nil {
-		log.Printf("[FIXER CLIENT ERR]: %s\n", errors.Wrap(err, "unmarshalling error").Error())
+		logs.Error(errors.Wrap(err, "unmarshalling error").Error())
 	}
 
 	if response.Success {
-		log.Printf("[FIXER]: получен текущий курс: %+v\n", response.Rates)
+		logs.Info("current exchange rate received", zap.Any("rate", response.Rates))
 		c.dataAccessorWrite(response.Rates)
 	} else {
-		log.Println("[FIXER CLIENT ERR]: client request failed")
+		logs.Error("client request failed")
 	}
 }
 
@@ -174,10 +175,14 @@ func (c *Client) getDataFromDate(ctx context.Context, y, m, d int) (map[string]f
 	}
 
 	if response.Success {
-		log.Printf("[FIXER]: получен курс для %02d.%02d.%d: %+v\n", d, m, y, response.Rates)
+		logs.Info(
+			"current exchange rate for date received",
+			zap.String("date", fmt.Sprintf("%02d.%02d.%d", d, m, y)),
+			zap.Any("rate", response.Rates),
+		)
 		return response.Rates, nil
 	} else {
-		log.Println("[FIXER CLIENT ERR]: client request failed")
+		logs.Error("client request failed")
 		return nil, errors.New("client request failed with unknown error")
 	}
 }
