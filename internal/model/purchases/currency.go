@@ -3,9 +3,9 @@ package purchases
 import (
 	"context"
 	"fmt"
-	"github.com/opentracing/opentracing-go"
 	"strings"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"go.uber.org/zap"

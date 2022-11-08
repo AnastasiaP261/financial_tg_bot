@@ -2,12 +2,12 @@ package purchases
 
 import (
 	"context"
-	"github.com/opentracing/opentracing-go"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 )
 

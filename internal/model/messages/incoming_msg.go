@@ -2,8 +2,9 @@ package messages
 
 import (
 	"context"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 	"regexp"
+
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 )
 
 type Message struct {

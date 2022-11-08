@@ -2,13 +2,13 @@ package logs
 
 import (
 	"context"
-	"github.com/opentracing/opentracing-go"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers"
-	"go.uber.org/zap"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go/config"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers"
+	"go.uber.org/zap"
 )
 
 func InitTracing(logger *zap.Logger, serviceName string) {

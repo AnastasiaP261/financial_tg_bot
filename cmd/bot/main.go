@@ -3,15 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
-	tracing "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/tracing"
-	"go.uber.org/zap"
-	"golang.org/x/sync/errgroup"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/fixer"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
@@ -25,6 +21,10 @@ import (
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	logswrapper "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
+	tracing "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/tracing"
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 const (

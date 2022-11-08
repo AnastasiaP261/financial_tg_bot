@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"

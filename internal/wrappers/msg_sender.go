@@ -2,6 +2,7 @@ package wrappers
 
 import (
 	"context"
+
 	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 )
