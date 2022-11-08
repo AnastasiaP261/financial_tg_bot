@@ -107,4 +107,4 @@ docker-run:
 	sudo tmux new-session \; \
       		send-keys 'docker-compose up' C-m \; \
       		split-window -h \; \
-      		send-keys 'sleep 70 && make dev-db-data' C-m \;
+      		send-keys 'sleep 20 && make dev-db-data' C-m \;

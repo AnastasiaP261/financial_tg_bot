@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
 	"log"
 	"os"
 
@@ -72,10 +73,10 @@ func main() {
 	listener.ListenUpdates(ctx, msgModel)
 }
 
-func initTgMsgHandler(conf *config.Service) *logswrapper.MsgSenderWrapper {
+func initTgMsgHandler(conf *config.Service) *metrics.Wrapper {
 	msgHandler, err := tgmsghandler.New(conf)
 	if err != nil {
 		log.Fatal("tg msg handler init failed:", err)
 	}
-	return logswrapper.NewMsgSenderWrapper(msgHandler)
+	return metrics.NewWrapper(logswrapper.NewWrapper(msgHandler))
 }

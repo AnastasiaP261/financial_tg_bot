@@ -2,10 +2,8 @@ package tg
 
 import (
 	"context"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
 )
 
 type TokenGetter interface {
@@ -13,8 +11,8 @@ type TokenGetter interface {
 }
 
 type MsgModel interface {
-	IncomingCallback(ctx context.Context, msg messages.Callback) error
-	IncomingMessage(ctx context.Context, msg messages.Message) error
+	IncomingCallback(ctx context.Context, msg Callback) error
+	IncomingMessage(ctx context.Context, msg Message) error
 }
 
 type MsgHandler interface {
@@ -24,6 +22,18 @@ type MsgHandler interface {
 
 	IncomingCallback(ctx context.Context, model MsgModel, msg tgbotapi.Update) error
 	IncomingMessage(ctx context.Context, model MsgModel, msg tgbotapi.Update) error
+}
+
+type Callback struct {
+	UserID   int64
+	UserName string
+	Data     string
+}
+
+type Message struct {
+	Text     string
+	UserID   int64
+	UserName string
 }
 
 type Client struct {
@@ -36,7 +46,6 @@ func New(tokenGetter TokenGetter, msgHandler MsgHandler) (*Client, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "NewBotAPI")
 	}
-
 	return &Client{
 		client:     client,
 		msgHandler: msgHandler,

@@ -1,6 +1,9 @@
 package messages
 
-import "context"
+import (
+	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
+)
 
 type Callback struct {
 	UserID   int64
@@ -8,7 +11,7 @@ type Callback struct {
 	Data     string
 }
 
-func (m *Model) IncomingCallback(ctx context.Context, msg Callback) error {
+func (m *Model) IncomingCallback(ctx context.Context, msg tg.Callback) error {
 	info, err := m.getUserInfo(ctx, msg.UserID)
 	if err != nil {
 		return m.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
@@ -16,7 +19,7 @@ func (m *Model) IncomingCallback(ctx context.Context, msg Callback) error {
 
 	switch info.Status {
 	case statusNonExistentCategory:
-		return m.msgNonExistentCategory(ctx, msg, info)
+		return m.msgNonExistentCategory(ctx, Callback(msg), info)
 
 	default:
 		if err = m.setUserInfo(ctx, msg.UserID, userInfo{}); err != nil {

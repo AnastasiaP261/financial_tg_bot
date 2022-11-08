@@ -6,7 +6,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
 )
 
 type TokenGetter interface {
@@ -70,7 +69,7 @@ func (m *MsgHandler) SendKeyboard(text string, userId int64, buttonTexts []strin
 }
 
 func (m *MsgHandler) IncomingCallback(ctx context.Context, model tg.MsgModel, update tgbotapi.Update) error {
-	return model.IncomingCallback(ctx, messages.Callback{
+	return model.IncomingCallback(ctx, tg.Callback{
 		UserID:   update.CallbackQuery.From.ID,
 		UserName: update.CallbackQuery.From.UserName,
 		Data:     update.CallbackQuery.Data,
@@ -78,7 +77,7 @@ func (m *MsgHandler) IncomingCallback(ctx context.Context, model tg.MsgModel, up
 }
 
 func (m *MsgHandler) IncomingMessage(ctx context.Context, model tg.MsgModel, update tgbotapi.Update) error {
-	return model.IncomingMessage(ctx, messages.Message{
+	return model.IncomingMessage(ctx, tg.Message{
 		Text:     update.Message.Text,
 		UserID:   update.Message.From.ID,
 		UserName: update.Message.From.UserName,

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
 	"io"
 	"net/http"
 	"net/url"
@@ -103,11 +104,16 @@ func (c *Client) getData(ctx context.Context) {
 		return
 	}
 
+	startTime := time.Now()
 	res, err := client.Do(req)
 	if err != nil {
 		logs.Error(errors.Wrap(err, "client.Do").Error())
 		return
 	}
+	duration := time.Since(startTime)
+	metrics.HistogramFixerResponseTime.Observe(duration.Seconds())
+	metrics.SummaryFixerResponseTime.Observe(duration.Seconds())
+
 	if res.Body != nil {
 		defer res.Body.Close()
 	}
@@ -156,6 +162,7 @@ func (c *Client) getDataFromDate(ctx context.Context, y, m, d int) (map[string]f
 		return nil, errors.Wrap(err, "http.NewRequest")
 	}
 
+	startTime := time.Now()
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "client.Do")
@@ -163,6 +170,10 @@ func (c *Client) getDataFromDate(ctx context.Context, y, m, d int) (map[string]f
 	if res.Body != nil {
 		defer res.Body.Close()
 	}
+	duration := time.Since(startTime)
+	metrics.HistogramFixerResponseTime.Observe(duration.Seconds())
+	metrics.SummaryFixerResponseTime.Observe(duration.Seconds())
+
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "ioutil.ReadAll")

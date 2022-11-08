@@ -11,8 +11,7 @@ scrape_configs:
   - job_name: "prometheus"
     static_configs:
       - targets: ["localhost:9090"]
-  - job_name: "fibonacci"
+  - job_name: "tg_bot"
     static_configs:
       - targets: 
         - "host.docker.internal:8080"
-        - "host.docker.internal:8081"

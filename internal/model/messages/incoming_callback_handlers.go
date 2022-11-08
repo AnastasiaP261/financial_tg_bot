@@ -2,6 +2,7 @@ package messages
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/normalize"
@@ -47,7 +48,7 @@ func (m *Model) msgNonExistentCategory(ctx context.Context, msg Callback, info u
 		return m.SendMessage("Ошибочка: "+err.Error(), msg.UserID)
 	}
 
-	return m.IncomingMessage(ctx, Message{
+	return m.IncomingMessage(ctx, tg.Message{
 		Text:     info.Command,
 		UserID:   msg.UserID,
 		UserName: msg.UserName,

@@ -2,6 +2,7 @@ package messages
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 	"regexp"
 )
 
@@ -31,16 +32,23 @@ var (
 	limit = regexp.MustCompile(`/limit (\d+.?\d*)`)
 )
 
-func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
+func (m *Model) IncomingMessage(ctx context.Context, message tg.Message) error {
+	msg := Message(message)
 	switch {
 	case msg.Text == "/start":
 		return m.SendMessage("hello", msg.UserID)
 
 	case report.MatchString(msg.Text):
-		return m.msgReport(ctx, msg)
+		return metricsWrapper(
+			func() error { return m.msgReport(ctx, msg) },
+			"report",
+		)
 
 	case addCategory.MatchString(msg.Text):
-		return m.msgAddCategory(ctx, msg)
+		return metricsWrapper(
+			func() error { return m.msgAddCategory(ctx, msg) },
+			"add_category",
+		)
 
 	case addPurchaseSumAndCategoryAndDate.MatchString(msg.Text):
 		res := addPurchaseSumAndCategoryAndDate.FindStringSubmatch(msg.Text)
@@ -48,7 +56,10 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 			return m.SendMessage(ErrTxtInvalidInput, msg.UserID)
 		}
 
-		return m.msgAddPurchase(ctx, msg, res[1], res[2], res[3])
+		return metricsWrapper(
+			func() error { return m.msgAddPurchase(ctx, msg, res[1], res[2], res[3]) },
+			metricsCommAddPurchase,
+		)
 
 	case addPurchaseSumAndCategory.MatchString(msg.Text):
 		res := addPurchaseSumAndCategory.FindStringSubmatch(msg.Text)
@@ -56,7 +67,10 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 			return m.SendMessage(ErrTxtInvalidInput, msg.UserID)
 		}
 
-		return m.msgAddPurchase(ctx, msg, res[1], res[2], "")
+		return metricsWrapper(
+			func() error { return m.msgAddPurchase(ctx, msg, res[1], res[2], "") },
+			metricsCommAddPurchase,
+		)
 
 	case addPurchaseOnlySum.MatchString(msg.Text):
 		res := addPurchaseOnlySum.FindStringSubmatch(msg.Text)
@@ -64,7 +78,10 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 			return m.SendMessage(ErrTxtInvalidInput, msg.UserID)
 		}
 
-		return m.msgAddPurchase(ctx, msg, res[1], "", "")
+		return metricsWrapper(
+			func() error { return m.msgAddPurchase(ctx, msg, res[1], "", "") },
+			metricsCommAddPurchase,
+		)
 
 	case currency.MatchString(msg.Text):
 		res := currency.FindStringSubmatch(msg.Text)
@@ -72,7 +89,10 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 			return m.SendMessage(ErrTxtInvalidInput, msg.UserID)
 		}
 
-		return m.msgCurrency(ctx, msg, res[1])
+		return metricsWrapper(
+			func() error { return m.msgCurrency(ctx, msg, res[1]) },
+			"select_currency",
+		)
 
 	case limit.MatchString(msg.Text):
 		res := limit.FindStringSubmatch(msg.Text)
@@ -80,9 +100,15 @@ func (m *Model) IncomingMessage(ctx context.Context, msg Message) error {
 			return m.SendMessage(ErrTxtInvalidInput, msg.UserID)
 		}
 
-		return m.msgLimit(ctx, msg, res[1])
+		return metricsWrapper(
+			func() error { return m.msgLimit(ctx, msg, res[1]) },
+			"set_limit",
+		)
 
 	default:
-		return m.SendMessage(ErrTxtUnknownCommand, msg.UserID)
+		return metricsWrapper(
+			func() error { return m.SendMessage(ErrTxtUnknownCommand, msg.UserID) },
+			"unknown",
+		)
 	}
 }
