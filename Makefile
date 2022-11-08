@@ -56,7 +56,7 @@ integration_test:
 
 local:
 	mkdir -p logs/data
-	go run ./cmd/bot LOCAL | tee logs/data/log.txt
+	go run ./cmd/bot LOCAL 2>&1 | tee ${CURDIR}/logs/data/log.txt
 
 generate: install-mockgen
 	${MOCKGEN} -source=internal/model/messages/model.go -destination=internal/model/messages/_mocks/mocks.go
