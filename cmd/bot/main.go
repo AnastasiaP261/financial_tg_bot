@@ -2,8 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 	"log"
+	"net/http"
 	"os"
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/fixer"
@@ -19,6 +24,10 @@ import (
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	logswrapper "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/logs"
+)
+
+const (
+	port = 8080
 )
 
 func main() {
@@ -65,12 +74,33 @@ func main() {
 	logs.InitLogger()
 
 	// ПОЕХАЛИ!!
-	listener, err := tg.New(config, msgHandler)
-	if err != nil {
-		log.Fatal("tg listener init failed")
+	errG, ctx := errgroup.WithContext(ctx)
+	errG.Go(func() error {
+		http.Handle("/metrics", promhttp.Handler())
+		err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+		if err != nil {
+			log.Fatal("error starting http server:", err)
+			return err
+		}
+		logs.Info("starting http server", zap.Int("port", port))
+
+		return nil
+	})
+
+	errG.Go(func() error {
+		listener, err := tg.New(config, msgHandler)
+		if err != nil {
+			log.Fatal("tg listener init failed")
+			return err
+		}
+		logs.Info("messages listen started")
+		listener.ListenUpdates(ctx, msgModel)
+		return nil
+	})
+
+	if err = errG.Wait(); err != nil {
+		log.Fatal("errgroup error:", err)
 	}
-	logs.Info("messages listen started")
-	listener.ListenUpdates(ctx, msgModel)
 }
 
 func initTgMsgHandler(conf *config.Service) *metrics.Wrapper {

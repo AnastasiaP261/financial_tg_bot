@@ -18,6 +18,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.14.0
 	github.com/wcharczuk/go-chart/v2 v2.1.0
 	go.uber.org/zap v1.17.0
+	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 	gopkg.in/yaml.v3 v3.0.1
 )
 

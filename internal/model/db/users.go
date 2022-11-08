@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-
 	sq "github.com/Masterminds/squirrel"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -292,7 +291,7 @@ func (s *Service) GetUserCategories(ctx context.Context, userID int64) ([]string
 		Select(tblCategoriesColID, tblCategoriesColCategoryName).
 		From(tblCategories).
 		Where(sq.Eq{
-			tblCategoriesColID: userInfo.CategoryIDs,
+			tblCategoriesColID: []int64(userInfo.CategoryIDs),
 		}).
 		ToSql()
 	if err != nil {
