@@ -10,7 +10,7 @@ import (
 var logger *zap.Logger
 
 // InitLogger логгер необходимо инициализировать при запуске приложения
-func InitLogger() {
+func InitLogger() *zap.Logger {
 	var err error
 	if !env.InProd() {
 		logger, err = zap.NewDevelopment()
@@ -24,6 +24,8 @@ func InitLogger() {
 	if err != nil {
 		log.Fatal("cannot init zap", err)
 	}
+
+	return logger
 }
 
 func Error(text string, fields ...zap.Field) {

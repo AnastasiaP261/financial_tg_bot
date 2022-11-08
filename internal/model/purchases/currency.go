@@ -3,6 +3,7 @@ package purchases
 import (
 	"context"
 	"fmt"
+	"github.com/opentracing/opentracing-go"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -98,6 +99,9 @@ func (m *Model) rubToCurrentCurrency(userCurrency Currency, sum float64, rates R
 }
 
 func (m *Model) getTodayRates(ctx context.Context, year, month, day int) (RateToRUB, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "get today rates")
+	defer span.Finish()
+
 	var ok bool
 	var rates RateToRUB
 

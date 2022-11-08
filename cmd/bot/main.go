@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
+	tracing "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/tracing"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"log"
@@ -27,7 +28,8 @@ import (
 )
 
 const (
-	port = 8080
+	port        = 8080
+	serviceName = "tg_bot"
 )
 
 func main() {
@@ -71,19 +73,20 @@ func main() {
 	msgModel := messages.New(msgHandler, purchasesModel, redis)
 
 	// INFRA
-	logs.InitLogger()
+	logger := logs.InitLogger()
+	tracing.InitTracing(logger, serviceName)
 
 	// ПОЕХАЛИ!!
 	errG, ctx := errgroup.WithContext(ctx)
 	errG.Go(func() error {
 		http.Handle("/metrics", promhttp.Handler())
+
+		logs.Info("starting http server", zap.Int("port", port))
 		err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 		if err != nil {
 			log.Fatal("error starting http server:", err)
 			return err
 		}
-		logs.Info("starting http server", zap.Int("port", port))
-
 		return nil
 	})
 
@@ -103,10 +106,10 @@ func main() {
 	}
 }
 
-func initTgMsgHandler(conf *config.Service) *metrics.Wrapper {
+func initTgMsgHandler(conf *config.Service) *tracing.Wrapper {
 	msgHandler, err := tgmsghandler.New(conf)
 	if err != nil {
 		log.Fatal("tg msg handler init failed:", err)
 	}
-	return metrics.NewWrapper(logswrapper.NewWrapper(msgHandler))
+	return tracing.NewWrapper(metrics.NewWrapper(logswrapper.NewWrapper(msgHandler)))
 }
