@@ -17,6 +17,9 @@ const (
 
 	StatusOk  = "ok"
 	StatusErr = "error"
+
+	ReportSourceBD    = "bd"
+	ReportSourceCache = "cache"
 )
 
 var (
@@ -81,6 +84,26 @@ var (
 		Buckets:   []float64{0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10},
 		// Buckets: prometheus.ExponentialBucketsRange(0.0001, 2, 16),
 	})
+
+	// InFlightCache количество успешных и с ошибкой ответов кеша
+	InFlightCache = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: "tg_bot",
+			Subsystem: "msg",
+			Name:      "in_flight_cache",
+		},
+		[]string{"status"},
+	)
+
+	// InFlightReports количество успешно сформированных отчетов (по источнику)
+	InFlightReports = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: "tg_bot",
+			Subsystem: "msg",
+			Name:      "in_flight_reports",
+		},
+		[]string{"source"},
+	)
 )
 
 type Wrapper struct {
