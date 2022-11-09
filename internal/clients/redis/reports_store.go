@@ -2,9 +2,13 @@ package redis
 
 import (
 	"context"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
-	"time"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
+	"go.uber.org/zap"
 )
 
 type ReportItem struct {
@@ -12,35 +16,41 @@ type ReportItem struct {
 	Summa            float64 `json:"summa"`
 }
 
-type FromDate struct {
-	Y int `json:"y"`
-	M int `json:"m"`
-	D int `json:"d"`
-}
-
 type Report struct {
 	Items    []ReportItem `json:"items"`
-	CreateTo time.Time    `json:"createTo"` // дата создания отчета
-	FromDate FromDate     `json:"fromDate"` // дата начала выборки данных в отчете
+	FromDate time.Time    `json:"fromDate"` // дата начала выборки данных в отчете
 }
 
 func (c *Client) SetReport(ctx context.Context, key string, value Report) error {
 	var nullDur time.Duration
 	stCmd := c.rdb.Set(ctx, key, value, nullDur)
 
-	return stCmd.Err()
+	err := stCmd.Err()
+	if err != nil {
+		logs.Error("set report error", zap.Error(err))
+		metrics.InFlightCache.WithLabelValues(metrics.StatusErr).Inc()
+		return err
+	}
+	metrics.InFlightCache.WithLabelValues(metrics.StatusOk).Inc()
+
+	return nil
 }
 
 func (c *Client) GetReport(ctx context.Context, key string) (Report, error) {
 	res := c.rdb.Get(ctx, key)
 	if errors.Is(res.Err(), redis.Nil) {
+		// здесь все ок так как такого значения просто нет в кеше
+		metrics.InFlightCache.WithLabelValues(metrics.StatusOk).Inc()
 		return Report{}, nil
 	}
 
 	var report Report
 	if err := res.Scan(&report); err != nil {
+		logs.Error("set report error", zap.Error(err))
+		metrics.InFlightCache.WithLabelValues(metrics.StatusErr).Inc()
 		return Report{}, errors.Wrap(err, "scanning err")
 	}
+	metrics.InFlightCache.WithLabelValues(metrics.StatusOk).Inc()
 
 	return report, res.Err()
 }

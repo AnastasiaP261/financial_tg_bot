@@ -5,6 +5,9 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
+	"go.uber.org/zap"
 )
 
 var (
@@ -35,5 +38,14 @@ func New(ctx context.Context, config configGetter) (*Client, error) {
 
 func (c *Client) Delete(ctx context.Context, key string) error {
 	res := c.rdb.Del(ctx, key)
-	return res.Err()
+
+	err := res.Err()
+	if err != nil {
+		logs.Error("set report error", zap.Error(err))
+		metrics.InFlightCache.WithLabelValues(metrics.StatusErr).Inc()
+		return err
+	}
+	metrics.InFlightCache.WithLabelValues(metrics.StatusOk).Inc()
+
+	return nil
 }
