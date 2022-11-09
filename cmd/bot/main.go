@@ -68,7 +68,7 @@ func main() {
 	// MODELS
 	chartDrawingModel := chart_drawing.New()
 	exchangesRatesModel := exchange_rates.New(fixerClient)
-	purchasesModel := purchases.New(db, chartDrawingModel, exchangesRatesModel)
+	purchasesModel := purchases.New(db, chartDrawingModel, exchangesRatesModel, redis)
 
 	msgModel := messages.New(msgHandler, purchasesModel, redis)
 

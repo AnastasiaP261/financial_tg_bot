@@ -308,8 +308,8 @@ func (m *MockStatusStore) GetString(ctx context.Context, key string) (string, er
 	return ret0, ret1
 }
 
-// Get indicates an expected call of Get.
-func (mr *MockStatusStoreMockRecorder) Get(ctx, key interface{}) *gomock.Call {
+// GetString indicates an expected call of GetString.
+func (mr *MockStatusStoreMockRecorder) GetString(ctx, key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetString", reflect.TypeOf((*MockStatusStore)(nil).GetString), ctx, key)
 }
@@ -322,8 +322,8 @@ func (m *MockStatusStore) SetString(ctx context.Context, key, value string) erro
 	return ret0
 }
 
-// Set indicates an expected call of Set.
-func (mr *MockStatusStoreMockRecorder) Set(ctx, key, value interface{}) *gomock.Call {
+// SetString indicates an expected call of SetString.
+func (mr *MockStatusStoreMockRecorder) SetString(ctx, key, value interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetString", reflect.TypeOf((*MockStatusStore)(nil).SetString), ctx, key, value)
 }

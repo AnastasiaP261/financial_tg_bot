@@ -6,9 +6,9 @@ var metricsCommAddPurchase = "add_purchase"
 
 func metricsWrapper(wrappedFunc func() error, command string) error {
 	if err := wrappedFunc(); err != nil {
-		metrics.InFlightCommandMsg.WithLabelValues(command, metrics.StatusErr)
+		metrics.InFlightCommandMsg.WithLabelValues(command, metrics.StatusErr).Inc()
 		return err
 	}
-	metrics.InFlightCommandMsg.WithLabelValues(command, metrics.StatusOk)
+	metrics.InFlightCommandMsg.WithLabelValues(command, metrics.StatusOk).Inc()
 	return nil
 }
