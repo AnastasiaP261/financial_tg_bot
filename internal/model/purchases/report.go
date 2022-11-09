@@ -2,6 +2,7 @@ package purchases
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -108,7 +109,7 @@ func (m *Model) getPurchasesReportFromDate(ctx context.Context, from time.Time, 
 		logs.Error("reports store error", zap.Error(err))
 	}
 	// если в хранилище статусов ничего нет или вернулась ошибка просто идем в репу
-	if err == nil || len(report.Items) != 0 {
+	if err == nil && len(report.Items) != 0 {
 		if report.FromDate == from {
 			reportItems := make([]ReportItem, len(report.Items))
 			for i := range report.Items {
@@ -171,20 +172,34 @@ func (m *Model) packagingByCategory(purchases []Purchase, currentCurrency Curren
 // fromTime позволяет получить из переданной даты новую, вычитая из переданной указанный период
 // (учитывая количество дней в месяцах и високосные годы)
 func fromTime(to time.Time, period Period) (time.Time, error) {
+	var resDate time.Time
+
 	switch period {
 	case periodYear:
 		from := to.AddDate(-1, 0, 0)
 		days := to.Sub(from).Hours() / 24
-		return to.AddDate(0, 0, int(-days)), nil
+		resDate = to.AddDate(0, 0, int(-days))
+
 	case periodMonth:
 		from := to.AddDate(0, -1, 0)
 		days := to.Sub(from).Hours() / 24
-		return to.AddDate(0, 0, int(-days)), nil
+		resDate = to.AddDate(0, 0, int(-days))
+
 	case periodWeek:
-		return to.AddDate(0, 0, -7), nil
+		resDate = to.AddDate(0, 0, -7)
+
 	default:
 		return time.Time{}, ErrUnknownPeriod
 	}
+
+	// этот шаг нужен, чтобы обнулить все составные части кроме даты
+	y, m, d := resDate.Date()
+	result, err := time.Parse("02.01.2006", fmt.Sprintf("%02d.%02d.%d", d, m, y))
+	if err != nil {
+		return time.Time{}, errors.Wrap(err, "time.Parse")
+	}
+
+	return result, nil
 }
 
 func createKeyForReportsStore(userID int64) string {

@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -19,6 +20,23 @@ type ReportItem struct {
 type Report struct {
 	Items    []ReportItem `json:"items"`
 	FromDate time.Time    `json:"fromDate"` // дата начала выборки данных в отчете
+}
+
+func (r Report) MarshalBinary() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func (r *Report) UnmarshalBinary(data []byte) error {
+	var v Report
+	err := json.Unmarshal(data, &v)
+	if err != nil {
+		return errors.Wrap(err, "unmarshalling error")
+	}
+
+	r.FromDate = v.FromDate
+	r.Items = v.Items
+
+	return nil
 }
 
 func (c *Client) SetReport(ctx context.Context, key string, value Report) error {
