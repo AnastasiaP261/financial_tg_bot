@@ -299,10 +299,10 @@ func (mr *MockStatusStoreMockRecorder) Delete(ctx, key interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockStatusStore)(nil).Delete), ctx, key)
 }
 
-// Get mocks base method.
-func (m *MockStatusStore) Get(ctx context.Context, key string) (string, error) {
+// GetString mocks base method.
+func (m *MockStatusStore) GetString(ctx context.Context, key string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", ctx, key)
+	ret := m.ctrl.Call(m, "GetString", ctx, key)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -311,13 +311,13 @@ func (m *MockStatusStore) Get(ctx context.Context, key string) (string, error) {
 // Get indicates an expected call of Get.
 func (mr *MockStatusStoreMockRecorder) Get(ctx, key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockStatusStore)(nil).Get), ctx, key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetString", reflect.TypeOf((*MockStatusStore)(nil).GetString), ctx, key)
 }
 
-// Set mocks base method.
-func (m *MockStatusStore) Set(ctx context.Context, key, value string) error {
+// SetString mocks base method.
+func (m *MockStatusStore) SetString(ctx context.Context, key, value string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Set", ctx, key, value)
+	ret := m.ctrl.Call(m, "SetString", ctx, key, value)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -325,5 +325,5 @@ func (m *MockStatusStore) Set(ctx context.Context, key, value string) error {
 // Set indicates an expected call of Set.
 func (mr *MockStatusStoreMockRecorder) Set(ctx, key, value interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockStatusStore)(nil).Set), ctx, key, value)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetString", reflect.TypeOf((*MockStatusStore)(nil).SetString), ctx, key, value)
 }

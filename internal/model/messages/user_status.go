@@ -25,9 +25,9 @@ type userInfo struct {
 func (m *Model) getUserInfo(ctx context.Context, userID int64) (userInfo, error) {
 	decKey := strconv.FormatInt(userID, 10)
 
-	res, err := m.statusStore.Get(ctx, decKey)
+	res, err := m.statusStore.GetString(ctx, decKey)
 	if err != nil {
-		return userInfo{}, errors.Wrap(err, "statusStore.Get")
+		return userInfo{}, errors.Wrap(err, "statusStore.GetString")
 	}
 
 	rawJson, err := base64.StdEncoding.DecodeString(res)
@@ -61,8 +61,8 @@ func (m *Model) setUserInfo(ctx context.Context, userID int64, info userInfo) er
 
 	decVal := base64.StdEncoding.EncodeToString(bytes)
 
-	if err = m.statusStore.Set(ctx, decKey, decVal); err != nil {
-		return errors.Wrap(err, "statusStore.Set")
+	if err = m.statusStore.SetString(ctx, decKey, decVal); err != nil {
+		return errors.Wrap(err, "statusStore.SetString")
 	}
 
 	return nil
