@@ -12,8 +12,9 @@ import (
 type status string
 
 const (
+	keySuffix = "status" // чтобы не перепутать значения, которые могут лежать в редисе с таким же ключом и не относиться к статусам
+
 	statusNonExistentCategory status = "msgNonExistentCategory"
-	statusNotAddedCategory    status = "msgNotAddedCategory"
 )
 
 type userInfo struct {
@@ -21,9 +22,13 @@ type userInfo struct {
 	Command string `json:"command"` // "замороженная" команда
 }
 
+func createKey(userID int64) string {
+	return strconv.FormatInt(userID, 10) + keySuffix
+}
+
 // getUserInfo получить информацию о статусе пользователя
 func (m *Model) getUserInfo(ctx context.Context, userID int64) (userInfo, error) {
-	decKey := strconv.FormatInt(userID, 10)
+	decKey := createKey(userID)
 
 	res, err := m.statusStore.GetString(ctx, decKey)
 	if err != nil {
@@ -45,7 +50,7 @@ func (m *Model) getUserInfo(ctx context.Context, userID int64) (userInfo, error)
 
 // setUserInfo установить новый статус пользователю. Для удаления статуса отправить пустой userInfo
 func (m *Model) setUserInfo(ctx context.Context, userID int64, info userInfo) error {
-	decKey := strconv.FormatInt(userID, 10)
+	decKey := createKey(userID)
 
 	if info.Status == "" {
 		if err := m.statusStore.Delete(ctx, decKey); err != nil {
