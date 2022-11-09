@@ -8,13 +8,20 @@ import (
 )
 
 type ReportItem struct {
-	PurchaseCategory string
-	Summa            float64
+	PurchaseCategory string  `json:"purchaseCategory"`
+	Summa            float64 `json:"summa"`
+}
+
+type FromDate struct {
+	Y int `json:"y"`
+	M int `json:"m"`
+	D int `json:"d"`
 }
 
 type Report struct {
-	Items []ReportItem
-	Date  time.Time // дата создания отчета
+	Items    []ReportItem `json:"items"`
+	CreateTo time.Time    `json:"createTo"` // дата создания отчета
+	FromDate FromDate     `json:"fromDate"` // дата начала выборки данных в отчете
 }
 
 func (c *Client) SetReport(ctx context.Context, key string, value Report) error {
