@@ -8,6 +8,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
 	"go.uber.org/zap"
 )
@@ -39,9 +40,19 @@ func (r *Report) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-func (c *Client) SetReport(ctx context.Context, key string, value Report) error {
+func (c *Client) SetReport(ctx context.Context, key string, value purchases.Report) error {
+	items := make([]ReportItem, len(value.Items))
+	for i := range value.Items {
+		items[i] = ReportItem(value.Items[i])
+	}
+
+	report := Report{
+		Items:    items,
+		FromDate: value.FromDate,
+	}
+
 	var nullDur time.Duration
-	stCmd := c.rdb.Set(ctx, key, value, nullDur)
+	stCmd := c.rdb.Set(ctx, key, report, nullDur)
 
 	err := stCmd.Err()
 	if err != nil {
@@ -54,21 +65,29 @@ func (c *Client) SetReport(ctx context.Context, key string, value Report) error 
 	return nil
 }
 
-func (c *Client) GetReport(ctx context.Context, key string) (Report, error) {
+func (c *Client) GetReport(ctx context.Context, key string) (purchases.Report, error) {
 	res := c.rdb.Get(ctx, key)
 	if errors.Is(res.Err(), redis.Nil) {
 		// здесь все ок так как такого значения просто нет в кеше
 		metrics.InFlightCache.WithLabelValues(metrics.StatusOk).Inc()
-		return Report{}, nil
+		return purchases.Report{}, nil
 	}
 
 	var report Report
 	if err := res.Scan(&report); err != nil {
 		logs.Error("set report error", zap.Error(err))
 		metrics.InFlightCache.WithLabelValues(metrics.StatusErr).Inc()
-		return Report{}, errors.Wrap(err, "scanning err")
+		return purchases.Report{}, errors.Wrap(err, "scanning err")
 	}
 	metrics.InFlightCache.WithLabelValues(metrics.StatusOk).Inc()
 
-	return report, res.Err()
+	items := make([]purchases.ReportItem, len(report.Items))
+	for i := range report.Items {
+		items[i] = purchases.ReportItem(report.Items[i])
+	}
+
+	return purchases.Report{
+		Items:    items,
+		FromDate: report.FromDate,
+	}, nil
 }

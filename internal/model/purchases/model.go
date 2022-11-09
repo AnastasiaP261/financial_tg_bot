@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
 )
 
 var (
@@ -52,8 +51,8 @@ type ExchangeRateGetter interface {
 }
 
 type ReportsStore interface {
-	SetReport(ctx context.Context, key string, value redis.Report) error
-	GetReport(ctx context.Context, key string) (redis.Report, error)
+	SetReport(ctx context.Context, key string, value Report) error
+	GetReport(ctx context.Context, key string) (Report, error)
 	Delete(ctx context.Context, key string) error
 }
 

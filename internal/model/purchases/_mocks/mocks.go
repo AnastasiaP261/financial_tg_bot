@@ -10,7 +10,6 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
-	redis "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
 	purchases "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
@@ -384,10 +383,10 @@ func (mr *MockReportsStoreMockRecorder) Delete(ctx, key interface{}) *gomock.Cal
 }
 
 // GetReport mocks base method.
-func (m *MockReportsStore) GetReport(ctx context.Context, key string) (redis.Report, error) {
+func (m *MockReportsStore) GetReport(ctx context.Context, key string) (purchases.Report, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetReport", ctx, key)
-	ret0, _ := ret[0].(redis.Report)
+	ret0, _ := ret[0].(purchases.Report)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -399,7 +398,7 @@ func (mr *MockReportsStoreMockRecorder) GetReport(ctx, key interface{}) *gomock.
 }
 
 // SetReport mocks base method.
-func (m *MockReportsStore) SetReport(ctx context.Context, key string, value redis.Report) error {
+func (m *MockReportsStore) SetReport(ctx context.Context, key string, value purchases.Report) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetReport", ctx, key, value)
 	ret0, _ := ret[0].(error)

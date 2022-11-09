@@ -10,7 +10,6 @@ import (
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
 	"go.uber.org/zap"
@@ -50,6 +49,11 @@ type Purchase struct {
 type ReportItem struct {
 	PurchaseCategory string
 	Summa            float64
+}
+
+type Report struct {
+	Items    []ReportItem
+	FromDate time.Time // дата начала выборки данных в отчете
 }
 
 // Segment кусочек круговой диаграммы
@@ -111,13 +115,8 @@ func (m *Model) getPurchasesReportFromDate(ctx context.Context, from time.Time, 
 	// если в хранилище статусов ничего нет или вернулась ошибка просто идем в репу
 	if err == nil && len(report.Items) != 0 {
 		if report.FromDate == from {
-			reportItems := make([]ReportItem, len(report.Items))
-			for i := range report.Items {
-				reportItems[i] = ReportItem(report.Items[i])
-			}
 			metrics.InFlightReports.WithLabelValues(metrics.ReportSourceCache).Inc()
-
-			return reportItems, nil
+			return report.Items, nil
 		}
 	}
 
@@ -131,11 +130,7 @@ func (m *Model) getPurchasesReportFromDate(ctx context.Context, from time.Time, 
 		return nil, errors.Wrap(err, "packagingByCategory")
 	}
 
-	items := make([]redis.ReportItem, len(reportItems))
-	for i := range reportItems {
-		items[i] = redis.ReportItem(reportItems[i])
-	}
-	m.ReportsStore.SetReport(ctx, createKeyForReportsStore(userID), redis.Report{Items: items, FromDate: from}) // nolint: errcheck
+	m.ReportsStore.SetReport(ctx, createKeyForReportsStore(userID), Report{Items: reportItems, FromDate: from}) // nolint: errcheck
 	metrics.InFlightReports.WithLabelValues(metrics.ReportSourceBD).Inc()
 
 	return reportItems, nil
