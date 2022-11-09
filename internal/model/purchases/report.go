@@ -9,7 +9,13 @@ import (
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
+	"go.uber.org/zap"
 )
+
+const keySuffix = "report"
 
 type Period byte
 
@@ -61,17 +67,12 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 		return "", nil, errors.Wrap(err, "fromTime")
 	}
 
-	purchases, err := m.Repo.GetUserPurchasesFromDate(ctx, from, userID)
-	if err != nil {
-		return "", nil, errors.Wrap(err, "Repo.GetUserPurchasesFromDate")
-	}
-
 	info, err := m.Repo.GetUserInfo(ctx, userID)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "Repo.GetUserInfo")
 	}
 
-	reportItems, err := m.packagingByCategory(purchases, info.Currency)
+	reportItems, err := m.getPurchasesReportFromDate(ctx, from, userID, info)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "packagingByCategory")
 	}
@@ -99,6 +100,44 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 	}
 
 	return resStr.String(), resIMG, nil
+}
+
+func (m *Model) getPurchasesReportFromDate(ctx context.Context, from time.Time, userID int64, info User) ([]ReportItem, error) {
+	report, err := m.ReportsStore.GetReport(ctx, createKeyForReportsStore(userID))
+	if err != nil {
+		logs.Error("reports store error", zap.Error(err))
+	}
+	// если в хранилище статусов ничего нет или вернулась ошибка просто идем в репу
+	if err == nil || len(report.Items) != 0 {
+		if report.FromDate == from {
+			reportItems := make([]ReportItem, len(report.Items))
+			for i := range report.Items {
+				reportItems[i] = ReportItem(report.Items[i])
+			}
+			metrics.InFlightReports.WithLabelValues(metrics.ReportSourceCache).Inc()
+
+			return reportItems, nil
+		}
+	}
+
+	purchases, err := m.Repo.GetUserPurchasesFromDate(ctx, from, userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "Repo.GetUserPurchasesFromDate")
+	}
+
+	reportItems, err := m.packagingByCategory(purchases, info.Currency)
+	if err != nil {
+		return nil, errors.Wrap(err, "packagingByCategory")
+	}
+
+	items := make([]redis.ReportItem, len(reportItems))
+	for i := range reportItems {
+		items[i] = redis.ReportItem(reportItems[i])
+	}
+	m.ReportsStore.SetReport(ctx, createKeyForReportsStore(userID), redis.Report{Items: items, FromDate: from}) // nolint: errcheck
+	metrics.InFlightReports.WithLabelValues(metrics.ReportSourceBD).Inc()
+
+	return reportItems, nil
 }
 
 // packagingByCategory получает на вход список трат и формирует из него отчет, переводя все траты в
@@ -146,4 +185,8 @@ func fromTime(to time.Time, period Period) (time.Time, error) {
 	default:
 		return time.Time{}, ErrUnknownPeriod
 	}
+}
+
+func createKeyForReportsStore(userID int64) string {
+	return strconv.FormatInt(userID, 10) + keySuffix
 }
