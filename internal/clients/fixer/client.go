@@ -55,12 +55,14 @@ func (c *Client) process(ctx context.Context) {
 
 	run()
 
-	select {
-	case <-ctx.Done():
-		ticker.Stop()
-		return
-	case <-ticker.C:
-		run()
+	for {
+		select {
+		case <-ctx.Done():
+			ticker.Stop()
+			return
+		case <-ticker.C:
+			run()
+		}
 	}
 }
 
