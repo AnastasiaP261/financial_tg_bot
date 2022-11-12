@@ -83,6 +83,7 @@ func printMessage(msg *sarama.ConsumerMessage) {
 
 	logs.Info(
 		"Successful to read message",
+		zap.String("key", string(msg.Key)),
 		zap.String("value", string(msg.Value)),
 	)
 }

@@ -2,6 +2,7 @@ package sync_producer
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"go.uber.org/zap"
@@ -47,7 +48,7 @@ func (s *Service) Close() error {
 	return s.producer.Close()
 }
 
-func (s *Service) SendNewMsg(key, value string) {
+func (s *Service) SendNewMsg(key string, value string) error {
 	// Inject info into message
 	msg := sarama.ProducerMessage{
 		Topic: kafka.Topic,
@@ -58,6 +59,7 @@ func (s *Service) SendNewMsg(key, value string) {
 	p, o, err := s.producer.SendMessage(&msg)
 	if err != nil {
 		logs.Error("Failed to send message", zap.Error(err))
+		return errors.Wrap(err, "failed to send message")
 	}
 	logs.Info(
 		"Successful to write message",
@@ -65,4 +67,5 @@ func (s *Service) SendNewMsg(key, value string) {
 		zap.Int64("offset", o),
 		zap.Int32("partition", p),
 	)
+	return nil
 }

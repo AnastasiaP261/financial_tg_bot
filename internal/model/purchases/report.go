@@ -67,7 +67,8 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 	span, ctx := opentracing.StartSpanFromContext(ctx, "report")
 	defer span.Finish()
 
-	from, err := fromTime(time.Now(), period)
+	now := time.Now()
+	from, err := fromTime(now, period)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "fromTime")
 	}
@@ -75,6 +76,15 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 	info, err := m.Repo.GetUserInfo(ctx, userID)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "Repo.GetUserInfo")
+	}
+
+	{
+		fromy, fromm, fromd := from.Date()
+		toy, tom, tod := now.Date()
+		_ = m.BrokerMsgCreator.SendNewMsg(
+			strconv.FormatInt(userID, 10),
+			fmt.Sprintf("%d%02d%02d-%d%02d%02d", fromy, fromm, fromd, toy, tom, tod),
+		)
 	}
 
 	reportItems, err := m.getPurchasesReportFromDate(ctx, from, userID, info)

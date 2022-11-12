@@ -57,7 +57,7 @@ type ReportsStore interface {
 }
 
 type BrokerMsgCreator interface {
-	SendNewMsg(key string, value string)
+	SendNewMsg(key string, value string) error
 }
 
 type Model struct {

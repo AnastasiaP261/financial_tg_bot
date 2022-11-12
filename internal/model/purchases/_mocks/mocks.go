@@ -435,9 +435,10 @@ func (m *MockBrokerMsgCreator) EXPECT() *MockBrokerMsgCreatorMockRecorder {
 }
 
 // SendNewMsg mocks base method.
-func (m *MockBrokerMsgCreator) SendNewMsg(key, value string) {
+func (m *MockBrokerMsgCreator) SendNewMsg(key string, value string) error {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SendNewMsg", key, value)
+	return nil
 }
 
 // SendNewMsg indicates an expected call of SendNewMsg.
