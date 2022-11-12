@@ -31,8 +31,8 @@ type PurchasesModel interface {
 }
 
 type StatusStore interface {
-	Set(ctx context.Context, key string, value string) error
-	Get(ctx context.Context, key string) (string, error)
+	SetString(ctx context.Context, key string, value string) error
+	GetString(ctx context.Context, key string) (string, error)
 	Delete(ctx context.Context, key string) error
 }
 

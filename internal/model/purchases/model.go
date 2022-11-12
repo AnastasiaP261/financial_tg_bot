@@ -50,16 +50,24 @@ type ExchangeRateGetter interface {
 	GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (RateToRUB, error)
 }
 
+type ReportsStore interface {
+	SetReport(ctx context.Context, key string, value Report) error
+	GetReport(ctx context.Context, key string) (Report, error)
+	Delete(ctx context.Context, key string) error
+}
+
 type Model struct {
 	Repo               Repo
 	ChartDrawer        ChartDrawer
 	ExchangeRatesModel ExchangeRateGetter
+	ReportsStore       ReportsStore
 }
 
-func New(repo Repo, drawer ChartDrawer, exchangeRatesModel ExchangeRateGetter) *Model {
+func New(repo Repo, drawer ChartDrawer, exchangeRatesModel ExchangeRateGetter, reportsStore ReportsStore) *Model {
 	return &Model{
 		Repo:               repo,
 		ChartDrawer:        drawer,
 		ExchangeRatesModel: exchangeRatesModel,
+		ReportsStore:       reportsStore,
 	}
 }

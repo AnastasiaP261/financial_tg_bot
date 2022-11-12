@@ -10,7 +10,7 @@ import (
 )
 
 func Test_packagingByCategory(t *testing.T) {
-	m := New(nil, nil, nil)
+	m := New(nil, nil, nil, nil)
 
 	res, err := m.packagingByCategory([]Purchase{
 		{PurchaseCategory: "cat1", Summa: 100, RateToRUB: RateToRUB{

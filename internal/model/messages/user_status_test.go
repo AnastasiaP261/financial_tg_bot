@@ -15,7 +15,7 @@ func TestModel_getUserInfo(t *testing.T) {
 	_, _, statusStore := mocksUp(t)
 	model := New(nil, nil, statusStore)
 
-	statusStore.EXPECT().Get(ctx, "123").Return("eyJzdGF0dXMiOiJzb21lU3RhdHVzIiwiY29tbWFuZCI6Ii9jb21tYW5kIDEyMyJ9", nil)
+	statusStore.EXPECT().GetString(ctx, "123status").Return("eyJzdGF0dXMiOiJzb21lU3RhdHVzIiwiY29tbWFuZCI6Ii9jb21tYW5kIDEyMyJ9", nil)
 
 	info, err := model.getUserInfo(ctx, 123)
 
@@ -33,7 +33,7 @@ func TestModel_setUserInfo(t *testing.T) {
 		_, _, statusStore := mocksUp(t)
 		model := New(nil, nil, statusStore)
 
-		statusStore.EXPECT().Set(ctx, "123", "eyJzdGF0dXMiOiJzb21lU3RhdHVzIiwiY29tbWFuZCI6Ii9jb21tYW5kIDEyMyJ9").Return(nil)
+		statusStore.EXPECT().SetString(ctx, "123status", "eyJzdGF0dXMiOiJzb21lU3RhdHVzIiwiY29tbWFuZCI6Ii9jb21tYW5kIDEyMyJ9").Return(nil)
 
 		err := model.setUserInfo(ctx, 123, userInfo{
 			Status:  "someStatus",
@@ -49,7 +49,7 @@ func TestModel_setUserInfo(t *testing.T) {
 		_, _, statusStore := mocksUp(t)
 		model := New(nil, nil, statusStore)
 
-		statusStore.EXPECT().Delete(ctx, "123").Return(nil)
+		statusStore.EXPECT().Delete(ctx, "123status").Return(nil)
 
 		err := model.setUserInfo(ctx, 123, userInfo{})
 

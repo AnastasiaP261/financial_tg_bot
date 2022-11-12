@@ -129,6 +129,11 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		return ExpensesAndLimit{}, errors.Wrap(err, "Repo.AddPurchase")
 	}
 
+	// если не удалить отчет уже устаревший отчет, то при создании отчета нужно будет проверять,
+	// что дата последней совершенной траты не свежее чем дата создания отчета. В таком случае
+	// использование кеша будет абсолютно неэффективным, так как все равно придется сделать запрос в бд
+	m.ReportsStore.Delete(ctx, createKeyForReportsStore(userID)) // nolint: errcheck
+
 	return expAndLim, nil
 }
 

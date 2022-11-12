@@ -344,3 +344,69 @@ func (mr *MockExchangeRateGetterMockRecorder) GetExchangeRateToRUBFromDate(ctx, 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExchangeRateToRUBFromDate", reflect.TypeOf((*MockExchangeRateGetter)(nil).GetExchangeRateToRUBFromDate), ctx, y, m, d)
 }
+
+// MockReportsStore is a mock of ReportsStore interface.
+type MockReportsStore struct {
+	ctrl     *gomock.Controller
+	recorder *MockReportsStoreMockRecorder
+}
+
+// MockReportsStoreMockRecorder is the mock recorder for MockReportsStore.
+type MockReportsStoreMockRecorder struct {
+	mock *MockReportsStore
+}
+
+// NewMockReportsStore creates a new mock instance.
+func NewMockReportsStore(ctrl *gomock.Controller) *MockReportsStore {
+	mock := &MockReportsStore{ctrl: ctrl}
+	mock.recorder = &MockReportsStoreMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockReportsStore) EXPECT() *MockReportsStoreMockRecorder {
+	return m.recorder
+}
+
+// Delete mocks base method.
+func (m *MockReportsStore) Delete(ctx context.Context, key string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, key)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockReportsStoreMockRecorder) Delete(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockReportsStore)(nil).Delete), ctx, key)
+}
+
+// GetReport mocks base method.
+func (m *MockReportsStore) GetReport(ctx context.Context, key string) (purchases.Report, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetReport", ctx, key)
+	ret0, _ := ret[0].(purchases.Report)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetReport indicates an expected call of GetReport.
+func (mr *MockReportsStoreMockRecorder) GetReport(ctx, key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReport", reflect.TypeOf((*MockReportsStore)(nil).GetReport), ctx, key)
+}
+
+// SetReport mocks base method.
+func (m *MockReportsStore) SetReport(ctx context.Context, key string, value purchases.Report) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetReport", ctx, key, value)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetReport indicates an expected call of SetReport.
+func (mr *MockReportsStoreMockRecorder) SetReport(ctx, key, value interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetReport", reflect.TypeOf((*MockReportsStore)(nil).SetReport), ctx, key, value)
+}
