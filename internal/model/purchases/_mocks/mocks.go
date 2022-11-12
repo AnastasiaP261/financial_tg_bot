@@ -410,3 +410,38 @@ func (mr *MockReportsStoreMockRecorder) SetReport(ctx, key, value interface{}) *
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetReport", reflect.TypeOf((*MockReportsStore)(nil).SetReport), ctx, key, value)
 }
+
+// MockBrokerMsgCreator is a mock of BrokerMsgCreator interface.
+type MockBrokerMsgCreator struct {
+	ctrl     *gomock.Controller
+	recorder *MockBrokerMsgCreatorMockRecorder
+}
+
+// MockBrokerMsgCreatorMockRecorder is the mock recorder for MockBrokerMsgCreator.
+type MockBrokerMsgCreatorMockRecorder struct {
+	mock *MockBrokerMsgCreator
+}
+
+// NewMockBrokerMsgCreator creates a new mock instance.
+func NewMockBrokerMsgCreator(ctrl *gomock.Controller) *MockBrokerMsgCreator {
+	mock := &MockBrokerMsgCreator{ctrl: ctrl}
+	mock.recorder = &MockBrokerMsgCreatorMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockBrokerMsgCreator) EXPECT() *MockBrokerMsgCreatorMockRecorder {
+	return m.recorder
+}
+
+// SendNewMsg mocks base method.
+func (m *MockBrokerMsgCreator) SendNewMsg(key, value string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SendNewMsg", key, value)
+}
+
+// SendNewMsg indicates an expected call of SendNewMsg.
+func (mr *MockBrokerMsgCreatorMockRecorder) SendNewMsg(key, value interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendNewMsg", reflect.TypeOf((*MockBrokerMsgCreator)(nil).SendNewMsg), key, value)
+}

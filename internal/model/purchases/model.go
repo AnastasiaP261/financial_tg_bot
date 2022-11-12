@@ -56,18 +56,24 @@ type ReportsStore interface {
 	Delete(ctx context.Context, key string) error
 }
 
+type BrokerMsgCreator interface {
+	SendNewMsg(key string, value string)
+}
+
 type Model struct {
 	Repo               Repo
 	ChartDrawer        ChartDrawer
 	ExchangeRatesModel ExchangeRateGetter
 	ReportsStore       ReportsStore
+	BrokerMsgCreator   BrokerMsgCreator
 }
 
-func New(repo Repo, drawer ChartDrawer, exchangeRatesModel ExchangeRateGetter, reportsStore ReportsStore) *Model {
+func New(repo Repo, drawer ChartDrawer, exchangeRatesModel ExchangeRateGetter, reportsStore ReportsStore, producer BrokerMsgCreator) *Model {
 	return &Model{
 		Repo:               repo,
 		ChartDrawer:        drawer,
 		ExchangeRatesModel: exchangeRatesModel,
 		ReportsStore:       reportsStore,
+		BrokerMsgCreator:   producer,
 	}
 }

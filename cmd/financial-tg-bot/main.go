@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka/sync_producer"
 	"log"
 	"net/http"
 	"os"
@@ -65,16 +66,21 @@ func main() {
 	msgHandler := initTgMsgHandler(config)
 	fixerClient := fixer.New(ctx, config)
 
-	// MODELS
-	chartDrawingModel := chart_drawing.New()
-	exchangesRatesModel := exchange_rates.New(fixerClient)
-	purchasesModel := purchases.New(db, chartDrawingModel, exchangesRatesModel, redis)
-
-	msgModel := messages.New(msgHandler, purchasesModel, redis)
-
 	// INFRA
 	logger := logs.InitLogger()
 	tracing.InitTracing(logger, serviceName)
+	producer, err := sync_producer.New()
+	if err != nil {
+		log.Fatal("producer create failed:", err)
+	}
+	defer producer.Close() // nolint: errcheck
+
+	// MODELS
+	chartDrawingModel := chart_drawing.New()
+	exchangesRatesModel := exchange_rates.New(fixerClient)
+	purchasesModel := purchases.New(db, chartDrawingModel, exchangesRatesModel, redis, producer)
+
+	msgModel := messages.New(msgHandler, purchasesModel, redis)
 
 	// ПОЕХАЛИ!!
 	errG, ctx := errgroup.WithContext(ctx)
