@@ -16,6 +16,32 @@ DEV_CREDS := postgresql://$(POSTGRES_USER):$(POSTGRES_PASS)@$(POSTGRES_HOST):543
 DEV_DBNAME := finance
 DEV_DBCONTAINER := postgres
 
+.PHONY: logs
+logs:
+	mkdir -p logs/data
+	touch ${CURDIR}/logs/data/log.txt
+	touch ${CURDIR}/logs/data/offsets.yaml
+	sudo chmod -R 777 logs/data
+	sudo docker-compose up -d filed
+
+.PHONY: tracing
+tracing:
+	sudo docker-compose up -d jaeger
+
+.PHONY: metrics
+metrics:
+	mkdir -p metrics/data
+	sudo chmod -R 777 metrics/data
+	sudo docker-compose up -d grafana
+
+pull:
+	sudo docker pull prom/prometheus
+	sudo docker pull grafana/grafana-oss
+	sudo docker pull ozonru/file.d:latest-linux-amd64
+	sudo docker pull elasticsearch:7.17.6
+	sudo docker pull graylog/graylog:4.3
+	sudo docker pull jaegertracing/all-in-one:1.18
+
 all: format generate build test lint
 
 build: bindir
@@ -28,8 +54,9 @@ test:
 integration_test:
 	go clean -testcache && go test ./... -tags=integration_test
 
-run:
-	go run ./cmd/bot LOCAL
+local:
+	mkdir -p logs/data
+	go run ./cmd/bot LOCAL 2>&1 | tee ${CURDIR}/logs/data/log.txt
 
 generate: install-mockgen
 	${MOCKGEN} -source=internal/model/messages/model.go -destination=internal/model/messages/_mocks/mocks.go
@@ -80,4 +107,4 @@ docker-run:
 	sudo tmux new-session \; \
       		send-keys 'docker-compose up' C-m \; \
       		split-window -h \; \
-      		send-keys 'sleep 70 && make dev-db-data' C-m \;
+      		send-keys 'sleep 20 && make dev-db-data' C-m \;

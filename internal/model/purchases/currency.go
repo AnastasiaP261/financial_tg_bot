@@ -2,10 +2,13 @@ package purchases
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"strings"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"go.uber.org/zap"
 )
 
 // Currency тип валюты
@@ -96,6 +99,9 @@ func (m *Model) rubToCurrentCurrency(userCurrency Currency, sum float64, rates R
 }
 
 func (m *Model) getTodayRates(ctx context.Context, year, month, day int) (RateToRUB, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "get today rates")
+	defer span.Finish()
+
 	var ok bool
 	var rates RateToRUB
 
@@ -112,7 +118,11 @@ func (m *Model) getTodayRates(ctx context.Context, year, month, day int) (RateTo
 		go func() {
 			err := m.Repo.AddRate(ctx, year, month, day, rates)
 			if err != nil {
-				log.Printf("[ERROR] rate has not been added to the database, date:%d.%02d.%02d, rate:%#v", year, month, day, rates)
+				logs.Error(
+					"rate has not been added to the database",
+					zap.String("date", fmt.Sprintf("%d.%02d.%02d", year, month, day)),
+					zap.Any("rates", rates),
+				)
 			}
 		}()
 	}

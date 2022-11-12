@@ -7,14 +7,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const (
-	envLocal = "LOCAL"
-	envProd  = "PROD"
-
-	configFileLocal = "config/config_local.yaml"
-	configFileProd  = "config/config_prod.yaml"
-)
-
 type Config struct {
 	Token         string `yaml:"token"`
 	FixerAPIToken string `yaml:"fixer-api-token"`
@@ -30,18 +22,10 @@ type Config struct {
 
 type Service struct {
 	config Config
-	env    string
 }
 
-func New(env string) (*Service, error) {
-	s := &Service{env: env}
-
-	var configFile string
-	if env == envLocal {
-		configFile = configFileLocal
-	} else if env == envProd {
-		configFile = configFileProd
-	}
+func New(configFile string) (*Service, error) {
+	s := &Service{}
 
 	rawYAML, err := os.ReadFile(configFile)
 	if err != nil {

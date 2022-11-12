@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/normalize"
 )
@@ -17,6 +18,9 @@ type User struct {
 }
 
 func (m *Model) ChangeUserCurrency(ctx context.Context, userID int64, currency Currency) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "change user currency")
+	defer span.Finish()
+
 	err := m.Repo.ChangeCurrency(ctx, userID, currency)
 	if err != nil {
 		return errors.Wrap(err, "Repo.ChangeCurrency")
@@ -25,6 +29,9 @@ func (m *Model) ChangeUserCurrency(ctx context.Context, userID int64, currency C
 }
 
 func (m *Model) ChangeUserLimit(ctx context.Context, userID int64, rawLimit string) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "change user limit")
+	defer span.Finish()
+
 	limitCurrency, err := strconv.ParseFloat(rawLimit, 64)
 	if err != nil {
 		return ErrLimitParsing
@@ -55,6 +62,9 @@ func (m *Model) ChangeUserLimit(ctx context.Context, userID int64, rawLimit stri
 
 // AddCategoryToUser добавить новую категорию пользователю
 func (m *Model) AddCategoryToUser(ctx context.Context, userID int64, category string) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "add category to user")
+	defer span.Finish()
+
 	if err := m.Repo.AddCategoryToUser(ctx, userID, normalize.Category(category)); err != nil {
 		return errors.Wrap(err, "Repo.AddCategoryToUser")
 	}
@@ -62,6 +72,9 @@ func (m *Model) AddCategoryToUser(ctx context.Context, userID int64, category st
 }
 
 func (m *Model) GetUserCategories(ctx context.Context, userID int64) ([]string, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "get user categories")
+	defer span.Finish()
+
 	res, err := m.Repo.GetUserCategories(ctx, userID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Repo.AddCategoryToUser")

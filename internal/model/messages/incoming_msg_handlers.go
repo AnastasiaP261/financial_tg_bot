@@ -9,54 +9,54 @@ import (
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
-func (m *Model) msgReport(ctx context.Context, msg Message) error {
-	res := report.FindStringSubmatch(msg.Text)
+func (m *Model) msgReport(ctx context.Context, Send Message) error {
+	res := report.FindStringSubmatch(Send.Text)
 	if len(res) < 2 {
-		return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage(ErrTxtInvalidInput, Send.UserID)
 	}
 
 	period, err := m.purchasesModel.ToPeriod(res[1])
 	if err != nil {
-		return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage(ErrTxtInvalidInput, Send.UserID)
 	}
 
-	reportTxt, img, err := m.purchasesModel.Report(ctx, period, msg.UserID)
+	reportTxt, img, err := m.purchasesModel.Report(ctx, period, Send.UserID)
 	if err != nil {
 		err = errors.Wrap(err, "purchasesModel.Report")
-		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 	}
 
-	if err = m.tgClient.SendMessage(reportTxt, msg.UserID, msg.UserName); err != nil {
+	if err = m.tgClient.SendMessage(reportTxt, Send.UserID); err != nil {
 		err = errors.Wrap(err, "tgClient.SendMessage")
-		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 	}
 
-	return m.tgClient.SendImage(img, msg.UserID, msg.UserName)
+	return m.tgClient.SendImage(img, Send.UserID)
 }
 
-func (m *Model) msgAddCategory(ctx context.Context, msg Message) error {
-	res := addCategory.FindStringSubmatch(msg.Text)
+func (m *Model) msgAddCategory(ctx context.Context, Send Message) error {
+	res := addCategory.FindStringSubmatch(Send.Text)
 	if len(res) < 2 {
-		return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage(ErrTxtInvalidInput, Send.UserID)
 	}
 
 	err := m.purchasesModel.AddCategory(ctx, res[1])
 	if err != nil {
 		err = errors.Wrap(err, "purchasesModel.AddCategory")
-		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 	}
-	return m.tgClient.SendMessage(ScsTxtCategoryCreated, msg.UserID, msg.UserName)
+	return m.tgClient.SendMessage(ScsTxtCategoryCreated, Send.UserID)
 }
 
-func (m *Model) msgAddPurchase(ctx context.Context, msg Message, sum, category, date string) error {
-	expAndLim, err := m.purchasesModel.AddPurchase(ctx, msg.UserID, sum, category, date)
+func (m *Model) msgAddPurchase(ctx context.Context, Send Message, sum, category, date string) error {
+	expAndLim, err := m.purchasesModel.AddPurchase(ctx, Send.UserID, sum, category, date)
 	if err != nil {
 		err = errors.Wrap(err, "purchasesModel.AddPurchase")
 
 		if errors.Is(err, purchases.ErrCategoryNotExist) || errors.Is(err, purchases.ErrUserHasntCategory) {
 			categories, err := m.purchasesModel.GetAllCategories(ctx)
 			if err != nil {
-				return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+				return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 			}
 
 			buttons := make([]string, len(categories))
@@ -66,24 +66,23 @@ func (m *Model) msgAddPurchase(ctx context.Context, msg Message, sum, category, 
 			sort.Strings(buttons)
 			buttons = append(buttons, ButtonTxtCreateCategory)
 
-			if err = m.setUserInfo(ctx, msg.UserID, userInfo{
+			if err = m.setUserInfo(ctx, Send.UserID, userInfo{
 				Status:  statusNonExistentCategory,
-				Command: msg.Text,
+				Command: Send.Text,
 			}); err != nil {
-				return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+				return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 			}
 
-			return m.tgClient.SendKeyboard("Такой категории у вас еще нет, выберите одну из предложенных категорий или создайте свою с помощью команды /category",
-				msg.UserID, buttons, msg.UserName)
+			return m.tgClient.SendKeyboard("Такой категории у вас еще нет, выберите одну из предложенных категорий или создайте свою с помощью команды /category", Send.UserID, buttons)
 		}
 
-		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 	}
 
 	userCur, err := m.purchasesModel.CurrencyToStr(expAndLim.Currency)
 	if err != nil {
 		err = errors.Wrap(err, "purchasesModel.CurrencyToStr")
-		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 	}
 
 	txt := ScsTxtPurchaseAdded
@@ -95,29 +94,29 @@ func (m *Model) msgAddPurchase(ctx context.Context, msg Message, sum, category, 
 		}
 	}
 
-	return m.tgClient.SendMessage(txt, msg.UserID, msg.UserName)
+	return m.tgClient.SendMessage(txt, Send.UserID)
 }
 
-func (m *Model) msgCurrency(ctx context.Context, msg Message, rawCY string) error {
+func (m *Model) msgCurrency(ctx context.Context, Send Message, rawCY string) error {
 	cy, err := m.purchasesModel.StrToCurrency(rawCY)
 	if err != nil {
-		return m.tgClient.SendMessage(ErrTxtInvalidCurrency, msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage(ErrTxtInvalidCurrency, Send.UserID)
 	}
 
-	if err = m.purchasesModel.ChangeUserCurrency(ctx, msg.UserID, cy); err != nil {
+	if err = m.purchasesModel.ChangeUserCurrency(ctx, Send.UserID, cy); err != nil {
 		err = errors.Wrap(err, "purchasesModel.ChangeUserCurrency")
-		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 	}
-	return m.tgClient.SendMessage(ScsTxtCurrencyChanged, msg.UserID, msg.UserName)
+	return m.tgClient.SendMessage(ScsTxtCurrencyChanged, Send.UserID)
 }
 
-func (m *Model) msgLimit(ctx context.Context, msg Message, limit string) error {
-	if err := m.purchasesModel.ChangeUserLimit(ctx, msg.UserID, limit); err != nil {
+func (m *Model) msgLimit(ctx context.Context, Send Message, limit string) error {
+	if err := m.purchasesModel.ChangeUserLimit(ctx, Send.UserID, limit); err != nil {
 		if errors.Is(err, purchases.ErrLimitParsing) {
-			return m.tgClient.SendMessage(ErrTxtInvalidInput, msg.UserID, msg.UserName)
+			return m.tgClient.SendMessage(ErrTxtInvalidInput, Send.UserID)
 		}
 		err = errors.Wrap(err, "purchasesModel.ChangeUserLimit")
-		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), msg.UserID, msg.UserName)
+		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 	}
-	return m.tgClient.SendMessage(ScsTxtLimitChanged, msg.UserID, msg.UserName)
+	return m.tgClient.SendMessage(ScsTxtLimitChanged, Send.UserID)
 }

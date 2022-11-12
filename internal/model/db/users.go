@@ -292,7 +292,7 @@ func (s *Service) GetUserCategories(ctx context.Context, userID int64) ([]string
 		Select(tblCategoriesColID, tblCategoriesColCategoryName).
 		From(tblCategories).
 		Where(sq.Eq{
-			tblCategoriesColID: userInfo.CategoryIDs,
+			tblCategoriesColID: []int64(userInfo.CategoryIDs),
 		}).
 		ToSql()
 	if err != nil {

@@ -6,3 +6,7 @@
 !/config/config_prod.example.yaml
 !/config/pg.example.env
 !/config/redis.example.env
+
+/logs/data
+/metrics/data
+/tracing/data

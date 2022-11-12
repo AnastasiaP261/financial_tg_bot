@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 )
 
@@ -52,6 +53,9 @@ type Segment struct {
 
 // Report создание отчета
 func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt string, img []byte, err error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "report")
+	defer span.Finish()
+
 	from, err := fromTime(time.Now(), period)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "fromTime")
