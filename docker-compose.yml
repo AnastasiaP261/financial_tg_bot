@@ -20,7 +20,7 @@ services:
       - ./config:/config
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-bot
       target: builder
     restart: unless-stopped
     depends_on:
@@ -40,19 +40,17 @@ services:
       - ./config:/config
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-report
       target: builder
     restart: unless-stopped
     depends_on:
       - pg
-      - redis
 #      - filed
       - grafana
       - jaeger
       - kafka
     links:
       - pg
-      - redis
 
   # ------------LOGS----------
 #  filed:
