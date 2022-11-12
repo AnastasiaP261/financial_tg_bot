@@ -41,6 +41,8 @@ pull:
 	sudo docker pull elasticsearch:7.17.6
 	sudo docker pull graylog/graylog:4.3
 	sudo docker pull jaegertracing/all-in-one:1.18
+	sudo docker pull wurstmeister/kafka
+	sudo docker pull wurstmeister/zookeeper
 
 all: format generate build test lint
 
@@ -56,7 +58,10 @@ integration_test:
 
 local:
 	mkdir -p logs/data
-	go run ./cmd/bot LOCAL 2>&1 | tee ${CURDIR}/logs/data/log.txt
+	sudo tmux new-session \; \
+                send-keys 'go run ./cmd/financial-tg-bot LOCAL 2>&1 | tee ${CURDIR}/logs/data/log.txt' C-m \; \
+                split-window -h \; \
+				send-keys 'go run ./cmd/financial-reports LOCAL 2>&1 | tee ${CURDIR}/logs/data/log.txt' C-m \;
 
 generate: install-mockgen
 	${MOCKGEN} -source=internal/model/messages/model.go -destination=internal/model/messages/_mocks/mocks.go

@@ -29,6 +29,27 @@ services:
 #      - filed
       - grafana
       - jaeger
+      - kafka
+      - fin-reports
+    links:
+      - pg
+      - redis
+
+  fin-reports:
+    volumes:
+      - ./config:/config
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    restart: unless-stopped
+    depends_on:
+      - pg
+      - redis
+#      - filed
+      - grafana
+      - jaeger
+      - kafka
     links:
       - pg
       - redis
@@ -117,4 +138,24 @@ services:
       - 14268:14268
       - 9411:9411
 
-
+  # ----------------BROKERS---------------
+  kafka:
+    image: wurstmeister/kafka
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    links:
+      - zookeeper
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: "127.0.0.1"
+      KAFKA_ADVERTISED_PORT: "9092"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_CREATE_TOPICS: "reports-topic:2:1"
+    depends_on:
+      - zookeeper
+    container_name: example-kafka
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    container_name: example-zookeeper

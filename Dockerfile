@@ -8,5 +8,5 @@ COPY . ./
 
 RUN go mod download
 RUN go mod tidy
-RUN go build -v -o /bin/program ./cmd/bot/main.go
+RUN go build -v -o /bin/program ./cmd/financial-tg-bot/main.go
 CMD ["/bin/program", "PROD"]
