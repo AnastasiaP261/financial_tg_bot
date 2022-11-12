@@ -50,7 +50,7 @@ func (s *Service) Close() error {
 func (s *Service) SendNewMsg(key, value string) {
 	// Inject info into message
 	msg := sarama.ProducerMessage{
-		Topic: kafka.KafkaTopic,
+		Topic: kafka.Topic,
 		Key:   sarama.StringEncoder(key),
 		Value: sarama.StringEncoder(value),
 	}
@@ -61,7 +61,7 @@ func (s *Service) SendNewMsg(key, value string) {
 	}
 	logs.Info(
 		"Successful to write message",
-		zap.String("topic", kafka.KafkaTopic),
+		zap.String("topic", kafka.Topic),
 		zap.Int64("offset", o),
 		zap.Int32("partition", p),
 	)

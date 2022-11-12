@@ -1,6 +1,8 @@
 package kafka
 
 var (
-	KafkaTopic  = "example-topic"
-	BrokersList = []string{"localhost:9092"}
+	Topic         = "reports-topic"
+	BrokersList   = []string{"localhost:9092"}
+	ConsumerGroup = "consumer-group"
+	Assignor      = "range"
 )
