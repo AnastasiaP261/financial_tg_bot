@@ -4,11 +4,11 @@ package db
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"testing"
 
 	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/stretchr/testify/assert"
-	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 func Test_AddRate(t *testing.T) {
@@ -18,7 +18,7 @@ func Test_AddRate(t *testing.T) {
 	s, close := newTestDB(ctx, t)
 	defer close()
 
-	err := s.AddRate(ctx, 2022, 01, 01, model.RateToRUB{USD: 2, EUR: 3, CNY: 4})
+	err := s.AddRate(ctx, 2022, 01, 01, currency.RateToRUB{USD: 2, EUR: 3, CNY: 4})
 
 	assert.NoError(t, err)
 
@@ -41,7 +41,7 @@ func Test_GetRate(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.False(t, ok)
-		assert.EqualValues(t, model.RateToRUB{}, res)
+		assert.EqualValues(t, currency.RateToRUB{}, res)
 	})
 
 	fixtures, err := testfixtures.New(
@@ -60,6 +60,6 @@ func Test_GetRate(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.True(t, ok)
-		assert.EqualValues(t, model.RateToRUB{EUR: 2, USD: 3, CNY: 4}, res)
+		assert.EqualValues(t, currency.RateToRUB{EUR: 2, USD: 3, CNY: 4}, res)
 	})
 }

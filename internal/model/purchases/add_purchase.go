@@ -2,6 +2,7 @@ package purchases
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"strconv"
 	"strings"
 	"time"
@@ -31,10 +32,10 @@ type CategoryRow struct {
 }
 
 type ExpensesAndLimit struct {
-	Limit         float64  // установленный пользователем лимит (в выбранной валюте)
-	Expenses      float64  // сколько он уже потратил за месяц (если лимит установлен) (в выбранной валюте)
-	Currency      Currency // выбранная валюта
-	LimitExceeded bool     // превышен ли лимит
+	Limit         float64           // установленный пользователем лимит (в выбранной валюте)
+	Expenses      float64           // сколько он уже потратил за месяц (если лимит установлен) (в выбранной валюте)
+	Currency      currency.Currency // выбранная валюта
+	LimitExceeded bool              // превышен ли лимит
 }
 
 // AddPurchase добавляет трату.
@@ -80,7 +81,7 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 	}
 
 	// переводим сумму траты которую он ввел в рубли
-	rates := RateToRUB{}
+	rates := currency.RateToRUB{}
 	if rawDate != "" {
 		date, err = time.Parse("02.01.2006", rawDate)
 		if err != nil {
@@ -106,7 +107,7 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		return ExpensesAndLimit{}, errors.Wrap(err, "Repo.GetUserInfo")
 	}
 
-	sumRUB, err := m.toRUB(info.Currency, sumCurrency, rates)
+	sumRUB, err := currency.ToRUB(info.Currency, sumCurrency, rates)
 	if err != nil {
 		return ExpensesAndLimit{}, errors.Wrap(err, "toRUB")
 	}
@@ -160,7 +161,7 @@ func RawDateToYMD(rawDate string) (year, month, day int, err error) {
 	return int(y1), int(m1), int(d1), nil
 }
 
-func (m *Model) getExpensesAndLimit(ctx context.Context, userID int64, userCurrency Currency, userLimit float64, purchaseSum float64, rates RateToRUB) (ExpensesAndLimit, error) {
+func (m *Model) getExpensesAndLimit(ctx context.Context, userID int64, userCurrency currency.Currency, userLimit float64, purchaseSum float64, rates currency.RateToRUB) (ExpensesAndLimit, error) {
 	expAndLim := ExpensesAndLimit{Limit: userLimit}
 	// получаем траты юзера за текущий месяц в рублях
 	expRUB, err := m.Repo.GetUserPurchasesSumFromMonth(ctx, userID, time.Now())
@@ -168,12 +169,12 @@ func (m *Model) getExpensesAndLimit(ctx context.Context, userID int64, userCurre
 		return ExpensesAndLimit{}, errors.Wrap(err, "Repo.GetUserPurchasesSumFromMonth")
 	}
 
-	limit, err := m.rubToCurrentCurrency(userCurrency, userLimit, rates)
+	limit, err := currency.RubToCurrentCurrency(userCurrency, userLimit, rates)
 	if err != nil {
 		return ExpensesAndLimit{}, errors.Wrap(err, "getting limit from rubToCurrentCurrency")
 	}
 
-	expenses, err := m.rubToCurrentCurrency(userCurrency, expRUB, rates)
+	expenses, err := currency.RubToCurrentCurrency(userCurrency, expRUB, rates)
 	if err != nil {
 		return ExpensesAndLimit{}, errors.Wrap(err, "getting expenses from rubToCurrentCurrency")
 	}

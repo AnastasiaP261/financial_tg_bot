@@ -2,6 +2,7 @@ package purchases
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"strconv"
 	"time"
 
@@ -12,12 +13,12 @@ import (
 
 type User struct {
 	UserID     int64
-	Currency   Currency // выбранная пользователем валюта
+	Currency   currency.Currency // выбранная пользователем валюта
 	Categories []int64
 	Limit      float64
 }
 
-func (m *Model) ChangeUserCurrency(ctx context.Context, userID int64, currency Currency) error {
+func (m *Model) ChangeUserCurrency(ctx context.Context, userID int64, currency currency.Currency) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "change user currency")
 	defer span.Finish()
 
@@ -48,7 +49,7 @@ func (m *Model) ChangeUserLimit(ctx context.Context, userID int64, rawLimit stri
 		return errors.Wrap(err, "getTodayRates")
 	}
 
-	limit, err := m.toRUB(info.Currency, limitCurrency, rates)
+	limit, err := currency.ToRUB(info.Currency, limitCurrency, rates)
 	if err != nil {
 		return errors.Wrap(err, "limit to rub")
 	}

@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 	"database/sql"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
-	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 // rate курс валют к RUB
@@ -17,7 +17,7 @@ type rate struct {
 }
 
 // GetRate проверяет есть ли в базе курсы валют за указанную дату. если есть, возвращает true и их значения
-func (s *Service) GetRate(ctx context.Context, y, m, d int) (bool, model.RateToRUB, error) {
+func (s *Service) GetRate(ctx context.Context, y, m, d int) (bool, currency.RateToRUB, error) {
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Select(tblRateColCNYRatio, tblRateColUSDRatio, tblRateColEURRatio).
 		From(tblRate).
@@ -25,31 +25,31 @@ func (s *Service) GetRate(ctx context.Context, y, m, d int) (bool, model.RateToR
 		ToSql()
 
 	if err != nil {
-		return false, model.RateToRUB{}, errors.Wrap(err, "query creating error")
+		return false, currency.RateToRUB{}, errors.Wrap(err, "query creating error")
 	}
 
 	rows, err := s.db.QueryxContext(ctx, q, args...)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, model.RateToRUB{}, nil
+			return false, currency.RateToRUB{}, nil
 		}
-		return false, model.RateToRUB{}, errors.Wrap(err, "db.QueryxContext")
+		return false, currency.RateToRUB{}, errors.Wrap(err, "db.QueryxContext")
 	}
 
 	var r rate
 	if err = readX(rows, &r); err != nil {
-		return false, model.RateToRUB{}, errors.Wrap(err, "readX")
+		return false, currency.RateToRUB{}, errors.Wrap(err, "readX")
 	}
 
 	emptyRates := rate{}
 	if r == emptyRates {
-		return false, model.RateToRUB{}, nil
+		return false, currency.RateToRUB{}, nil
 	}
 
-	return true, model.RateToRUB(r), nil
+	return true, currency.RateToRUB(r), nil
 }
 
-func (s *Service) AddRate(ctx context.Context, y, m, d int, rates model.RateToRUB) error {
+func (s *Service) AddRate(ctx context.Context, y, m, d int, rates currency.RateToRUB) error {
 	q, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Insert(tblRate).
 		Columns(tblRateColDate, tblRateColEURRatio, tblRateColUSDRatio, tblRateColCNYRatio).

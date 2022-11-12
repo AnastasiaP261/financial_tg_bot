@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka/consumer"
 	"log"
 	"net/http"
@@ -45,6 +46,10 @@ func main() {
 	_, err = db.New(ctx, config)
 	if err != nil {
 		log.Fatal("database init failed:", err)
+	}
+	_, err = redis.New(ctx, config)
+	if err != nil {
+		log.Fatal("redis init failed:", err)
 	}
 
 	// MODELS

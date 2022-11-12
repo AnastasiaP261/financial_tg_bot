@@ -3,6 +3,7 @@
 package purchases
 
 import (
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"testing"
 	"time"
 
@@ -13,32 +14,32 @@ func Test_packagingByCategory(t *testing.T) {
 	m := New(nil, nil, nil, nil, nil)
 
 	res, err := m.packagingByCategory([]Purchase{
-		{PurchaseCategory: "cat1", Summa: 100, RateToRUB: RateToRUB{
+		{PurchaseCategory: "cat1", Summa: 100, RateToRUB: currency.RateToRUB{
 			USD: 2,
 			EUR: 2,
 			CNY: 2,
 		}},
-		{PurchaseCategory: "cat2", Summa: 150, RateToRUB: RateToRUB{
+		{PurchaseCategory: "cat2", Summa: 150, RateToRUB: currency.RateToRUB{
 			USD: 2,
 			EUR: 2,
 			CNY: 2,
 		}},
-		{PurchaseCategory: "cat1", Summa: 50, RateToRUB: RateToRUB{
+		{PurchaseCategory: "cat1", Summa: 50, RateToRUB: currency.RateToRUB{
 			USD: 2,
 			EUR: 2,
 			CNY: 2,
 		}},
-		{PurchaseCategory: "cat3", Summa: 350, RateToRUB: RateToRUB{
+		{PurchaseCategory: "cat3", Summa: 350, RateToRUB: currency.RateToRUB{
 			USD: 2,
 			EUR: 2,
 			CNY: 2,
 		}},
-		{PurchaseCategory: "cat1", Summa: 120, RateToRUB: RateToRUB{
+		{PurchaseCategory: "cat1", Summa: 120, RateToRUB: currency.RateToRUB{
 			USD: 2,
 			EUR: 2,
 			CNY: 2,
 		}},
-	}, RUB)
+	}, currency.RUB)
 
 	assert.NoError(t, err)
 	assert.Equal(t, []ReportItem{

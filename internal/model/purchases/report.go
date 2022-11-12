@@ -2,7 +2,9 @@ package purchases
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"sort"
 	"strconv"
 	"strings"
@@ -43,7 +45,7 @@ type Purchase struct {
 	Summa            float64
 
 	// коэффициенты валют на момент совершения траты
-	RateToRUB
+	currency.RateToRUB
 }
 
 type ReportItem struct {
@@ -62,13 +64,18 @@ type Segment struct {
 	Label string
 }
 
+type ReportRequest struct {
+	FromDate time.Time         `json:"fromDate"`
+	UserID   int64             `json:"userId"`
+	Currency currency.Currency `json:"currency"`
+}
+
 // Report создание отчета
 func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt string, img []byte, err error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "report")
 	defer span.Finish()
 
-	now := time.Now()
-	from, err := fromTime(now, period)
+	from, err := fromTime(time.Now(), period)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "fromTime")
 	}
@@ -79,11 +86,17 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 	}
 
 	{
-		fromy, fromm, fromd := from.Date()
-		toy, tom, tod := now.Date()
+		jsonReq, err := json.Marshal(ReportRequest{
+			FromDate: from,
+			UserID:   userID,
+			Currency: info.Currency,
+		})
+		if err != nil {
+			return "", nil, errors.Wrap(err, "marshalling error")
+		}
 		_ = m.BrokerMsgCreator.SendNewMsg(
-			strconv.FormatInt(userID, 10),
-			fmt.Sprintf("%d%02d%02d-%d%02d%02d", fromy, fromm, fromd, toy, tom, tod),
+			"get_report",
+			string(jsonReq),
 		)
 	}
 
@@ -92,7 +105,7 @@ func (m *Model) Report(ctx context.Context, period Period, userID int64) (txt st
 		return "", nil, errors.Wrap(err, "packagingByCategory")
 	}
 
-	cy, err := m.CurrencyToStr(info.Currency)
+	cy, err := currency.CurrencyToStr(info.Currency)
 	if err != nil {
 		return "", nil, errors.Wrap(err, "CurrencyToStr")
 	}
@@ -148,10 +161,10 @@ func (m *Model) getPurchasesReportFromDate(ctx context.Context, from time.Time, 
 
 // packagingByCategory получает на вход список трат и формирует из него отчет, переводя все траты в
 // выбранную валюту и складывая их по категориям
-func (m *Model) packagingByCategory(purchases []Purchase, currentCurrency Currency) ([]ReportItem, error) {
+func (m *Model) packagingByCategory(purchases []Purchase, currentCurrency currency.Currency) ([]ReportItem, error) {
 	tempCategoryOnSum := make(map[string]float64, len(purchases))
 	for _, p := range purchases {
-		resSum, err := m.rubToCurrentCurrency(currentCurrency, p.Summa, p.RateToRUB)
+		resSum, err := currency.RubToCurrentCurrency(currentCurrency, p.Summa, p.RateToRUB)
 		if err != nil {
 			return nil, errors.Wrap(err, "rubToCurrentCurrency")
 		}

@@ -10,6 +10,7 @@ import (
 	time "time"
 
 	gomock "github.com/golang/mock/gomock"
+	currency "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	purchases "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
@@ -79,7 +80,7 @@ func (mr *MockRepoMockRecorder) AddPurchase(ctx, req interface{}) *gomock.Call {
 }
 
 // AddRate mocks base method.
-func (m_2 *MockRepo) AddRate(ctx context.Context, y, m, d int, rates purchases.RateToRUB) error {
+func (m_2 *MockRepo) AddRate(ctx context.Context, y, m, d int, rates currency.RateToRUB) error {
 	m_2.ctrl.T.Helper()
 	ret := m_2.ctrl.Call(m_2, "AddRate", ctx, y, m, d, rates)
 	ret0, _ := ret[0].(error)
@@ -93,7 +94,7 @@ func (mr *MockRepoMockRecorder) AddRate(ctx, y, m, d, rates interface{}) *gomock
 }
 
 // ChangeCurrency mocks base method.
-func (m *MockRepo) ChangeCurrency(ctx context.Context, userID int64, currency purchases.Currency) error {
+func (m *MockRepo) ChangeCurrency(ctx context.Context, userID int64, currency currency.Currency) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ChangeCurrency", ctx, userID, currency)
 	ret0, _ := ret[0].(error)
@@ -151,11 +152,11 @@ func (mr *MockRepoMockRecorder) GetCategoryID(ctx, categoryName interface{}) *go
 }
 
 // GetRate mocks base method.
-func (m_2 *MockRepo) GetRate(ctx context.Context, y, m, d int) (bool, purchases.RateToRUB, error) {
+func (m_2 *MockRepo) GetRate(ctx context.Context, y, m, d int) (bool, currency.RateToRUB, error) {
 	m_2.ctrl.T.Helper()
 	ret := m_2.ctrl.Call(m_2, "GetRate", ctx, y, m, d)
 	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(purchases.RateToRUB)
+	ret1, _ := ret[1].(currency.RateToRUB)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
@@ -317,10 +318,10 @@ func (m *MockExchangeRateGetter) EXPECT() *MockExchangeRateGetterMockRecorder {
 }
 
 // GetExchangeRateToRUB mocks base method.
-func (m *MockExchangeRateGetter) GetExchangeRateToRUB() purchases.RateToRUB {
+func (m *MockExchangeRateGetter) GetExchangeRateToRUB() currency.RateToRUB {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetExchangeRateToRUB")
-	ret0, _ := ret[0].(purchases.RateToRUB)
+	ret0, _ := ret[0].(currency.RateToRUB)
 	return ret0
 }
 
@@ -331,10 +332,10 @@ func (mr *MockExchangeRateGetterMockRecorder) GetExchangeRateToRUB() *gomock.Cal
 }
 
 // GetExchangeRateToRUBFromDate mocks base method.
-func (m_2 *MockExchangeRateGetter) GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (purchases.RateToRUB, error) {
+func (m_2 *MockExchangeRateGetter) GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (currency.RateToRUB, error) {
 	m_2.ctrl.T.Helper()
 	ret := m_2.ctrl.Call(m_2, "GetExchangeRateToRUBFromDate", ctx, y, m, d)
-	ret0, _ := ret[0].(purchases.RateToRUB)
+	ret0, _ := ret[0].(currency.RateToRUB)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -435,10 +436,11 @@ func (m *MockBrokerMsgCreator) EXPECT() *MockBrokerMsgCreatorMockRecorder {
 }
 
 // SendNewMsg mocks base method.
-func (m *MockBrokerMsgCreator) SendNewMsg(key string, value string) error {
+func (m *MockBrokerMsgCreator) SendNewMsg(key, value string) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SendNewMsg", key, value)
-	return nil
+	ret := m.ctrl.Call(m, "SendNewMsg", key, value)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // SendNewMsg indicates an expected call of SendNewMsg.

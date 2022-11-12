@@ -4,6 +4,7 @@ package purchases_test
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -23,14 +24,14 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 
 		model := purchases.New(repo, nil, excRateModel, redis, nil)
 
-		excRateModel.EXPECT().GetExchangeRateToRUB().Return(purchases.RateToRUB{
+		excRateModel.EXPECT().GetExchangeRateToRUB().Return(currency.RateToRUB{
 			USD: 1,
 			EUR: 1,
 			CNY: 1,
 		})
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
-			Currency: purchases.RUB,
+			Currency: currency.RUB,
 			Limit:    -1,
 		}, nil)
 		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(100), nil)
@@ -43,7 +44,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		assert.Equal(t, purchases.ExpensesAndLimit{
 			Limit:         -1,
 			Expenses:      100 + 123,
-			Currency:      purchases.RUB,
+			Currency:      currency.RUB,
 			LimitExceeded: false,
 		}, res)
 	})
@@ -58,14 +59,14 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 
 		model := purchases.New(repo, nil, excRateModel, redis, nil)
 
-		excRateModel.EXPECT().GetExchangeRateToRUB().Return(purchases.RateToRUB{
+		excRateModel.EXPECT().GetExchangeRateToRUB().Return(currency.RateToRUB{
 			USD: 1,
 			EUR: 1,
 			CNY: 1,
 		})
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
-			Currency: purchases.RUB,
+			Currency: currency.RUB,
 			Limit:    -1,
 		}, nil)
 		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(100), nil)
@@ -78,7 +79,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		assert.Equal(t, purchases.ExpensesAndLimit{
 			Limit:         -1,
 			Expenses:      100 + 234.5,
-			Currency:      purchases.RUB,
+			Currency:      currency.RUB,
 			LimitExceeded: false,
 		}, res)
 	})
@@ -111,14 +112,14 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
-		excRateModel.EXPECT().GetExchangeRateToRUB().Return(purchases.RateToRUB{
+		excRateModel.EXPECT().GetExchangeRateToRUB().Return(currency.RateToRUB{
 			USD: 1,
 			EUR: 1,
 			CNY: 1,
 		})
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
-			Currency: purchases.RUB,
+			Currency: currency.RUB,
 			Limit:    -1,
 		}, nil)
 		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(100), nil)
@@ -131,7 +132,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 		assert.Equal(t, purchases.ExpensesAndLimit{
 			Limit:         -1,
 			Expenses:      100 + 234.5,
-			Currency:      purchases.RUB,
+			Currency:      currency.RUB,
 			LimitExceeded: false,
 		}, res)
 	})
@@ -166,14 +167,14 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
-		repo.EXPECT().GetRate(gomock.Any(), 2022, 1, 1).Return(true, purchases.RateToRUB{
+		repo.EXPECT().GetRate(gomock.Any(), 2022, 1, 1).Return(true, currency.RateToRUB{
 			USD: 1,
 			EUR: 1,
 			CNY: 1,
 		}, nil)
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
-			Currency: purchases.RUB,
+			Currency: currency.RUB,
 			Limit:    -1,
 		}, nil)
 		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(100), nil)
@@ -215,14 +216,14 @@ func Test_AddPurchase_Limits(t *testing.T) {
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
-		repo.EXPECT().GetRate(gomock.Any(), 2022, 1, 1).Return(true, purchases.RateToRUB{
+		repo.EXPECT().GetRate(gomock.Any(), 2022, 1, 1).Return(true, currency.RateToRUB{
 			USD: 1,
 			EUR: 1,
 			CNY: 1,
 		}, nil)
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
-			Currency: purchases.RUB,
+			Currency: currency.RUB,
 			Limit:    -1,
 		}, nil)
 		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(500), nil)
@@ -235,7 +236,7 @@ func Test_AddPurchase_Limits(t *testing.T) {
 		assert.Equal(t, purchases.ExpensesAndLimit{
 			Limit:         -1,
 			Expenses:      500 + 234.5,
-			Currency:      purchases.RUB,
+			Currency:      currency.RUB,
 			LimitExceeded: false,
 		}, expAndLim)
 	})
@@ -252,14 +253,14 @@ func Test_AddPurchase_Limits(t *testing.T) {
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
-		repo.EXPECT().GetRate(gomock.Any(), 2022, 1, 1).Return(true, purchases.RateToRUB{
+		repo.EXPECT().GetRate(gomock.Any(), 2022, 1, 1).Return(true, currency.RateToRUB{
 			USD: 1,
 			EUR: 1,
 			CNY: 1,
 		}, nil)
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
-			Currency: purchases.RUB,
+			Currency: currency.RUB,
 			Limit:    1000,
 		}, nil)
 		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(500), nil)
@@ -272,7 +273,7 @@ func Test_AddPurchase_Limits(t *testing.T) {
 		assert.Equal(t, purchases.ExpensesAndLimit{
 			Limit:         1000,
 			Expenses:      500 + 234.5,
-			Currency:      purchases.RUB,
+			Currency:      currency.RUB,
 			LimitExceeded: false,
 		}, expAndLim)
 	})
@@ -289,14 +290,14 @@ func Test_AddPurchase_Limits(t *testing.T) {
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
-		repo.EXPECT().GetRate(gomock.Any(), 2022, 1, 1).Return(true, purchases.RateToRUB{
+		repo.EXPECT().GetRate(gomock.Any(), 2022, 1, 1).Return(true, currency.RateToRUB{
 			USD: 1,
 			EUR: 1,
 			CNY: 1,
 		}, nil)
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
-			Currency: purchases.RUB,
+			Currency: currency.RUB,
 			Limit:    1000,
 		}, nil)
 		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(800), nil)
@@ -309,7 +310,7 @@ func Test_AddPurchase_Limits(t *testing.T) {
 		assert.Equal(t, purchases.ExpensesAndLimit{
 			Limit:         1000,
 			Expenses:      800 + 234.5,
-			Currency:      purchases.RUB,
+			Currency:      currency.RUB,
 			LimitExceeded: true,
 		}, expAndLim)
 	})
@@ -326,14 +327,14 @@ func Test_AddPurchase_Limits(t *testing.T) {
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
-		repo.EXPECT().GetRate(gomock.Any(), 2022, 1, 1).Return(true, purchases.RateToRUB{
+		repo.EXPECT().GetRate(gomock.Any(), 2022, 1, 1).Return(true, currency.RateToRUB{
 			USD: 2,
 			EUR: 2,
 			CNY: 2,
 		}, nil)
 		repo.EXPECT().GetUserInfo(gomock.Any(), int64(123)).Return(purchases.User{
 			UserID:   123,
-			Currency: purchases.USD,
+			Currency: currency.USD,
 			Limit:    1000,
 		}, nil)
 		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(500), nil)
@@ -346,7 +347,7 @@ func Test_AddPurchase_Limits(t *testing.T) {
 		assert.Equal(t, purchases.ExpensesAndLimit{
 			Limit:         1000 * 2,
 			Expenses:      500*2 + 234.5,
-			Currency:      purchases.USD,
+			Currency:      currency.USD,
 			LimitExceeded: false,
 		}, expAndLim)
 	})

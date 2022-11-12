@@ -4,6 +4,7 @@ package db
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"testing"
 
 	"github.com/go-testfixtures/testfixtures/v3"
@@ -20,7 +21,7 @@ func Test_ChangeCurrency(t *testing.T) {
 	defer close()
 
 	t.Run("изменение валюты еще не существующего пользователя", func(t *testing.T) {
-		err := s.ChangeCurrency(ctx, 123, model.USD)
+		err := s.ChangeCurrency(ctx, 123, currency.USD)
 		assert.NoError(t, err)
 
 		// проверим что запись действительно создалась
@@ -31,7 +32,7 @@ func Test_ChangeCurrency(t *testing.T) {
 	})
 
 	t.Run("изменение валюты уже существующего пользователя", func(t *testing.T) {
-		err := s.ChangeCurrency(ctx, 123, model.CNY)
+		err := s.ChangeCurrency(ctx, 123, currency.CNY)
 		assert.NoError(t, err)
 
 		// проверим что запись действительно создалась
@@ -58,7 +59,7 @@ func Test_GetUserInfo(t *testing.T) {
 	selectAllFromTestTableUsers(ctx, s, &users)
 
 	assert.EqualValues(t, []user{{UserID: 123, Currency: RUB, Limit: -1, CategoryIDs: pq.Int64Array{1}}}, users)
-	assert.Equal(t, model.User{UserID: 123, Currency: model.RUB, Limit: -1, Categories: []int64{1}}, userInfo)
+	assert.Equal(t, model.User{UserID: 123, Currency: currency.RUB, Limit: -1, Categories: []int64{1}}, userInfo)
 }
 
 func Test_UserCreateIfNotExist(t *testing.T) {

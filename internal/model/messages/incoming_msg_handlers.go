@@ -3,6 +3,7 @@ package messages
 import (
 	"context"
 	"fmt"
+	cy "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"sort"
 
 	"github.com/pkg/errors"
@@ -79,7 +80,7 @@ func (m *Model) msgAddPurchase(ctx context.Context, Send Message, sum, category,
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 	}
 
-	userCur, err := m.purchasesModel.CurrencyToStr(expAndLim.Currency)
+	userCur, err := cy.CurrencyToStr(expAndLim.Currency)
 	if err != nil {
 		err = errors.Wrap(err, "purchasesModel.CurrencyToStr")
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
@@ -98,7 +99,7 @@ func (m *Model) msgAddPurchase(ctx context.Context, Send Message, sum, category,
 }
 
 func (m *Model) msgCurrency(ctx context.Context, Send Message, rawCY string) error {
-	cy, err := m.purchasesModel.StrToCurrency(rawCY)
+	cy, err := cy.StrToCurrency(rawCY)
 	if err != nil {
 		return m.tgClient.SendMessage(ErrTxtInvalidCurrency, Send.UserID)
 	}

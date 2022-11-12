@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -90,7 +91,7 @@ func (s *Service) GetUserPurchasesFromDate(ctx context.Context, fromDate time.Ti
 		purchases = append(purchases, model.Purchase{
 			PurchaseCategory: p.CategoryName.String,
 			Summa:            p.Sum,
-			RateToRUB: model.RateToRUB{
+			RateToRUB: currency.RateToRUB{
 				USD: p.USDRatio,
 				CNY: p.CNYRatio,
 				EUR: p.EURRatio,

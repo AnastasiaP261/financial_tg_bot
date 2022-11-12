@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	currency "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	purchases "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
@@ -144,7 +145,7 @@ func (mr *MockPurchasesModelMockRecorder) AddPurchase(ctx, userID, rawSum, categ
 }
 
 // ChangeUserCurrency mocks base method.
-func (m *MockPurchasesModel) ChangeUserCurrency(ctx context.Context, userID int64, currency purchases.Currency) error {
+func (m *MockPurchasesModel) ChangeUserCurrency(ctx context.Context, userID int64, currency currency.Currency) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ChangeUserCurrency", ctx, userID, currency)
 	ret0, _ := ret[0].(error)
@@ -172,7 +173,7 @@ func (mr *MockPurchasesModelMockRecorder) ChangeUserLimit(ctx, userID, rawLimit 
 }
 
 // CurrencyToStr mocks base method.
-func (m *MockPurchasesModel) CurrencyToStr(cy purchases.Currency) (string, error) {
+func (m *MockPurchasesModel) CurrencyToStr(cy currency.Currency) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CurrencyToStr", cy)
 	ret0, _ := ret[0].(string)
@@ -233,10 +234,10 @@ func (mr *MockPurchasesModelMockRecorder) Report(ctx, period, userID interface{}
 }
 
 // StrToCurrency mocks base method.
-func (m *MockPurchasesModel) StrToCurrency(str string) (purchases.Currency, error) {
+func (m *MockPurchasesModel) StrToCurrency(str string) (currency.Currency, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StrToCurrency", str)
-	ret0, _ := ret[0].(purchases.Currency)
+	ret0, _ := ret[0].(currency.Currency)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

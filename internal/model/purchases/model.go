@@ -2,6 +2,7 @@ package purchases
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"time"
 
 	"github.com/pkg/errors"
@@ -19,11 +20,11 @@ var (
 
 // Repo репозиторий
 type Repo interface {
-	GetRate(ctx context.Context, y int, m int, d int) (bool, RateToRUB, error)
-	AddRate(ctx context.Context, y int, m int, d int, rates RateToRUB) error
+	GetRate(ctx context.Context, y int, m int, d int) (bool, currency.RateToRUB, error)
+	AddRate(ctx context.Context, y int, m int, d int, rates currency.RateToRUB) error
 
 	UserCreateIfNotExist(ctx context.Context, userID int64) error
-	ChangeCurrency(ctx context.Context, userID int64, currency Currency) error
+	ChangeCurrency(ctx context.Context, userID int64, currency currency.Currency) error
 	GetUserInfo(ctx context.Context, userID int64) (User, error)
 	ChangeUserLimit(ctx context.Context, userID int64, newLimit float64) error
 	AddCategoryToUser(ctx context.Context, userID int64, catName string) error
@@ -46,8 +47,8 @@ type ChartDrawer interface {
 }
 
 type ExchangeRateGetter interface {
-	GetExchangeRateToRUB() RateToRUB
-	GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (RateToRUB, error)
+	GetExchangeRateToRUB() currency.RateToRUB
+	GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (currency.RateToRUB, error)
 }
 
 type ReportsStore interface {

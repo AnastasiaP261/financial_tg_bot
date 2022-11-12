@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/lib/pq"
@@ -34,29 +35,29 @@ const (
 	CNY Currency = "CNY"
 )
 
-func currencyToModelTypeConv(c Currency) (model.Currency, error) {
+func currencyToModelTypeConv(c Currency) (currency.Currency, error) {
 	switch c {
 	case RUB:
-		return model.RUB, nil
+		return currency.RUB, nil
 	case USD:
-		return model.USD, nil
+		return currency.USD, nil
 	case EUR:
-		return model.EUR, nil
+		return currency.EUR, nil
 	case CNY:
-		return model.CNY, nil
+		return currency.CNY, nil
 	default:
 		return 0, errors.New("invalid currency")
 	}
 }
-func currencyFromModelTypeConv(c model.Currency) (Currency, error) {
+func currencyFromModelTypeConv(c currency.Currency) (Currency, error) {
 	switch c {
-	case model.RUB:
+	case currency.RUB:
 		return RUB, nil
-	case model.USD:
+	case currency.USD:
 		return USD, nil
-	case model.EUR:
+	case currency.EUR:
 		return EUR, nil
-	case model.CNY:
+	case currency.CNY:
 		return CNY, nil
 	default:
 		return "", errors.New("invalid currency")
@@ -117,7 +118,7 @@ func (s *Service) addUser(ctx context.Context, userID int64) error {
 }
 
 // ChangeCurrency смена валюты пользователя
-func (s *Service) ChangeCurrency(ctx context.Context, userID int64, currency model.Currency) error {
+func (s *Service) ChangeCurrency(ctx context.Context, userID int64, currency currency.Currency) error {
 	if err := s.UserCreateIfNotExist(ctx, userID); err != nil {
 		return errors.Wrap(err, "UserCreateIfNotExist")
 	}

@@ -2,6 +2,7 @@ package messages
 
 import (
 	"context"
+	cy "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
@@ -20,14 +21,12 @@ type PurchasesModel interface {
 
 	Report(ctx context.Context, period purchases.Period, userID int64) (txt string, img []byte, err error)
 
-	ChangeUserCurrency(ctx context.Context, userID int64, currency purchases.Currency) error
+	ChangeUserCurrency(ctx context.Context, userID int64, currency cy.Currency) error
 	ChangeUserLimit(ctx context.Context, userID int64, rawLimit string) error
 	AddCategoryToUser(ctx context.Context, userID int64, category string) error
 	GetUserCategories(ctx context.Context, userID int64) ([]string, error)
 
 	ToPeriod(str string) (purchases.Period, error)
-	StrToCurrency(str string) (purchases.Currency, error)
-	CurrencyToStr(cy purchases.Currency) (string, error)
 }
 
 type StatusStore interface {

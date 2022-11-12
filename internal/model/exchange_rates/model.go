@@ -2,9 +2,9 @@ package exchange_rates
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 
 	"github.com/pkg/errors"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 // Client клиент от которого получаем информацию о курсах валют
@@ -26,10 +26,10 @@ func New(client Client) *Model {
 }
 
 // GetExchangeRateToRUB получить последние валютные курсы для USD, EUR и CNY к RUB
-func (c *Model) GetExchangeRateToRUB() purchases.RateToRUB {
+func (c *Model) GetExchangeRateToRUB() currency.RateToRUB {
 	rates := c.client.GetExchangeRateToRUB()
 
-	var resp purchases.RateToRUB
+	var resp currency.RateToRUB
 	for k, v := range rates {
 		if k == "EUR" {
 			resp.EUR = v
@@ -48,13 +48,13 @@ func (c *Model) GetExchangeRateToRUB() purchases.RateToRUB {
 }
 
 // GetExchangeRateToRUBFromDate получить валютные курсы для USD, EUR и CNY к RUB на определенную дату
-func (c *Model) GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (purchases.RateToRUB, error) {
+func (c *Model) GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (currency.RateToRUB, error) {
 	rates, err := c.client.GetExchangeRateToRUBFromDate(ctx, y, m, d)
 	if err != nil {
-		return purchases.RateToRUB{}, errors.Wrap(err, "client.GetExchangeRateToRUBFromDate")
+		return currency.RateToRUB{}, errors.Wrap(err, "client.GetExchangeRateToRUBFromDate")
 	}
 
-	var resp purchases.RateToRUB
+	var resp currency.RateToRUB
 	for k, v := range rates {
 		if k == "EUR" {
 			resp.EUR = v

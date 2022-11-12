@@ -4,6 +4,7 @@ package db
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"testing"
 	"time"
 
@@ -74,9 +75,9 @@ func Test_GetUserPurchasesFromDate(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.EqualValues(t, []model.Purchase{
-		{PurchaseCategory: "some category 1", Summa: 200, RateToRUB: model.RateToRUB{USD: 0.5, EUR: 0.5, CNY: 0.5}},
-		{PurchaseCategory: "Не заданная категория", Summa: 300, RateToRUB: model.RateToRUB{USD: 0.5, EUR: 0.5, CNY: 0.5}},
-		{PurchaseCategory: "some category 2", Summa: 400, RateToRUB: model.RateToRUB{USD: 0.5, EUR: 0.5, CNY: 0.5}},
+		{PurchaseCategory: "some category 1", Summa: 200, RateToRUB: currency.RateToRUB{USD: 0.5, EUR: 0.5, CNY: 0.5}},
+		{PurchaseCategory: "Не заданная категория", Summa: 300, RateToRUB: currency.RateToRUB{USD: 0.5, EUR: 0.5, CNY: 0.5}},
+		{PurchaseCategory: "some category 2", Summa: 400, RateToRUB: currency.RateToRUB{USD: 0.5, EUR: 0.5, CNY: 0.5}},
 	}, res)
 }
 
