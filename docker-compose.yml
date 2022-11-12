@@ -30,7 +30,6 @@ services:
       - grafana
       - jaeger
       - kafka
-      - fin-reports
     links:
       - pg
       - redis
@@ -45,12 +44,16 @@ services:
     restart: unless-stopped
     depends_on:
       - pg
-#      - filed
+      - redis
+      # - filed
       - grafana
       - jaeger
       - kafka
+      - tgbot
     links:
       - pg
+      - redis
+      - tgbot
 
   # ------------LOGS----------
 #  filed:
