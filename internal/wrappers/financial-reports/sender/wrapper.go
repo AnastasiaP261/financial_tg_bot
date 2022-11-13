@@ -31,7 +31,7 @@ func (w *Wrapper) CreateReport(ctx context.Context, rawReq string) (report.Creat
 	}
 
 	resp, err := w.client.SendReport(ctx, report.SendReportRequest{
-		UserId:        res.UserID,
+		UserID:        res.UserID,
 		ReportMessage: res.Text,
 		ReportIMG:     res.IMG,
 	})

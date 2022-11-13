@@ -39,7 +39,7 @@ func New(repo Repo, store ReportsStore, drawer ChartDrawer) *service {
 }
 
 type SendReportRequest struct {
-	UserId        int64
+	UserID        int64
 	ReportMessage string
 	ReportIMG     []byte
 }

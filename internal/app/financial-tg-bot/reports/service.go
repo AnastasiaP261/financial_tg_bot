@@ -1,6 +1,7 @@
 package reports
 
 import (
+	"context"
 	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/logs"
@@ -14,11 +15,16 @@ type configGetter interface {
 	GRPCPortMessages() int
 }
 
-type server struct {
-	pkg.MessagesServiceServer
+type Sender interface {
+	SendReport(ctx context.Context, userID int64, text string, img []byte) error
 }
 
-func Register(conf configGetter) error {
+type server struct {
+	pkg.MessagesServiceServer
+	sender Sender
+}
+
+func Register(conf configGetter, sender Sender) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", conf.GRPCPortMessages()))
 	if err != nil {
 		return errors.Wrap(err, "net.Listen")
@@ -30,7 +36,7 @@ func Register(conf configGetter) error {
 
 	s := grpc.NewServer()
 
-	pkg.RegisterMessagesServiceServer(s, &server{})
+	pkg.RegisterMessagesServiceServer(s, &server{sender: sender})
 	err = s.Serve(lis)
 	if err != nil {
 		return errors.Wrap(err, "Serve")

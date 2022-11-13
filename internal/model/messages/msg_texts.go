@@ -13,6 +13,7 @@ var (
 	ScsTxtCurrencyChanged      = "Ваша основная валюта изменена"
 	ScsTxtLimitChanged         = "Лимит установлен. Для того, чтобы сбросить лимит, отправьте \"/limit -1\""
 	ScsTxtReportRequestCreated = "Отчет готовится..."
+	ScsTxtReportIsReady        = "Отчет готов"
 
 	ButtonTxtCreateCategory = "Создать категорию"
 )

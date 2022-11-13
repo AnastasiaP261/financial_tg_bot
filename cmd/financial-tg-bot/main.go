@@ -107,7 +107,7 @@ func main() {
 	})
 
 	errG.Go(func() error {
-		if err := reports.Register(config); err != nil {
+		if err := reports.Register(config, msgModel); err != nil {
 			log.Fatal("grpc listener init failed")
 			return err
 		}

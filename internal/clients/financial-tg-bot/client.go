@@ -32,7 +32,7 @@ func New(confService configGetter) (*service, error) {
 
 func (s *service) SendReport(ctx context.Context, req report.SendReportRequest) (report.SendReportResponse, error) {
 	res, err := s.cl.SendReport(ctx, &pb.SendReportRequest{
-		UserId:        req.UserId,
+		UserId:        req.UserID,
 		ReportMessage: req.ReportMessage,
 		ReportImage:   req.ReportIMG,
 	})
