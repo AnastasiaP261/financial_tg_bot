@@ -22,7 +22,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, excRateModel, nil, nil)
+		model := purchases.New(repo, excRateModel, redis, nil)
 
 		excRateModel.EXPECT().GetExchangeRateToRUB().Return(currency.RateToRUB{
 			USD: 1,
@@ -36,7 +36,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		}, nil)
 		repo.EXPECT().GetUserPurchasesSumFromMonth(gomock.Any(), int64(123), gomock.Any()).Return(float64(100), nil)
 		repo.EXPECT().AddPurchase(gomock.Any(), gomock.Any()).Return(nil)
-		redis.EXPECT().Delete(gomock.Any(), "123report")
+		redis.EXPECT().Delete(gomock.Any(), "123report").Return(nil)
 
 		res, err := model.AddPurchase(ctx, 123, "123", "", "")
 
@@ -57,7 +57,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, excRateModel, nil, nil)
+		model := purchases.New(repo, excRateModel, redis, nil)
 
 		excRateModel.EXPECT().GetExchangeRateToRUB().Return(currency.RateToRUB{
 			USD: 1,
@@ -108,7 +108,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, excRateModel, nil, nil)
+		model := purchases.New(repo, excRateModel, redis, nil)
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)

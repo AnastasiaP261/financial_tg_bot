@@ -27,7 +27,7 @@ func New() (*Service, error) {
 	// idempotent producer has a unique producer ID and uses sequence IDs for each message,
 	// allowing the broker to ensure, on a per-partition basis, that it is committing ordered messages with no duplication.
 	//config.Producer.Idempotent = true
-	if config.Producer.Idempotent == true {
+	if config.Producer.Idempotent {
 		config.Producer.Retry.Max = 1
 		config.Net.MaxOpenRequests = 1
 	}
