@@ -8,7 +8,8 @@ MOCKGEN=${BINDIR}/mockgen_${GOVER}
 SMARTIMPORTS=${BINDIR}/smartimports_${GOVER}
 LINTVER=v1.49.0
 LINTBIN=${BINDIR}/lint_${GOVER}_${LINTVER}
-PACKAGE=gitlab.ozon.dev/apetrichuk/financial-tg-bot/cmd/financial-tg-bot
+PACKAGE_BOT=gitlab.ozon.dev/apetrichuk/financial-tg-bot/cmd/financial-tg-bot
+PACKAGE_REPORTS=gitlab.ozon.dev/apetrichuk/financial-tg-bot/cmd/financial-reports
 POSTGRES_USER=finance-user
 POSTGRES_PASS=finanse-pass
 POSTGRES_HOST=pg
@@ -47,7 +48,8 @@ pull:
 all: format generate build test lint
 
 build: bindir
-	go build -o ${BINDIR}/bot ${PACKAGE}
+	go build -o ${BINDIR}/financial-tg-bot ${PACKAGE_BOT}
+	go build -o ${BINDIR}/financial-reports ${PACKAGE_REPORTS}
 
 test:
 	echo "skipping integration test"

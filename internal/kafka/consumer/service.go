@@ -2,12 +2,12 @@ package consumer
 
 import (
 	"context"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/report"
 	"log"
 
 	"github.com/Shopify/sarama"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/report"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/logs"
 	"go.uber.org/zap"
 )

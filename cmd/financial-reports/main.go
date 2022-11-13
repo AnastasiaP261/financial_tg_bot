@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/chart_drawing"
 	"log"
 	"net/http"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/config"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/env"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka/consumer"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/chart_drawing"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/db"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/report"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/logs"

@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	chart "github.com/wcharczuk/go-chart/v2"
-	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
+	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/report"
 )
 
 type Model struct{}
