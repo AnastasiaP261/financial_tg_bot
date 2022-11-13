@@ -2,6 +2,7 @@ package financial_tg_bot
 
 import (
 	"context"
+	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/report"
 	pb "gitlab.ozon.dev/apetrichuk/financial-tg-bot/pkg/api/financial-tg-bot"
@@ -15,10 +16,12 @@ type service struct {
 
 type configGetter interface {
 	GRPCHostMessages() string
+	GRPCPortMessages() int
 }
 
 func New(confService configGetter) (*service, error) {
-	conn, err := grpc.Dial(confService.GRPCHostMessages(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	address := fmt.Sprintf("%s:%d", confService.GRPCHostMessages(), confService.GRPCPortMessages())
+	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}

@@ -20,6 +20,7 @@ type Config struct {
 	RedisPass string `yaml:"redisPass"`
 
 	GRPCHostMessages string `yaml:"grpc-host-messages"`
+	GRPCPortMessages int    `yaml:"grpc-port-messages"`
 }
 
 type Service struct {
@@ -64,4 +65,8 @@ func (s *Service) RedisPass() string {
 
 func (s *Service) GRPCHostMessages() string {
 	return s.config.GRPCHostMessages
+}
+
+func (s *Service) GRPCPortMessages() int {
+	return s.config.GRPCPortMessages
 }
