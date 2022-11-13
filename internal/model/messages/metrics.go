@@ -1,6 +1,8 @@
 package messages
 
-import "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
+import (
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/metrics"
+)
 
 var metricsCommAddPurchase = "add_purchase"
 

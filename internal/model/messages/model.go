@@ -19,7 +19,7 @@ type PurchasesModel interface {
 	AddCategory(ctx context.Context, category string) error
 	GetAllCategories(ctx context.Context) ([]purchases.CategoryRow, error)
 
-	Report(ctx context.Context, period purchases.Period, userID int64) (txt string, img []byte, err error)
+	CreateReportRequest(ctx context.Context, period purchases.Period, userID int64) (err error)
 
 	ChangeUserCurrency(ctx context.Context, userID int64, currency cy.Currency) error
 	ChangeUserLimit(ctx context.Context, userID int64, rawLimit string) error

@@ -218,19 +218,19 @@ func (mr *MockPurchasesModelMockRecorder) GetUserCategories(ctx, userID interfac
 }
 
 // Report mocks base method.
-func (m *MockPurchasesModel) Report(ctx context.Context, period purchases.Period, userID int64) (string, []byte, error) {
+func (m *MockPurchasesModel) CreateReportRequest(ctx context.Context, period purchases.Period, userID int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Report", ctx, period, userID)
+	ret := m.ctrl.Call(m, "CreateReportRequest", ctx, period, userID)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].([]byte)
 	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	return ret2
 }
 
 // Report indicates an expected call of Report.
 func (mr *MockPurchasesModelMockRecorder) Report(ctx, period, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Report", reflect.TypeOf((*MockPurchasesModel)(nil).Report), ctx, period, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateReportRequest", reflect.TypeOf((*MockPurchasesModel)(nil).CreateReportRequest), ctx, period, userID)
 }
 
 // StrToCurrency mocks base method.

@@ -21,18 +21,13 @@ func (m *Model) msgReport(ctx context.Context, Send Message) error {
 		return m.tgClient.SendMessage(ErrTxtInvalidInput, Send.UserID)
 	}
 
-	reportTxt, img, err := m.purchasesModel.Report(ctx, period, Send.UserID)
+	err = m.purchasesModel.CreateReportRequest(ctx, period, Send.UserID)
 	if err != nil {
-		err = errors.Wrap(err, "purchasesModel.Report")
+		err = errors.Wrap(err, "purchasesModel.CreateReportRequest")
 		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
 	}
 
-	if err = m.tgClient.SendMessage(reportTxt, Send.UserID); err != nil {
-		err = errors.Wrap(err, "tgClient.SendMessage")
-		return m.tgClient.SendMessage("Ошибочка: "+err.Error(), Send.UserID)
-	}
-
-	return m.tgClient.SendImage(img, Send.UserID)
+	return m.tgClient.SendMessage(ScsTxtReportRequestCreated, Send.UserID)
 }
 
 func (m *Model) msgAddCategory(ctx context.Context, Send Message) error {
