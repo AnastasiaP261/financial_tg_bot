@@ -4,3 +4,5 @@ fixer-api-token: sometokensometokensometokensometoken
 dbUri: postgresql://user:pass@pg:5432/db
 redisUri: host:post
 redisPass: "r_pass"
+
+grpc-host-messages: "localhost:50051"

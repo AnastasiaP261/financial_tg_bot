@@ -18,6 +18,8 @@ type Config struct {
 
 	RedisUri  string `yaml:"redisUri"`
 	RedisPass string `yaml:"redisPass"`
+
+	GRPCHostMessages string `yaml:"grpc-host-messages"`
 }
 
 type Service struct {
@@ -58,4 +60,8 @@ func (s *Service) RedisUri() string {
 
 func (s *Service) RedisPass() string {
 	return s.config.RedisPass
+}
+
+func (s *Service) GRPCHostMessages() string {
+	return s.config.GRPCHostMessages
 }

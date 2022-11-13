@@ -4,3 +4,5 @@ fixer-api-token: KThUp0CyBzGdrhyRwfZbDaw7JyXotqPV
 dbUri: postgresql://user:pass@pg:5432/db
 redisUri: host:port
 redisPass: "r_pass"
+
+grpc-host-messages: "tgbot:50051"
