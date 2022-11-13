@@ -40,20 +40,20 @@ type Purchase struct {
 	currency.RateToRUB
 }
 
-func (s *service) CreateReport(ctx context.Context, rawReq string) (txt string, err error) {
+func (s *service) CreateReport(ctx context.Context, rawReq string) error {
 	var req Request
 	if err := json.Unmarshal([]byte(rawReq), &req); err != nil {
-		return "", errors.Wrap(err, "unmarshalling error")
+		return errors.Wrap(err, "unmarshalling error")
 	}
 
 	reportItems, err := s.getPurchasesReportFromDate(ctx, req.FromDate, req.UserID, req.Currency)
 	if err != nil {
-		return "", errors.Wrap(err, "packagingByCategory")
+		return errors.Wrap(err, "packagingByCategory")
 	}
 
 	cy, err := currency.CurrencyToStr(req.Currency)
 	if err != nil {
-		return "", errors.Wrap(err, "currencyToStr")
+		return errors.Wrap(err, "currencyToStr")
 	}
 
 	resStr := strings.Builder{}
@@ -68,11 +68,22 @@ func (s *service) CreateReport(ctx context.Context, rawReq string) (txt string, 
 		resStr.WriteString("\n")
 	}
 
-	return resStr.String(), nil
+	resp, err := s.sender.SendReport(ctx, SendReportRequest{
+		UserId:        req.UserID,
+		ReportMessage: resStr.String(),
+	})
+	if err != nil {
+		return errors.Wrap(err, "sender.SendReport")
+	}
+	if !resp.Response.Success {
+		return errors.New("report send failed")
+	}
+
+	return nil
 }
 
 func (s *service) getPurchasesReportFromDate(ctx context.Context, from time.Time, userID int64, cy currency.Currency) ([]ReportItem, error) {
-	report, err := s.ReportsStore.GetReport(ctx, createKeyForReportsStore(userID))
+	report, err := s.reportsStore.GetReport(ctx, createKeyForReportsStore(userID))
 	if err != nil {
 		logs.Error("reports store error", zap.Error(err))
 	}
@@ -84,9 +95,9 @@ func (s *service) getPurchasesReportFromDate(ctx context.Context, from time.Time
 		}
 	}
 
-	purchases, err := s.Repo.GetUserPurchasesFromDate(ctx, from, userID)
+	purchases, err := s.repo.GetUserPurchasesFromDate(ctx, from, userID)
 	if err != nil {
-		return nil, errors.Wrap(err, "Repo.GetUserPurchasesFromDate")
+		return nil, errors.Wrap(err, "repo.GetUserPurchasesFromDate")
 	}
 
 	reportItems, err := s.packagingByCategory(purchases, cy)
@@ -94,9 +105,9 @@ func (s *service) getPurchasesReportFromDate(ctx context.Context, from time.Time
 		return nil, errors.Wrap(err, "packagingByCategory")
 	}
 
-	err = s.ReportsStore.SetReport(ctx, createKeyForReportsStore(userID), Report{Items: reportItems, FromDate: from}) // nolint: errcheck
+	err = s.reportsStore.SetReport(ctx, createKeyForReportsStore(userID), Report{Items: reportItems, FromDate: from}) // nolint: errcheck
 	if err != nil {
-		return nil, errors.Wrap(err, "ReportsStore.SetReport")
+		return nil, errors.Wrap(err, "reportsStore.SetReport")
 	}
 	metrics.InFlightReports.WithLabelValues(metrics.ReportSourceBD).Inc()
 

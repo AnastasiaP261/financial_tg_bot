@@ -16,14 +16,34 @@ type ReportsStore interface {
 	Delete(ctx context.Context, key string) error
 }
 
-type service struct {
-	Repo         Repo
-	ReportsStore ReportsStore
+type Sender interface {
+	SendReport(ctx context.Context, req SendReportRequest) (SendReportResponse, error)
 }
 
-func New(repo Repo, store ReportsStore) *service {
+type service struct {
+	repo         Repo
+	reportsStore ReportsStore
+	sender       Sender
+}
+
+func New(repo Repo, store ReportsStore, sender Sender) *service {
 	return &service{
-		Repo:         repo,
-		ReportsStore: store,
+		repo:         repo,
+		reportsStore: store,
+		sender:       sender,
 	}
+}
+
+type SendReportRequest struct {
+	UserId        int64
+	ReportMessage string
+}
+
+type SendReportResponse struct {
+	Response DefaultResponse
+}
+
+type DefaultResponse struct {
+	Success      bool
+	ErrorMessage string
 }
