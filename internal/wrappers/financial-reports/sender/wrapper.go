@@ -24,22 +24,23 @@ func NewWrapper(handler financial_reports.ReportHandler, client Sender) *Wrapper
 	}
 }
 
-func (w *Wrapper) CreateReport(ctx context.Context, rawReq string) (string, int64, error) {
-	text, userID, err := w.handler.CreateReport(ctx, rawReq)
+func (w *Wrapper) CreateReport(ctx context.Context, rawReq string) (report.CreateReportResponse, error) {
+	res, err := w.handler.CreateReport(ctx, rawReq)
 	if err != nil {
-		return "", 0, err
+		return report.CreateReportResponse{}, err
 	}
 
 	resp, err := w.client.SendReport(ctx, report.SendReportRequest{
-		UserId:        userID,
-		ReportMessage: text,
+		UserId:        res.UserID,
+		ReportMessage: res.Text,
+		ReportIMG:     res.IMG,
 	})
 	if err != nil {
-		return "", 0, errors.Wrap(err, "sender.SendReport")
+		return report.CreateReportResponse{}, errors.Wrap(err, "sender.SendReport")
 	}
 	if !resp.Response.Success {
-		return "", 0, errors.New("report send failed")
+		return report.CreateReportResponse{}, errors.New("report send failed")
 	}
 
-	return text, userID, err
+	return res, err
 }

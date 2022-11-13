@@ -2,18 +2,12 @@ package reports
 
 import (
 	"fmt"
-	"net"
-	"time"
-
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/logs"
 	pkg "gitlab.ozon.dev/apetrichuk/financial-tg-bot/pkg/api/financial-tg-bot"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-)
-
-const (
-	timestampFormat = time.StampNano
+	"net"
 )
 
 type configGetter interface {

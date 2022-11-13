@@ -18,21 +18,30 @@ type ReportsStore interface {
 	Delete(ctx context.Context, key string) error
 }
 
+// ChartDrawer рисовальщик
+type ChartDrawer interface {
+	// PieChart нарисовать круговую диаграмму трат
+	PieChart(data []ReportItem) ([]byte, error)
+}
+
 type service struct {
 	repo         Repo
 	reportsStore ReportsStore
+	Drawer       ChartDrawer
 }
 
-func New(repo Repo, store ReportsStore) *service {
+func New(repo Repo, store ReportsStore, drawer ChartDrawer) *service {
 	return &service{
 		repo:         repo,
 		reportsStore: store,
+		Drawer:       drawer,
 	}
 }
 
 type SendReportRequest struct {
 	UserId        int64
 	ReportMessage string
+	ReportIMG     []byte
 }
 
 type SendReportResponse struct {

@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/report"
 	"log"
 
 	"github.com/Shopify/sarama"
@@ -12,7 +13,7 @@ import (
 )
 
 type defaultReportsHandler interface {
-	CreateReport(ctx context.Context, rawReq string) (string, int64, error)
+	CreateReport(ctx context.Context, rawReq string) (report.CreateReportResponse, error)
 }
 
 // Consumer represents a Sarama consumer group consumer.
@@ -80,7 +81,7 @@ func (c *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim saram
 
 		switch string(msg.Key) {
 		case "get_report":
-			_, _, err := c.defaultReportsHandler.CreateReport(context.Background(), string(msg.Value))
+			_, err := c.defaultReportsHandler.CreateReport(context.Background(), string(msg.Value))
 			if err != nil {
 				logs.Error(
 					"handle msg error",

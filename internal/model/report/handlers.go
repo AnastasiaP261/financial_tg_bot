@@ -42,20 +42,26 @@ type Purchase struct {
 	currency.RateToRUB
 }
 
-func (s *service) CreateReport(ctx context.Context, rawReq string) (string, int64, error) {
+type CreateReportResponse struct {
+	Text   string
+	IMG    []byte
+	UserID int64
+}
+
+func (s *service) CreateReport(ctx context.Context, rawReq string) (CreateReportResponse, error) {
 	var req Request
 	if err := json.Unmarshal([]byte(rawReq), &req); err != nil {
-		return "", 0, errors.Wrap(err, "unmarshalling error")
+		return CreateReportResponse{}, errors.Wrap(err, "unmarshalling error")
 	}
 
 	reportItems, err := s.getPurchasesReportFromDate(ctx, req.FromDate, req.UserID, req.Currency)
 	if err != nil {
-		return "", 0, errors.Wrap(err, "packagingByCategory")
+		return CreateReportResponse{}, errors.Wrap(err, "packagingByCategory")
 	}
 
 	cy, err := currency.CurrencyToStr(req.Currency)
 	if err != nil {
-		return "", 0, errors.Wrap(err, "currencyToStr")
+		return CreateReportResponse{}, errors.Wrap(err, "currencyToStr")
 	}
 
 	resStr := strings.Builder{}
@@ -70,7 +76,16 @@ func (s *service) CreateReport(ctx context.Context, rawReq string) (string, int6
 		resStr.WriteString("\n")
 	}
 
-	return resStr.String(), req.UserID, nil
+	resIMG, err := s.Drawer.PieChart(reportItems)
+	if err != nil {
+		return CreateReportResponse{}, errors.Wrap(err, "ChartDrawer.PieChart")
+	}
+
+	return CreateReportResponse{
+		Text:   resStr.String(),
+		IMG:    resIMG,
+		UserID: req.UserID,
+	}, nil
 }
 
 func (s *service) getPurchasesReportFromDate(ctx context.Context, from time.Time, userID int64, cy currency.Currency) ([]ReportItem, error) {

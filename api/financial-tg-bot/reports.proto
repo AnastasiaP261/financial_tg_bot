@@ -11,6 +11,7 @@ service MessagesService {
 message SendReportRequest {
   int64 user_id = 1;
   string report_message = 2;
+  bytes report_image = 3;
 }
 
 message DefaultResponse {

@@ -34,6 +34,7 @@ func (s *service) SendReport(ctx context.Context, req report.SendReportRequest) 
 	res, err := s.cl.SendReport(ctx, &pb.SendReportRequest{
 		UserId:        req.UserId,
 		ReportMessage: req.ReportMessage,
+		ReportImage:   req.ReportIMG,
 	})
 	if err != nil {
 		return report.SendReportResponse{}, errors.Wrap(err, "MessagesServiceClient.SendReport")

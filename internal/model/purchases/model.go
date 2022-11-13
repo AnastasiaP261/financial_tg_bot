@@ -41,12 +41,6 @@ type Repo interface {
 	GetAllCategories(ctx context.Context) ([]CategoryRow, error)
 }
 
-// ChartDrawer рисовальщик
-type ChartDrawer interface {
-	// PieChart нарисовать круговую диаграмму трат
-	PieChart(data []ReportItem) ([]byte, error)
-}
-
 type ExchangeRateGetter interface {
 	GetExchangeRateToRUB() currency.RateToRUB
 	GetExchangeRateToRUBFromDate(ctx context.Context, y, m, d int) (currency.RateToRUB, error)
@@ -62,16 +56,14 @@ type BrokerMsgCreator interface {
 
 type Model struct {
 	Repo               Repo
-	ChartDrawer        ChartDrawer
 	ExchangeRatesModel ExchangeRateGetter
 	ReportsStore       ReportsStore
 	BrokerMsgCreator   BrokerMsgCreator
 }
 
-func New(repo Repo, drawer ChartDrawer, exchangeRatesModel ExchangeRateGetter, reportsStore ReportsStore, producer BrokerMsgCreator) *Model {
+func New(repo Repo, exchangeRatesModel ExchangeRateGetter, reportsStore ReportsStore, producer BrokerMsgCreator) *Model {
 	return &Model{
 		Repo:               repo,
-		ChartDrawer:        drawer,
 		ExchangeRatesModel: exchangeRatesModel,
 		ReportsStore:       reportsStore,
 		BrokerMsgCreator:   producer,

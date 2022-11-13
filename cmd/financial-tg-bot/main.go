@@ -16,7 +16,6 @@ import (
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/config"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/env"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka/sync_producer"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/chart_drawing"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/db"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/exchange_rates"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
@@ -77,9 +76,8 @@ func main() {
 	defer producer.Close() // nolint: errcheck
 
 	// MODELS
-	chartDrawingModel := chart_drawing.New()
 	exchangesRatesModel := exchange_rates.New(fixerClient)
-	purchasesModel := purchases.New(db, chartDrawingModel, exchangesRatesModel, redis, producer)
+	purchasesModel := purchases.New(db, exchangesRatesModel, redis, producer)
 
 	msgModel := messages.New(msgHandler, purchasesModel, redis)
 

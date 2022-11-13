@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/chart_drawing"
 	"log"
 	"net/http"
 	"os"
@@ -62,7 +63,8 @@ func main() {
 	}
 
 	// MODELS
-	reportModel := report.New(db, redis)
+	chartDrawingModel := chart_drawing.New()
+	reportModel := report.New(db, redis, chartDrawingModel)
 	wrappedModelWithGRPC := sender.NewWrapper(reportModel, botClient)
 
 	// INFRA
