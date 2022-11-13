@@ -2,15 +2,22 @@ package consumer
 
 import (
 	"context"
-	"log"
-	"time"
-
 	"github.com/Shopify/sarama"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"go.uber.org/zap"
+	"log"
 )
+
+type defaultReportsHandler interface {
+	CreateReport(ctx context.Context, rawReq string) (string, int64, error)
+}
+
+// Consumer represents a Sarama consumer group consumer.
+type Consumer struct {
+	defaultReportsHandler defaultReportsHandler
+}
 
 func StartConsumerGroup(ctx context.Context, defaultReportsHandler defaultReportsHandler) error {
 	consumerGroupHandler := Consumer{
@@ -46,15 +53,6 @@ func StartConsumerGroup(ctx context.Context, defaultReportsHandler defaultReport
 	return nil
 }
 
-type defaultReportsHandler interface {
-	CreateReport(ctx context.Context, rawReq string) (string, int64, error)
-}
-
-// Consumer represents a Sarama consumer group consumer.
-type Consumer struct {
-	defaultReportsHandler defaultReportsHandler
-}
-
 // Setup is run at the beginning of a new session, before ConsumeClaim.
 func (c *Consumer) Setup(sarama.ConsumerGroupSession) error {
 	logs.Info("c - setup")
@@ -69,30 +67,33 @@ func (c *Consumer) Cleanup(sarama.ConsumerGroupSession) error {
 
 // ConsumeClaim must start a consumer loop of ConsumerGroupClaim's Messages().
 func (c *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
-	for message := range claim.Messages() {
-		printMessage(message)
-		session.MarkMessage(message, "")
+	for msg := range claim.Messages() {
+		logs.Info(
+			"New message received",
+			zap.String("from topic", msg.Topic),
+			zap.Int64("offset", msg.Offset),
+			zap.Int32("partition", msg.Partition),
+			zap.String("key", string(msg.Key)),
+			zap.String("value", string(msg.Value)),
+		)
+
+		switch string(msg.Key) {
+		case "get_report":
+			_, _, err := c.defaultReportsHandler.CreateReport(context.Background(), string(msg.Value))
+			if err != nil {
+				logs.Error(
+					"handle msg error",
+					zap.Error(err),
+					zap.String("key", string(msg.Key)),
+					zap.String("value", string(msg.Value)),
+				)
+				return errors.Wrap(err, "defaultReportsHandler.CreateReport")
+			}
+		default:
+			logs.Error("read invalid message")
+		}
+		session.MarkMessage(msg, "")
 	}
 
 	return nil
-}
-
-func printMessage(msg *sarama.ConsumerMessage) {
-	logs.Info(
-		"New message received",
-		zap.String("from topic", msg.Topic),
-		zap.Int64("offset", msg.Offset),
-		zap.Int32("partition", msg.Partition),
-		zap.String("key", string(msg.Key)),
-		zap.String("value", string(msg.Value)),
-	)
-
-	// Emulate Work loads
-	time.Sleep(1 * time.Second)
-
-	logs.Info(
-		"Successful to read message",
-		zap.String("key", string(msg.Key)),
-		zap.String("value", string(msg.Value)),
-	)
 }
