@@ -113,3 +113,7 @@ docker-run:
       		send-keys 'docker-compose up' C-m \; \
       		split-window -h \; \
       		send-keys 'sleep 20 && make dev-db-data' C-m \;
+
+protoc:
+	mkdir -p "pkg"
+	protoc --go_out=./pkg/ --go_opt=paths=source_relative --go-grpc_out=./pkg/ --go-grpc_opt=paths=source_relative ./api/financial-tg-bot/*.proto

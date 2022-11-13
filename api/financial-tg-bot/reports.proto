@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "gitlab.ozon.dev/apetrichuk/financial-tg-bot/pkg";
+
+service MessagesService {
+  rpc SendReport(SendReportRequest) returns (SendReportResponse);
+}
+
+message SendReportRequest {
+  int64 user_id = 1;
+  string report_message = 2;
+}
+
+message DefaultResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+message SendReportResponse {
+  DefaultResponse response = 1;
+}
