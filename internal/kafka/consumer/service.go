@@ -2,12 +2,13 @@ package consumer
 
 import (
 	"context"
+	"log"
+
 	"github.com/Shopify/sarama"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/logs"
 	"go.uber.org/zap"
-	"log"
 )
 
 type defaultReportsHandler interface {

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/logs"
 	pkg "gitlab.ozon.dev/apetrichuk/financial-tg-bot/pkg/api/financial-tg-bot"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

@@ -6,8 +6,8 @@ import (
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/logs"
 	"go.uber.org/zap"
 )
 

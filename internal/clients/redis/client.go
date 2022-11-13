@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/metrics"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/metrics"
 	"go.uber.org/zap"
 )
 

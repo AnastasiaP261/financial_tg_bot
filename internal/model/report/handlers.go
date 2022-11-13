@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/metrics"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/utils/metrics"
 	"go.uber.org/zap"
 )
 
