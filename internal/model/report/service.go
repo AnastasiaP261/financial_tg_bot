@@ -2,12 +2,13 @@ package report
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	"time"
 )
 
 // Repo репозиторий
 type Repo interface {
-	GetUserPurchasesFromDate(ctx context.Context, fromDate time.Time, userID int64) ([]Purchase, error)
+	GetUserPurchasesFromDate(ctx context.Context, fromDate time.Time, userID int64) ([]purchases.Purchase, error)
 }
 
 type ReportsStore interface {
@@ -16,21 +17,15 @@ type ReportsStore interface {
 	Delete(ctx context.Context, key string) error
 }
 
-type Sender interface {
-	SendReport(ctx context.Context, req SendReportRequest) (SendReportResponse, error)
-}
-
 type service struct {
 	repo         Repo
 	reportsStore ReportsStore
-	sender       Sender
 }
 
-func New(repo Repo, store ReportsStore, sender Sender) *service {
+func New(repo Repo, store ReportsStore) *service {
 	return &service{
 		repo:         repo,
 		reportsStore: store,
-		sender:       sender,
 	}
 }
 

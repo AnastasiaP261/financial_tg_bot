@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/metrics"
 	"go.uber.org/zap"
 	"sort"
 	"strconv"
@@ -40,20 +40,20 @@ type Purchase struct {
 	currency.RateToRUB
 }
 
-func (s *service) CreateReport(ctx context.Context, rawReq string) error {
+func (s *service) CreateReport(ctx context.Context, rawReq string) (string, int64, error) {
 	var req Request
 	if err := json.Unmarshal([]byte(rawReq), &req); err != nil {
-		return errors.Wrap(err, "unmarshalling error")
+		return "", 0, errors.Wrap(err, "unmarshalling error")
 	}
 
 	reportItems, err := s.getPurchasesReportFromDate(ctx, req.FromDate, req.UserID, req.Currency)
 	if err != nil {
-		return errors.Wrap(err, "packagingByCategory")
+		return "", 0, errors.Wrap(err, "packagingByCategory")
 	}
 
 	cy, err := currency.CurrencyToStr(req.Currency)
 	if err != nil {
-		return errors.Wrap(err, "currencyToStr")
+		return "", 0, errors.Wrap(err, "currencyToStr")
 	}
 
 	resStr := strings.Builder{}
@@ -68,18 +68,7 @@ func (s *service) CreateReport(ctx context.Context, rawReq string) error {
 		resStr.WriteString("\n")
 	}
 
-	resp, err := s.sender.SendReport(ctx, SendReportRequest{
-		UserId:        req.UserID,
-		ReportMessage: resStr.String(),
-	})
-	if err != nil {
-		return errors.Wrap(err, "sender.SendReport")
-	}
-	if !resp.Response.Success {
-		return errors.New("report send failed")
-	}
-
-	return nil
+	return resStr.String(), req.UserID, nil
 }
 
 func (s *service) getPurchasesReportFromDate(ctx context.Context, from time.Time, userID int64, cy currency.Currency) ([]ReportItem, error) {
