@@ -1,4 +1,4 @@
-package wrappers
+package financial_tg_bot
 
 import (
 	"context"

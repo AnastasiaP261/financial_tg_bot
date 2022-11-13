@@ -2,13 +2,13 @@ package metrics
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers"
 )
 
 const (
@@ -107,10 +107,10 @@ var (
 )
 
 type Wrapper struct {
-	sender wrappers.MsgSender
+	sender financial_tg_bot.MsgSender
 }
 
-func NewWrapper(origCl wrappers.MsgSender) *Wrapper {
+func NewWrapper(origCl financial_tg_bot.MsgSender) *Wrapper {
 	return &Wrapper{
 		sender: origCl,
 	}

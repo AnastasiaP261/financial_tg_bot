@@ -2,12 +2,12 @@ package logs
 
 import (
 	"context"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go/config"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers"
 	"go.uber.org/zap"
 )
 
@@ -25,10 +25,10 @@ func InitTracing(logger *zap.Logger, serviceName string) {
 }
 
 type Wrapper struct {
-	sender wrappers.MsgSender
+	sender financial_tg_bot.MsgSender
 }
 
-func NewWrapper(origCl wrappers.MsgSender) *Wrapper {
+func NewWrapper(origCl financial_tg_bot.MsgSender) *Wrapper {
 	return &Wrapper{
 		sender: origCl,
 	}
