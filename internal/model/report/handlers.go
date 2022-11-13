@@ -40,7 +40,7 @@ type Purchase struct {
 	currency.RateToRUB
 }
 
-func (s *Service) CreateReport(ctx context.Context, rawReq string) (txt string, err error) {
+func (s *service) CreateReport(ctx context.Context, rawReq string) (txt string, err error) {
 	var req Request
 	if err := json.Unmarshal([]byte(rawReq), &req); err != nil {
 		return "", errors.Wrap(err, "unmarshalling error")
@@ -71,7 +71,7 @@ func (s *Service) CreateReport(ctx context.Context, rawReq string) (txt string, 
 	return resStr.String(), nil
 }
 
-func (s *Service) getPurchasesReportFromDate(ctx context.Context, from time.Time, userID int64, cy currency.Currency) ([]ReportItem, error) {
+func (s *service) getPurchasesReportFromDate(ctx context.Context, from time.Time, userID int64, cy currency.Currency) ([]ReportItem, error) {
 	report, err := s.ReportsStore.GetReport(ctx, createKeyForReportsStore(userID))
 	if err != nil {
 		logs.Error("reports store error", zap.Error(err))
@@ -107,7 +107,7 @@ func (s *Service) getPurchasesReportFromDate(ctx context.Context, from time.Time
 
 // packagingByCategory получает на вход список трат и формирует из него отчет, переводя все траты в
 // выбранную валюту и складывая их по категориям
-func (s *Service) packagingByCategory(purchases []Purchase, currentCurrency currency.Currency) ([]ReportItem, error) {
+func (s *service) packagingByCategory(purchases []Purchase, currentCurrency currency.Currency) ([]ReportItem, error) {
 	tempCategoryOnSum := make(map[string]float64, len(purchases))
 	for _, p := range purchases {
 		resSum, err := currency.RubToCurrentCurrency(currentCurrency, p.Summa, p.RateToRUB)

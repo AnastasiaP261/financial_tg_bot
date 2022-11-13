@@ -16,7 +16,14 @@ type ReportsStore interface {
 	Delete(ctx context.Context, key string) error
 }
 
-type Service struct {
+type service struct {
 	Repo         Repo
 	ReportsStore ReportsStore
+}
+
+func New(repo Repo, store ReportsStore) *service {
+	return &service{
+		Repo:         repo,
+		ReportsStore: store,
+	}
 }

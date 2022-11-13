@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package gateway.v1;
+option go_package = "gitlab.ozon.dev/apetrichuk/financial-tg-bot/api;api";
+
+import "google/api/annotations.proto";
+
+// The greeting service definition.
+service Reports {
+  rpc SendReportToUser (SendReportToUserRequest) returns (SendReportToUserResponse) {
+    option (google.api.http) = {
+      post: "/post"
+      body: "*"
+    };
+  }
+}
+
+message SendReportToUserRequest {
+  string name = 1;
+}
+
+message SendReportToUserResponse {
+  string message = 1;
+}
