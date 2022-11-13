@@ -100,8 +100,6 @@ Grafana: http://127.0.0.1:3000/ (admin/admin)
 
 Заходим в шестеренку слева, выбираем Data sources, добавляем Prometheus, адрес `http://prometheus:9090`
 
-Нагрузку даем через hey: `hey -c 5 -z 10m "http://127.0.0.1:8080/fibonacci?n=5"`
-
 ## Tracing
 
 `make tracing`
