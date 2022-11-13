@@ -3,18 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka/consumer"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	financial_tg_bot "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/financial-tg-bot"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/config"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/env"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka/consumer"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/db"
-	tracing "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/tracing"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/report"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-reports/sender"
+	tracing "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/tracing"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -43,16 +46,24 @@ func main() {
 	}
 
 	// REPOSITORIES
-	_, err = db.New(ctx, config)
+	db, err := db.New(ctx, config)
 	if err != nil {
 		log.Fatal("database init failed:", err)
 	}
-	_, err = redis.New(ctx, config)
+	redis, err := redis.New(ctx, config)
 	if err != nil {
 		log.Fatal("redis init failed:", err)
 	}
 
+	// CLIENTS
+	botClient, err := financial_tg_bot.New(config)
+	if err != nil {
+		log.Fatal("financial_tg_bot client init failed:", err)
+	}
+
 	// MODELS
+	reportModel := report.New(db, redis)
+	wrappedModelWithGRPC := sender.NewWrapper(reportModel, botClient)
 
 	// INFRA
 	logger := logs.InitLogger()
@@ -73,7 +84,7 @@ func main() {
 	})
 
 	errG.Go(func() error {
-		if err = consumer.StartConsumerGroup(ctx); err != nil {
+		if err = consumer.StartConsumerGroup(ctx, wrappedModelWithGRPC); err != nil {
 			log.Fatal("starting consumer group error:", err)
 			return err
 		}

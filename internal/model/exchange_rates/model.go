@@ -2,9 +2,9 @@ package exchange_rates
 
 import (
 	"context"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 
 	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 )
 
 // Client клиент от которого получаем информацию о курсах валют

@@ -6,7 +6,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/metrics"
 	"go.uber.org/zap"
 )
 

@@ -2,8 +2,9 @@ package report
 
 import (
 	"context"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	"time"
+
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
 // Repo репозиторий

@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"strconv"
 	"time"
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 )
 
 const keySuffix = "report"

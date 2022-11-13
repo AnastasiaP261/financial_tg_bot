@@ -2,11 +2,11 @@ package logs
 
 import (
 	"context"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot"
 	"go.uber.org/zap"
 )
 

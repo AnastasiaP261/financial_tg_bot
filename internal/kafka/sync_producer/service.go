@@ -2,13 +2,13 @@ package sync_producer
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/Shopify/sarama"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"go.uber.org/zap"
-	"time"
-
-	"github.com/Shopify/sarama"
 )
 
 type Service struct {

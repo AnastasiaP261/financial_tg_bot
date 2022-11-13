@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 

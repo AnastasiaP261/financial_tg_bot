@@ -3,27 +3,28 @@ package main
 import (
 	"context"
 	"fmt"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka/sync_producer"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/app/financial-tg-bot/reports"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/fixer"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/redis"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg"
 	tgmsghandler "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/clients/tg/messages"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/config"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/env"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka/sync_producer"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/chart_drawing"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/db"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/exchange_rates"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/messages"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
-	logswrapper "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/logs"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/metrics"
-	tracing "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/tracing"
+	logswrapper "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/metrics"
+	tracing "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/tracing"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -104,6 +105,14 @@ func main() {
 		}
 		logs.Info("messages listen started")
 		listener.ListenUpdates(ctx, msgModel)
+		return nil
+	})
+
+	errG.Go(func() error {
+		if err := reports.Register(config); err != nil {
+			log.Fatal("grpc listener init failed")
+			return err
+		}
 		return nil
 	})
 

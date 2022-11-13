@@ -4,11 +4,11 @@ package purchases_test
 
 import (
 	"context"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 	mocks "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases/_mocks"
 )

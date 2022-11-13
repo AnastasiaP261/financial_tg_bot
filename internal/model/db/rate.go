@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 	"database/sql"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 )
 
 // rate курс валют к RUB

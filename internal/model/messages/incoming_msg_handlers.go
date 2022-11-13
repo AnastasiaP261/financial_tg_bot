@@ -3,10 +3,10 @@ package messages
 import (
 	"context"
 	"fmt"
-	cy "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"sort"
 
 	"github.com/pkg/errors"
+	cy "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 

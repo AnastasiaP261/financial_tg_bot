@@ -2,8 +2,8 @@ package messages
 
 import (
 	"context"
-	cy "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 
+	cy "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 

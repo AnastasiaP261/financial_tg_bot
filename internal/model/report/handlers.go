@@ -3,15 +3,17 @@ package report
 import (
 	"context"
 	"encoding/json"
-	"github.com/pkg/errors"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/metrics"
-	"go.uber.org/zap"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/wrappers/financial-tg-bot/metrics"
+	"go.uber.org/zap"
 )
 
 const keySuffix = "report"
@@ -107,7 +109,7 @@ func (s *service) getPurchasesReportFromDate(ctx context.Context, from time.Time
 
 // packagingByCategory получает на вход список трат и формирует из него отчет, переводя все траты в
 // выбранную валюту и складывая их по категориям
-func (s *service) packagingByCategory(purchases []Purchase, currentCurrency currency.Currency) ([]ReportItem, error) {
+func (s *service) packagingByCategory(purchases []purchases.Purchase, currentCurrency currency.Currency) ([]ReportItem, error) {
 	tempCategoryOnSum := make(map[string]float64, len(purchases))
 	for _, p := range purchases {
 		resSum, err := currency.RubToCurrentCurrency(currentCurrency, p.Summa, p.RateToRUB)

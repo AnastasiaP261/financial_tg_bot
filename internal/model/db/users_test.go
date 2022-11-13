@@ -4,12 +4,12 @@ package db
 
 import (
 	"context"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"testing"
 
 	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	model "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 

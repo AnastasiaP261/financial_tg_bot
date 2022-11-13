@@ -2,18 +2,20 @@ package consumer
 
 import (
 	"context"
-	"github.com/pkg/errors"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka"
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
-	"go.uber.org/zap"
 	"log"
 	"time"
 
 	"github.com/Shopify/sarama"
+	"github.com/pkg/errors"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/kafka"
+	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/logs"
+	"go.uber.org/zap"
 )
 
-func StartConsumerGroup(ctx context.Context) error {
-	consumerGroupHandler := Consumer{}
+func StartConsumerGroup(ctx context.Context, defaultReportsHandler defaultReportsHandler) error {
+	consumerGroupHandler := Consumer{
+		defaultReportsHandler: defaultReportsHandler,
+	}
 
 	config := sarama.NewConfig()
 	config.Version = sarama.V2_5_0_0
@@ -40,11 +42,18 @@ func StartConsumerGroup(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "consuming via handler")
 	}
+
 	return nil
 }
 
+type defaultReportsHandler interface {
+	CreateReport(ctx context.Context, rawReq string) (string, int64, error)
+}
+
 // Consumer represents a Sarama consumer group consumer.
-type Consumer struct{}
+type Consumer struct {
+	defaultReportsHandler defaultReportsHandler
+}
 
 // Setup is run at the beginning of a new session, before ConsumeClaim.
 func (c *Consumer) Setup(sarama.ConsumerGroupSession) error {
