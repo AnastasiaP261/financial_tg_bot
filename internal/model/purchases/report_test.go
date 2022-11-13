@@ -3,51 +3,11 @@
 package purchases
 
 import (
-	"gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/currency"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func Test_packagingByCategory(t *testing.T) {
-	m := New(nil, nil, nil, nil, nil)
-
-	res, err := m.packagingByCategory([]Purchase{
-		{PurchaseCategory: "cat1", Summa: 100, RateToRUB: currency.RateToRUB{
-			USD: 2,
-			EUR: 2,
-			CNY: 2,
-		}},
-		{PurchaseCategory: "cat2", Summa: 150, RateToRUB: currency.RateToRUB{
-			USD: 2,
-			EUR: 2,
-			CNY: 2,
-		}},
-		{PurchaseCategory: "cat1", Summa: 50, RateToRUB: currency.RateToRUB{
-			USD: 2,
-			EUR: 2,
-			CNY: 2,
-		}},
-		{PurchaseCategory: "cat3", Summa: 350, RateToRUB: currency.RateToRUB{
-			USD: 2,
-			EUR: 2,
-			CNY: 2,
-		}},
-		{PurchaseCategory: "cat1", Summa: 120, RateToRUB: currency.RateToRUB{
-			USD: 2,
-			EUR: 2,
-			CNY: 2,
-		}},
-	}, currency.RUB)
-
-	assert.NoError(t, err)
-	assert.Equal(t, []ReportItem{
-		{PurchaseCategory: "cat3", Summa: 350},
-		{PurchaseCategory: "cat1", Summa: 100 + 50 + 120},
-		{PurchaseCategory: "cat2", Summa: 150},
-	}, res)
-}
 
 func Test_fromTime(t *testing.T) {
 	t.Run("неделя", func(t *testing.T) {

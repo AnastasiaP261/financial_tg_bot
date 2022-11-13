@@ -19,7 +19,7 @@ func (m *Model) getTodayRates(ctx context.Context, year, month, day int) (curren
 
 	ok, rates, err := m.Repo.GetRate(ctx, year, month, day)
 	if err != nil {
-		return currency.RateToRUB{}, errors.Wrap(err, "Repo.GetRate")
+		return currency.RateToRUB{}, errors.Wrap(err, "repo.GetRate")
 	}
 	if !ok {
 		rates, err = m.ExchangeRatesModel.GetExchangeRateToRUBFromDate(ctx, year, month, day)

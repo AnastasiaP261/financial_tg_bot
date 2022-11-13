@@ -14,7 +14,7 @@ import (
 	purchases "gitlab.ozon.dev/apetrichuk/financial-tg-bot/internal/model/purchases"
 )
 
-// MockRepo is a mock of Repo interface.
+// MockRepo is a mock of repo interface.
 type MockRepo struct {
 	ctrl     *gomock.Controller
 	recorder *MockRepoMockRecorder
@@ -346,7 +346,7 @@ func (mr *MockExchangeRateGetterMockRecorder) GetExchangeRateToRUBFromDate(ctx, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExchangeRateToRUBFromDate", reflect.TypeOf((*MockExchangeRateGetter)(nil).GetExchangeRateToRUBFromDate), ctx, y, m, d)
 }
 
-// MockReportsStore is a mock of ReportsStore interface.
+// MockReportsStore is a mock of reportsStore interface.
 type MockReportsStore struct {
 	ctrl     *gomock.Controller
 	recorder *MockReportsStoreMockRecorder

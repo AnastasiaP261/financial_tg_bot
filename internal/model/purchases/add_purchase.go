@@ -62,7 +62,7 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		category = strings.ToLower(category)
 		categoryID, err = m.Repo.GetCategoryID(ctx, normalize.Category(category))
 		if err != nil {
-			return ExpensesAndLimit{}, errors.Wrap(err, "Repo.GetCategoryID")
+			return ExpensesAndLimit{}, errors.Wrap(err, "repo.GetCategoryID")
 		}
 		if categoryID == 0 {
 			return ExpensesAndLimit{}, ErrCategoryNotExist
@@ -71,7 +71,7 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		// проверяем, создана ли такая категория у юзера
 		has, err := m.Repo.UserHasCategory(ctx, userID, categoryID)
 		if err != nil {
-			return ExpensesAndLimit{}, errors.Wrap(err, "Repo.UserHasCategory")
+			return ExpensesAndLimit{}, errors.Wrap(err, "repo.UserHasCategory")
 		}
 		if !has {
 			return ExpensesAndLimit{}, ErrUserHasntCategory
@@ -104,7 +104,7 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 
 	info, err := m.Repo.GetUserInfo(ctx, userID)
 	if err != nil {
-		return ExpensesAndLimit{}, errors.Wrap(err, "Repo.GetUserInfo")
+		return ExpensesAndLimit{}, errors.Wrap(err, "repo.GetUserInfo")
 	}
 
 	sumRUB, err := currency.ToRUB(info.Currency, sumCurrency, rates)
@@ -127,7 +127,7 @@ func (m *Model) AddPurchase(ctx context.Context, userID int64, rawSum, category,
 		EURRatio:   rates.EUR,
 		USDRatio:   rates.USD,
 	}); err != nil {
-		return ExpensesAndLimit{}, errors.Wrap(err, "Repo.AddPurchase")
+		return ExpensesAndLimit{}, errors.Wrap(err, "repo.AddPurchase")
 	}
 
 	// если не удалить отчет уже устаревший отчет, то при создании отчета нужно будет проверять,
@@ -166,7 +166,7 @@ func (m *Model) getExpensesAndLimit(ctx context.Context, userID int64, userCurre
 	// получаем траты юзера за текущий месяц в рублях
 	expRUB, err := m.Repo.GetUserPurchasesSumFromMonth(ctx, userID, time.Now())
 	if err != nil {
-		return ExpensesAndLimit{}, errors.Wrap(err, "Repo.GetUserPurchasesSumFromMonth")
+		return ExpensesAndLimit{}, errors.Wrap(err, "repo.GetUserPurchasesSumFromMonth")
 	}
 
 	limit, err := currency.RubToCurrentCurrency(userCurrency, userLimit, rates)

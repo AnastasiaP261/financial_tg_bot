@@ -9,13 +9,14 @@ import (
 )
 
 var (
-	ErrSummaParsing      = errors.New("summa parsing error")
-	ErrLimitParsing      = errors.New("limit parsing error")
-	ErrDateParsing       = errors.New("date parsing error")
-	ErrCategoryNotExist  = errors.New("such category doesn't exist")
-	ErrUnknownPeriod     = errors.New("unknown period")
-	ErrInvalidDate       = errors.New("invalid date")
-	ErrUserHasntCategory = errors.New("this user hasn't such category")
+	ErrSummaParsing        = errors.New("summa parsing error")
+	ErrLimitParsing        = errors.New("limit parsing error")
+	ErrDateParsing         = errors.New("date parsing error")
+	ErrCategoryNotExist    = errors.New("such category doesn't exist")
+	ErrUnknownPeriod       = errors.New("unknown period")
+	ErrInvalidDate         = errors.New("invalid date")
+	ErrUserHasntCategory   = errors.New("this user hasn't such category")
+	ErrCreateReportRequest = errors.New("create report request failed")
 )
 
 // Repo репозиторий
@@ -52,8 +53,6 @@ type ExchangeRateGetter interface {
 }
 
 type ReportsStore interface {
-	SetReport(ctx context.Context, key string, value Report) error
-	GetReport(ctx context.Context, key string) (Report, error)
 	Delete(ctx context.Context, key string) error
 }
 

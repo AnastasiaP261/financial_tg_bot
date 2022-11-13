@@ -24,7 +24,7 @@ func (m *Model) ChangeUserCurrency(ctx context.Context, userID int64, currency c
 
 	err := m.Repo.ChangeCurrency(ctx, userID, currency)
 	if err != nil {
-		return errors.Wrap(err, "Repo.ChangeCurrency")
+		return errors.Wrap(err, "repo.ChangeCurrency")
 	}
 	return nil
 }
@@ -40,7 +40,7 @@ func (m *Model) ChangeUserLimit(ctx context.Context, userID int64, rawLimit stri
 
 	info, err := m.Repo.GetUserInfo(ctx, userID)
 	if err != nil {
-		return errors.Wrap(err, "Repo.GetUserInfo")
+		return errors.Wrap(err, "repo.GetUserInfo")
 	}
 
 	y, month, d := time.Now().Date()
@@ -56,7 +56,7 @@ func (m *Model) ChangeUserLimit(ctx context.Context, userID int64, rawLimit stri
 
 	err = m.Repo.ChangeUserLimit(ctx, userID, limit)
 	if err != nil {
-		return errors.Wrap(err, "Repo.ChangeCurrency")
+		return errors.Wrap(err, "repo.ChangeCurrency")
 	}
 	return nil
 }
@@ -67,7 +67,7 @@ func (m *Model) AddCategoryToUser(ctx context.Context, userID int64, category st
 	defer span.Finish()
 
 	if err := m.Repo.AddCategoryToUser(ctx, userID, normalize.Category(category)); err != nil {
-		return errors.Wrap(err, "Repo.AddCategoryToUser")
+		return errors.Wrap(err, "repo.AddCategoryToUser")
 	}
 	return nil
 }
@@ -78,7 +78,7 @@ func (m *Model) GetUserCategories(ctx context.Context, userID int64) ([]string, 
 
 	res, err := m.Repo.GetUserCategories(ctx, userID)
 	if err != nil {
-		return nil, errors.Wrap(err, "Repo.AddCategoryToUser")
+		return nil, errors.Wrap(err, "repo.AddCategoryToUser")
 	}
 	return res, nil
 }

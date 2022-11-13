@@ -14,7 +14,7 @@ func (m *Model) AddCategory(ctx context.Context, category string) error {
 	defer span.Finish()
 
 	if err := m.Repo.AddCategory(ctx, normalize.Category(category)); err != nil {
-		return errors.Wrap(err, "Repo.AddCategory")
+		return errors.Wrap(err, "repo.AddCategory")
 	}
 	return nil
 }
@@ -26,7 +26,7 @@ func (m *Model) GetAllCategories(ctx context.Context) ([]CategoryRow, error) {
 
 	res, err := m.Repo.GetAllCategories(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "Repo.AddCategory")
+		return nil, errors.Wrap(err, "repo.AddCategory")
 	}
 	return res, nil
 }

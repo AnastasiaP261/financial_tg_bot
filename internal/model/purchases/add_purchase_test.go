@@ -22,7 +22,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		excRateModel.EXPECT().GetExchangeRateToRUB().Return(currency.RateToRUB{
 			USD: 1,
@@ -57,7 +57,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		excRateModel.EXPECT().GetExchangeRateToRUB().Return(currency.RateToRUB{
 			USD: 1,
@@ -92,7 +92,7 @@ func Test_AddPurchase_OnlySum(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		_, err := model.AddPurchase(ctx, 123, "12o.o5", "", "")
 		assert.Error(t, err, purchases.ErrSummaParsing)
@@ -108,7 +108,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
@@ -145,7 +145,7 @@ func Test_AddPurchase_SumAndCategory(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(0), nil)
 
@@ -163,7 +163,7 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
@@ -193,7 +193,7 @@ func Test_AddPurchase_SumAndCategoryAndDate(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
@@ -212,7 +212,7 @@ func Test_AddPurchase_Limits(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
@@ -249,7 +249,7 @@ func Test_AddPurchase_Limits(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
@@ -286,7 +286,7 @@ func Test_AddPurchase_Limits(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
@@ -323,7 +323,7 @@ func Test_AddPurchase_Limits(t *testing.T) {
 		excRateModel := mocks.NewMockExchangeRateGetter(ctrl)
 		redis := mocks.NewMockReportsStore(ctrl)
 
-		model := purchases.New(repo, nil, excRateModel, redis, nil)
+		model := purchases.New(repo, nil, excRateModel, nil)
 
 		repo.EXPECT().GetCategoryID(gomock.Any(), gomock.Any()).Return(uint64(1), nil)
 		repo.EXPECT().UserHasCategory(gomock.Any(), int64(123), uint64(1)).Return(true, nil)
